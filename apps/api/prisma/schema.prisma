@@ -1,0 +1,62 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  DISPATCHER
+  CLIENT
+}
+
+enum ShipmentStatus {
+  CREATED
+  PICKED_UP
+  IN_TRANSIT
+  AT_WAREHOUSE
+  OUT_FOR_DELIVERY
+  DELIVERED
+  EXCEPTION
+}
+
+model User {
+  id           String     @id @default(cuid())
+  email        String     @unique
+  passwordHash String
+  name         String
+  role         Role       @default(CLIENT)
+  shipments    Shipment[] @relation("ClientShipments")
+  createdAt    DateTime   @default(now())
+}
+
+model Shipment {
+  id             String          @id @default(cuid())
+  trackingNumber String          @unique
+  clientId       String
+  client         User            @relation("ClientShipments", fields: [clientId], references: [id])
+  origin         String
+  destination    String
+  description    String
+  weightKg       Decimal?
+  status         ShipmentStatus  @default(CREATED)
+  carrier        String          @default("SIMULATED")
+  events         MovementEvent[]
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+}
+
+model MovementEvent {
+  id         String         @id @default(cuid())
+  shipmentId String
+  shipment   Shipment       @relation(fields: [shipmentId], references: [id])
+  status     ShipmentStatus
+  location   String?
+  note       String?
+  source     String         @default("WEBHOOK")
+  occurredAt DateTime
+  createdAt  DateTime       @default(now())
+
+  @@index([shipmentId, occurredAt])
+}
