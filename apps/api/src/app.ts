@@ -1,5 +1,6 @@
 import Fastify, { type FastifyInstance } from 'fastify';
 import { loadConfig, type AppConfig } from './config.js';
+import { authPlugin } from './plugins/auth.js';
 import { errorHandlerPlugin } from './plugins/error-handler.js';
 import { prismaPlugin } from './plugins/prisma.js';
 
@@ -23,6 +24,7 @@ export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
 
   app.register(errorHandlerPlugin);
   app.register(prismaPlugin);
+  app.register(authPlugin);
 
   app.get('/health', async () => {
     return { status: 'ok' as const };
