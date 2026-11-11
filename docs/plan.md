@@ -9,7 +9,7 @@ Detailed per-milestone plans live in `docs/superpowers/plans/`.
       → plan: `docs/superpowers/plans/2026-07-20-m0-scaffolding.md`
 - [x] M1 — Prisma schema + migrations + seed
       → plan: `docs/superpowers/plans/2026-08-04-m1-prisma.md`
-- [ ] M2 — auth module (register/login/me/logout, HttpOnly JWT + CSRF) + tests
+- [x] M2 — auth module (register/login/me/logout, HttpOnly JWT + CSRF) + tests
       → plan: `docs/superpowers/plans/2026-11-11-m2-auth.md`
   - [x] Task 1 — record M2 auth decisions in the spec
   - [x] Task 2 — align TypeScript to 6.0.3 across workspaces
@@ -23,7 +23,7 @@ Detailed per-milestone plans live in `docs/superpowers/plans/`.
   - [x] Task 10 — `POST /api/v1/auth/login`
   - [x] Task 11 — `GET /api/v1/auth/me` and `POST /api/v1/auth/logout`
   - [x] Task 12 — rate limiting on login and register
-  - [ ] Task 13 — M2 wrap-up, smoke test, sign-off
+  - [x] Task 13 — M2 wrap-up, smoke test, sign-off
 - [ ] M3 — shipments module (CRUD, role-based access) + state machine + tests
 - [ ] M4 — webhook endpoint (HMAC, idempotency) + carrier simulator CLI + tests
 - [ ] M5 — frontend: auth pages + api client
