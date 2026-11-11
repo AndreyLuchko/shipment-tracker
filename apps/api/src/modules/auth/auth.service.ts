@@ -52,3 +52,12 @@ export async function verifyCredentials(prisma: PrismaClient, input: LoginInput)
   }
   return toPublicUser(user);
 }
+
+/** Loads the session's user. A token that outlived its user row is treated as no session at all. */
+export async function getCurrentUser(prisma: PrismaClient, userId: string): Promise<PublicUser> {
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+  if (user === null) {
+    throw new AppError(401, 'UNAUTHORIZED', 'Authentication required');
+  }
+  return toPublicUser(user);
+}
