@@ -1,4 +1,4 @@
-import Fastify, { type FastifyInstance } from 'fastify';
+import Fastify, { type FastifyInstance, type FastifyServerOptions } from 'fastify';
 import rateLimit from '@fastify/rate-limit';
 import { loadConfig, type AppConfig } from './config.js';
 import { authRoutes } from './modules/auth/auth.routes.js';
@@ -16,12 +16,14 @@ declare module 'fastify' {
 export interface BuildAppOptions {
   /** Overrides merged over the values loaded from the environment (used by tests). */
   config?: Partial<AppConfig>;
+  /** Fastify logger options. Omitted means no logging (tests); `server.ts` passes a real logger. */
+  logger?: FastifyServerOptions['logger'];
 }
 
 export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
   const config: AppConfig = { ...loadConfig(), ...options.config };
 
-  const app = Fastify({ logger: false });
+  const app = Fastify({ logger: options.logger ?? false });
 
   app.decorate('config', config);
 
