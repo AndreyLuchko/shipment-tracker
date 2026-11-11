@@ -1,31 +1,17 @@
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import type { FastifyInstance } from 'fastify';
-import { ACCESS_TOKEN_COOKIE_NAME, CSRF_COOKIE_NAME, type Role } from '@shipment-tracker/shared';
 import type { SessionClaims } from '../../src/plugins/auth.js';
-import { issueSession } from '../../src/modules/auth/session.js';
 import { buildTestApp } from '../helpers/app.js';
+import { sessionRoute, startSession } from '../helpers/session.js';
 
 const UNAUTHORIZED = { error: { code: 'UNAUTHORIZED', message: 'Authentication required' } };
 
 function testRoutes(app: FastifyInstance): void {
-  app.post('/__test/session', async (request, reply) => {
-    await issueSession(reply, request.body as { id: string; role: Role });
-    return reply.code(204).send();
-  });
+  sessionRoute(app);
   app.get('/__test/protected', { onRequest: [app.authenticate] }, async (request) => request.user);
   app.get('/__test/dispatcher-only', { onRequest: [app.authenticate, app.requireRole('DISPATCHER')] }, async () => ({
     ok: true,
   }));
-}
-
-async function startSession(app: FastifyInstance, role: Role = 'CLIENT') {
-  const response = await app.inject({ method: 'POST', url: '/__test/session', payload: { id: 'user_1', role } });
-  const byName = Object.fromEntries(response.cookies.map((cookie) => [cookie.name, cookie]));
-  return {
-    access: byName[ACCESS_TOKEN_COOKIE_NAME]!,
-    csrf: byName[CSRF_COOKIE_NAME]!,
-    cookies: { access_token: byName[ACCESS_TOKEN_COOKIE_NAME]!.value, csrf_token: byName[CSRF_COOKIE_NAME]!.value },
-  };
 }
 
 function base64url(value: unknown): string {

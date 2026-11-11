@@ -27,7 +27,10 @@ declare module '@fastify/jwt' {
 
 declare module 'fastify' {
   interface FastifyInstance {
-    /** `onRequest` hook: requires a valid session cookie, otherwise 401 UNAUTHORIZED. */
+    /**
+     * `onRequest` hook: requires a valid session cookie, otherwise 401 UNAUTHORIZED; on unsafe methods also a
+     * valid CSRF token (`app.verifyCsrf`), otherwise 403 CSRF_TOKEN_INVALID.
+     */
     authenticate: (request: FastifyRequest, reply: FastifyReply) => Promise<void>;
     /** `onRequest` hook factory, used after `authenticate`: requires the given role, otherwise 403 FORBIDDEN. */
     requireRole: (role: Role) => (request: FastifyRequest, reply: FastifyReply) => Promise<void>;
@@ -53,6 +56,7 @@ export const authPlugin = fp(async (app: FastifyInstance) => {
     if (!sessionClaimsSchema.safeParse(request.user).success) {
       throw new AppError(401, 'UNAUTHORIZED', 'Authentication required');
     }
+    app.verifyCsrf(request);
   });
 
   app.decorate('requireRole', (role: Role) => async (request: FastifyRequest) => {
