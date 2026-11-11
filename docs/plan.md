@@ -16,7 +16,7 @@ Detailed per-milestone plans live in `docs/superpowers/plans/`.
   - [x] Task 3 — isolated test database
   - [x] Task 4 — shared HTTP contract (`packages/shared`)
   - [x] Task 5 — app config and `buildApp(options)`
-  - [ ] Task 6 — error envelope (`AppError` + `errorHandlerPlugin`)
+  - [x] Task 6 — error envelope (`AppError` + `errorHandlerPlugin`)
   - [ ] Task 7 — auth plugin (session cookies, `authenticate`, `requireRole`)
   - [ ] Task 8 — session-bound CSRF verification
   - [ ] Task 9 — `POST /api/v1/auth/register`
