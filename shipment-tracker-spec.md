@@ -194,14 +194,14 @@ DELIVERED → (terminal, no transitions out)
 
 ## 7. API Design (Fastify)
 
-Base URL: `/api/v1`. All responses JSON. Errors: `{ error: { code, message } }`.
+Base URL: `/api/v1`. All responses JSON. Errors: `{ error: { code, message, details? } }` — `details` (`[{ path, message }]`) is present only on `VALIDATION_ERROR`.
 
 ### Auth
 | Method | Path | Access | Notes |
 |---|---|---|---|
-| POST | `/auth/register` | public | MVP: role selectable for demo purposes |
+| POST | `/auth/register` | public | MVP: role selectable for demo purposes; starts a session (same cookies as login), `201` |
 | POST | `/auth/login` | public | sets `access_token` HttpOnly cookie + sets `csrf_token` cookie (non-HttpOnly, `Secure`, `SameSite=Lax`) |
-| POST | `/auth/logout` | authed | clears cookie |
+| POST | `/auth/logout` | authed + CSRF | clears both cookies, `204` |
 | GET | `/auth/me` | authed | current user |
 
 ### Shipments
@@ -243,6 +243,31 @@ Duplicate event (same shipment + status + occurredAt) ⇒ `200` idempotent no-op
 - Frontend fetch client always uses `credentials: 'include'`
 - Rate limiting on auth + webhook routes (`@fastify/rate-limit`)
 - Ownership checks in the service layer (a client must never read another client's shipment)
+
+**Auth decisions (M2 human checkpoint, 2026-11-11):**
+- **Session:** one HS256 JWT in `access_token`, lifetime 24 h, cookie `Max-Age` equal to the token lifetime.
+  No refresh token and no session table. Claims: `sub` (user id), `role`, `csrf`. Verification is stateless;
+  logout only clears the cookies, so an already-issued token stays valid until it expires (accepted MVP
+  limitation — refresh tokens and revocation are roadmap).
+- **CSRF token:** 32 random bytes generated server-side on login and register, stored both in the
+  `csrf_token` cookie and as the `csrf` claim of the JWT. Every unsafe method (POST/PUT/PATCH/DELETE) on an
+  authenticated route requires `X-CSRF-Token` header = `csrf_token` cookie = `csrf` claim, otherwise `403
+  CSRF_TOKEN_INVALID`. The token rotates only when a new session starts. Public routes (login, register,
+  webhook) are not CSRF-checked — they do not act on a session.
+- **Cookies:** `Secure` is always on; only an explicit `COOKIE_SECURE=false` in a local `.env` turns it off
+  (for browsers that reject `Secure` cookies over `http://localhost`). Host-only (no `Domain`), `Path=/`.
+- **Topology:** the browser reaches the API same-origin through Next.js rewrites (`/api/v1/*` → API).
+  This is required, not optional: `SameSite=Lax` cookies are not sent on cross-site `fetch`, and JS cannot
+  read a cookie set by another site, and Vercel and Render hostnames are different sites. The API therefore
+  registers no CORS plugin.
+- **Rate limits:** `POST /auth/login` and `POST /auth/register` — 5 requests per minute per IP each ⇒ `429
+  RATE_LIMITED` with `Retry-After`. `/auth/me` and `/auth/logout` are not limited.
+- **Credentials:** email is trimmed and lowercased; password is 8–128 characters and never trimmed. Login
+  answers `401 INVALID_CREDENTIALS` identically for an unknown email and a wrong password. A taken email on
+  register ⇒ `409 EMAIL_TAKEN`.
+- **Error codes (M2):** `VALIDATION_ERROR`, `BAD_REQUEST`, `UNAUTHORIZED`, `INVALID_CREDENTIALS`,
+  `FORBIDDEN`, `CSRF_TOKEN_INVALID`, `NOT_FOUND`, `EMAIL_TAKEN`, `RATE_LIMITED`, `INTERNAL_ERROR`. The list
+  lives in `packages/shared` and grows with later milestones.
 
 ---
 
@@ -297,6 +322,8 @@ Test runner: **Vitest** everywhere.
 1. **Unit (API):** state machine (every legal/illegal transition), HMAC verification, Zod schemas, status mapping.
 2. **Integration (API):** `buildApp()` + `fastify.inject()` against a test PostgreSQL database — the same
    `docker-compose.yml` Postgres locally, run as a GitHub Actions service container in CI (no Testcontainers).
+   Tests use a dedicated `shipment_tracker_test` database inside that Postgres, created and migrated by Vitest
+   global setup and truncated between tests.
    Cover: auth flow (cookies + CSRF), role-based access
    (client cannot read foreign shipment ⇒ 403/404), webhook happy path, invalid signature, illegal transition,
    idempotent duplicate.
@@ -321,9 +348,13 @@ accounts on Render/Railway/Neon/Vercel, connecting the repo, and entering secret
 4. Build `api` and `web`
 
 **Deployment:**
-- **API** → Render or Railway (Dockerfile or Node build), env vars: `DATABASE_URL`, `JWT_SECRET`, `WEBHOOK_SECRET`, `FRONTEND_ORIGIN` (CORS with credentials)
+- **API** → Render or Railway (Dockerfile or Node build), env vars: `DATABASE_URL`, `JWT_SECRET` (≥ 32
+  characters), `WEBHOOK_SECRET`. No CORS: the browser reaches the API same-origin through Next.js rewrites
+  (Section 7, Auth decisions). Behind that proxy the API must take the client IP from `X-Forwarded-For`
+  (Fastify `trustProxy`, wired in M7) — otherwise every visitor shares one rate-limit bucket.
 - **PostgreSQL** → Neon (free tier) or Railway Postgres; `prisma migrate deploy` on release
-- **Frontend** → Vercel, `NEXT_PUBLIC_API_URL`
+- **Frontend** → Vercel; proxies `/api/v1/*` to the API via Next.js rewrites (the env var holding the proxy
+  target is settled in M5)
 - Seed script creates demo accounts (`dispatcher@demo.dev` / `client@demo.dev`) — credentials listed in README
 - README must include: live demo link, screenshots/GIF, architecture diagram (Mermaid), "Why I built this"
   (ex-logistics founder story), roadmap
