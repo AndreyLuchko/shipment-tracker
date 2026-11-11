@@ -19,8 +19,8 @@ Detailed per-milestone plans live in `docs/superpowers/plans/`.
   - [x] Task 6 — error envelope (`AppError` + `errorHandlerPlugin`)
   - [x] Task 7 — auth plugin (session cookies, `authenticate`, `requireRole`)
   - [x] Task 8 — session-bound CSRF verification
-  - [ ] Task 9 — `POST /api/v1/auth/register`
-  - [ ] Task 10 — `POST /api/v1/auth/login`
+  - [x] Task 9 — `POST /api/v1/auth/register`
+  - [x] Task 10 — `POST /api/v1/auth/login`
   - [ ] Task 11 — `GET /api/v1/auth/me` and `POST /api/v1/auth/logout`
   - [ ] Task 12 — rate limiting on login and register
   - [ ] Task 13 — M2 wrap-up, smoke test, sign-off
