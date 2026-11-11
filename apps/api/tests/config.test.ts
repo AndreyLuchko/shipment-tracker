@@ -6,8 +6,16 @@ import { buildTestApp } from './helpers/app.js';
 const SECRET = 'a'.repeat(32);
 
 describe('loadConfig', () => {
-  it('returns the secret and defaults cookieSecure to true', () => {
-    expect(loadConfig({ JWT_SECRET: SECRET })).toEqual({ jwtSecret: SECRET, cookieSecure: true });
+  it('returns the secret, defaults cookieSecure to true, and sets the auth rate limit', () => {
+    expect(loadConfig({ JWT_SECRET: SECRET })).toEqual({
+      jwtSecret: SECRET,
+      cookieSecure: true,
+      authRateLimit: { max: 5, timeWindowMs: 60_000 },
+    });
+  });
+
+  it('limits auth endpoints to 5 requests per minute', () => {
+    expect(loadConfig({ JWT_SECRET: SECRET }).authRateLimit).toEqual({ max: 5, timeWindowMs: 60000 });
   });
 
   it("disables Secure cookies only for COOKIE_SECURE='false'", () => {

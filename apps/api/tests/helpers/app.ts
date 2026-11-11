@@ -8,9 +8,12 @@ export interface BuildTestAppOptions {
   routes?: (app: FastifyInstance) => void;
 }
 
+/** High enough that test files which are not about rate limiting never trip the auth limiter. */
+const TEST_AUTH_RATE_LIMIT: AppConfig['authRateLimit'] = { max: 1000, timeWindowMs: 60_000 };
+
 /** Builds the real app (optionally with config overrides and extra routes) and waits until it is ready. */
 export async function buildTestApp(options: BuildTestAppOptions = {}): Promise<FastifyInstance> {
-  const app = buildApp({ config: options.config });
+  const app = buildApp({ config: { authRateLimit: TEST_AUTH_RATE_LIMIT, ...options.config } });
 
   const { routes } = options;
   if (routes !== undefined) {

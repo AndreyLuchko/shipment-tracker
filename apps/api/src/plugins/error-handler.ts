@@ -37,6 +37,10 @@ export const errorHandlerPlugin = fp(async (app: FastifyInstance) => {
     }
 
     const statusCode = clientStatusCode(error);
+    if (statusCode === 429) {
+      // Thrown by @fastify/rate-limit, which has already set the `retry-after` header on the reply.
+      return sendError(reply, 429, 'RATE_LIMITED', 'Too many requests, please try again later');
+    }
     if (statusCode !== undefined) {
       const message = error instanceof Error ? error.message : 'Bad request';
       return sendError(reply, statusCode, 'BAD_REQUEST', message);
