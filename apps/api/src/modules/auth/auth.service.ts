@@ -1,7 +1,7 @@
 import { Prisma, type PrismaClient, type User } from '@prisma/client';
-import type { PublicUser, RegisterInput } from '@shipment-tracker/shared';
+import type { LoginInput, PublicUser, RegisterInput } from '@shipment-tracker/shared';
 import { AppError } from '../../lib/errors.js';
-import { hashPassword } from '../../lib/password.js';
+import { hashPassword, verifyPassword } from '../../lib/password.js';
 
 /** The only shape of a user that leaves this module: never carries `passwordHash`. */
 export function toPublicUser(user: User): PublicUser {
@@ -35,4 +35,20 @@ export async function registerUser(prisma: PrismaClient, input: RegisterInput): 
     }
     throw error;
   }
+}
+
+/**
+ * A real scrypt hash of a throwaway password, computed once. Verifying against it when the email is unknown
+ * makes that path cost the same scrypt work as a wrong password, so timing does not reveal registered emails.
+ */
+const dummyPasswordHash = hashPassword('dummy-password-for-timing');
+
+/** Returns the user for valid credentials; unknown email and wrong password fail identically. */
+export async function verifyCredentials(prisma: PrismaClient, input: LoginInput): Promise<PublicUser> {
+  const user = await prisma.user.findUnique({ where: { email: input.email } });
+  const passwordMatches = await verifyPassword(input.password, user?.passwordHash ?? (await dummyPasswordHash));
+  if (user === null || !passwordMatches) {
+    throw new AppError(401, 'INVALID_CREDENTIALS', 'Invalid email or password');
+  }
+  return toPublicUser(user);
 }
