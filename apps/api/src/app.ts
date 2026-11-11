@@ -1,4 +1,5 @@
 import Fastify, { type FastifyInstance } from 'fastify';
+import rateLimit from '@fastify/rate-limit';
 import { loadConfig, type AppConfig } from './config.js';
 import { authRoutes } from './modules/auth/auth.routes.js';
 import { authPlugin } from './plugins/auth.js';
@@ -28,6 +29,8 @@ export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
   app.register(prismaPlugin);
   app.register(csrfPlugin);
   app.register(authPlugin);
+  // Opt-in per route via `config.rateLimit`; registered before the routes so their hooks are attached.
+  app.register(rateLimit, { global: false });
 
   app.register(authRoutes, { prefix: '/api/v1/auth' });
 

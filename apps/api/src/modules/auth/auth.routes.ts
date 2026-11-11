@@ -5,7 +5,10 @@ import { clearSession, issueSession } from './session.js';
 
 /** Auth endpoints, registered under `/api/v1/auth`. */
 export const authRoutes: FastifyPluginAsync = async (app) => {
-  app.post('/register', async (request, reply) => {
+  // Each route gets its own per-IP counter; failed and successful attempts both count.
+  const rateLimit = { max: app.config.authRateLimit.max, timeWindow: app.config.authRateLimit.timeWindowMs };
+
+  app.post('/register', { config: { rateLimit } }, async (request, reply) => {
     const input = registerSchema.parse(request.body);
     const user = await registerUser(app.prisma, input);
     await issueSession(reply, user);
@@ -13,7 +16,7 @@ export const authRoutes: FastifyPluginAsync = async (app) => {
     return reply.code(201).send(body);
   });
 
-  app.post('/login', async (request, reply) => {
+  app.post('/login', { config: { rateLimit } }, async (request, reply) => {
     const input = loginSchema.parse(request.body);
     const user = await verifyCredentials(app.prisma, input);
     await issueSession(reply, user);
