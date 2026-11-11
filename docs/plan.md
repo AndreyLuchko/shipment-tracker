@@ -12,7 +12,7 @@ Detailed per-milestone plans live in `docs/superpowers/plans/`.
 - [ ] M2 — auth module (register/login/me/logout, HttpOnly JWT + CSRF) + tests
       → plan: `docs/superpowers/plans/2026-11-11-m2-auth.md`
   - [x] Task 1 — record M2 auth decisions in the spec
-  - [ ] Task 2 — align TypeScript to 6.0.3 across workspaces
+  - [x] Task 2 — align TypeScript to 6.0.3 across workspaces
   - [ ] Task 3 — isolated test database
   - [ ] Task 4 — shared HTTP contract (`packages/shared`)
   - [ ] Task 5 — app config and `buildApp(options)`
