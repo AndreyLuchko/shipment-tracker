@@ -68,13 +68,19 @@ describe('auth session endpoints', () => {
       expect(response.statusCode).toBe(401);
     });
 
-    it('rejects a token whose last character was changed', async () => {
-      const token = session.cookies.access_token;
-      const tampered = token.slice(0, -1) + (token.endsWith('A') ? 'B' : 'A');
+    it('rejects a token whose payload was altered (role escalated) under the original signature', async () => {
+      // Tamper the claims, not a signature character: the last base64url character of an HS256 signature
+      // carries 2 unused bits, so swapping it (e.g. 'A' -> 'B') can decode to the same bytes and still verify.
+      const [header, payload, signature] = session.cookies.access_token.split('.');
+      const claims = JSON.parse(Buffer.from(payload!, 'base64url').toString('utf8')) as Record<string, unknown>;
+      expect(claims['role']).toBe('CLIENT');
+      const escalated = Buffer.from(JSON.stringify({ ...claims, role: 'DISPATCHER' })).toString('base64url');
+      const tampered = `${header}.${escalated}.${signature}`;
 
       const response = await me({ ...session.cookies, access_token: tampered });
 
       expect(response.statusCode).toBe(401);
+      expect(response.json()).toEqual(UNAUTH);
     });
   });
 
