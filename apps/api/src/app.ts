@@ -1,8 +1,24 @@
 import Fastify, { type FastifyInstance } from 'fastify';
+import { loadConfig, type AppConfig } from './config.js';
 import { prismaPlugin } from './plugins/prisma.js';
 
-export function buildApp(): FastifyInstance {
+declare module 'fastify' {
+  interface FastifyInstance {
+    config: AppConfig;
+  }
+}
+
+export interface BuildAppOptions {
+  /** Overrides merged over the values loaded from the environment (used by tests). */
+  config?: Partial<AppConfig>;
+}
+
+export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
+  const config: AppConfig = { ...loadConfig(), ...options.config };
+
   const app = Fastify({ logger: false });
+
+  app.decorate('config', config);
 
   app.register(prismaPlugin);
 
