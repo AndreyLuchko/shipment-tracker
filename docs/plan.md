@@ -11,6 +11,19 @@ Detailed per-milestone plans live in `docs/superpowers/plans/`.
       → plan: `docs/superpowers/plans/2026-08-04-m1-prisma.md`
 - [ ] M2 — auth module (register/login/me/logout, HttpOnly JWT + CSRF) + tests
       → plan: `docs/superpowers/plans/2026-11-11-m2-auth.md`
+  - [x] Task 1 — record M2 auth decisions in the spec
+  - [ ] Task 2 — align TypeScript to 6.0.3 across workspaces
+  - [ ] Task 3 — isolated test database
+  - [ ] Task 4 — shared HTTP contract (`packages/shared`)
+  - [ ] Task 5 — app config and `buildApp(options)`
+  - [ ] Task 6 — error envelope (`AppError` + `errorHandlerPlugin`)
+  - [ ] Task 7 — auth plugin (session cookies, `authenticate`, `requireRole`)
+  - [ ] Task 8 — session-bound CSRF verification
+  - [ ] Task 9 — `POST /api/v1/auth/register`
+  - [ ] Task 10 — `POST /api/v1/auth/login`
+  - [ ] Task 11 — `GET /api/v1/auth/me` and `POST /api/v1/auth/logout`
+  - [ ] Task 12 — rate limiting on login and register
+  - [ ] Task 13 — M2 wrap-up, smoke test, sign-off
 - [ ] M3 — shipments module (CRUD, role-based access) + state machine + tests
 - [ ] M4 — webhook endpoint (HMAC, idempotency) + carrier simulator CLI + tests
 - [ ] M5 — frontend: auth pages + api client
