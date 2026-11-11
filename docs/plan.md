@@ -10,6 +10,7 @@ Detailed per-milestone plans live in `docs/superpowers/plans/`.
 - [x] M1 — Prisma schema + migrations + seed
       → plan: `docs/superpowers/plans/2026-08-04-m1-prisma.md`
 - [ ] M2 — auth module (register/login/me/logout, HttpOnly JWT + CSRF) + tests
+      → plan: `docs/superpowers/plans/2026-11-11-m2-auth.md`
 - [ ] M3 — shipments module (CRUD, role-based access) + state machine + tests
 - [ ] M4 — webhook endpoint (HMAC, idempotency) + carrier simulator CLI + tests
 - [ ] M5 — frontend: auth pages + api client
