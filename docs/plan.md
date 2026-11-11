@@ -14,7 +14,7 @@ Detailed per-milestone plans live in `docs/superpowers/plans/`.
   - [x] Task 1 — record M2 auth decisions in the spec
   - [x] Task 2 — align TypeScript to 6.0.3 across workspaces
   - [x] Task 3 — isolated test database
-  - [ ] Task 4 — shared HTTP contract (`packages/shared`)
+  - [x] Task 4 — shared HTTP contract (`packages/shared`)
   - [ ] Task 5 — app config and `buildApp(options)`
   - [ ] Task 6 — error envelope (`AppError` + `errorHandlerPlugin`)
   - [ ] Task 7 — auth plugin (session cookies, `authenticate`, `requireRole`)
