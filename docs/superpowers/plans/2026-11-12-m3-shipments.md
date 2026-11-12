@@ -1717,7 +1717,7 @@ outcome reported.
 No pagination: the list feeds one dropdown at demo scale. `passwordHash`, `role` and `createdAt` are never
 selected, so they cannot leak.
 
-- [ ] **Step 1: Write the failing tests** (`apps/api/tests/modules/users/list-users.test.ts`)
+- [x] **Step 1: Write the failing tests** (`apps/api/tests/modules/users/list-users.test.ts`)
 
 Setup: `dispatcher` = `registerTestUser(app, { role: 'DISPATCHER', name: 'Dana Dispatcher' })`; clients
 registered in this order with names `'Zoya'`, `'Andrii'`, `'Mykola'`. `list(session, query)` injects
@@ -1735,7 +1735,7 @@ registered in this order with names `'Zoya'`, `'Andrii'`, `'Mykola'`. `list(sess
 | only the dispatcher exists, `role=CLIENT` | `200`; body deep-equals `{ items: [] }` |
 | `dispatcher`: take `items[0].id` from `role=CLIENT`, then `POST /api/v1/shipments` with it as `clientId` | `201`; `shipment.client.name === 'Andrii'` |
 
-- [ ] **Step 2: Run to verify they fail**
+- [x] **Step 2: Run to verify they fail**
 
 ```bash
 npm run test -w apps/api -- tests/modules/users/list-users.test.ts
@@ -1743,9 +1743,9 @@ npm run test -w apps/api -- tests/modules/users/list-users.test.ts
 
 Expected: FAIL — `GET /api/v1/users` returns `404 Route not found`.
 
-- [ ] **Step 3: Implement `listUsersByRole`, `userRoutes`, and register the routes in `buildApp`**
+- [x] **Step 3: Implement `listUsersByRole`, `userRoutes`, and register the routes in `buildApp`**
 
-- [ ] **Step 4: Run tests, typecheck, lint**
+- [x] **Step 4: Run tests, typecheck, lint**
 
 ```bash
 npm run test -w apps/api && npm run typecheck -w apps/api && npm run lint
@@ -1753,7 +1753,7 @@ npm run test -w apps/api && npm run typecheck -w apps/api && npm run lint
 
 Expected: all exit `0`.
 
-- [ ] **Step 5: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
+- [x] **Step 5: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
 
 ```bash
 git add apps/api/src/modules/users apps/api/src/app.ts apps/api/tests/modules/users docs/plan.md
