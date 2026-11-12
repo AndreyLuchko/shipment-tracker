@@ -1491,7 +1491,7 @@ Task 12 inserts three more checks at the marked places:
 
 A thrown error rolls the transaction back, so a rejected event leaves no row and no status change.
 
-- [ ] **Step 1: Write the failing tests** (`apps/api/tests/modules/shipments/shipment-events.test.ts`)
+- [x] **Step 1: Write the failing tests** (`apps/api/tests/modules/shipments/shipment-events.test.ts`)
 
 Setup: `dispatcher`, `owner`. `post(id, payload, session = dispatcher)` injects
 `POST /api/v1/shipments/${id}/events` with `sessionRequest(session)`. `snapshot(id)` returns
@@ -1555,7 +1555,7 @@ it.each(ALL_TRANSITIONS)('%s -> %s', async (from, to) => {
 });
 ```
 
-- [ ] **Step 2: Run to verify they fail**
+- [x] **Step 2: Run to verify they fail**
 
 ```bash
 npm run test -w apps/api -- tests/modules/shipments/shipment-events.test.ts
@@ -1563,9 +1563,9 @@ npm run test -w apps/api -- tests/modules/shipments/shipment-events.test.ts
 
 Expected: FAIL — `POST /api/v1/shipments/:id/events` returns `404 Route not found`.
 
-- [ ] **Step 3: Implement `appendShipmentEvent` (steps 1, 2, 4, 6, 7 above) and the `POST /:id/events` route**
+- [x] **Step 3: Implement `appendShipmentEvent` (steps 1, 2, 4, 6, 7 above) and the `POST /:id/events` route**
 
-- [ ] **Step 4: Run tests, typecheck, lint**
+- [x] **Step 4: Run tests, typecheck, lint**
 
 ```bash
 npm run test -w apps/api && npm run typecheck -w apps/api && npm run lint
@@ -1573,7 +1573,7 @@ npm run test -w apps/api && npm run typecheck -w apps/api && npm run lint
 
 Expected: all exit `0`; the output lists 49 HTTP transition cases.
 
-- [ ] **Step 5: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
+- [x] **Step 5: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
 
 ```bash
 git add apps/api/src/modules/shipments/shipment-events.service.ts apps/api/src/modules/shipments/shipments.routes.ts apps/api/tests/modules/shipments/shipment-events.test.ts docs/plan.md
