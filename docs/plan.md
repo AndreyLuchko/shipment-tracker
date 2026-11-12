@@ -24,7 +24,7 @@ Detailed per-milestone plans live in `docs/superpowers/plans/`.
   - [x] Task 11 — `GET /api/v1/auth/me` and `POST /api/v1/auth/logout`
   - [x] Task 12 — rate limiting on login and register
   - [x] Task 13 — M2 wrap-up, smoke test, sign-off
-- [ ] M3 — shipments module (CRUD, role-based access) + state machine + tests
+- [x] M3 — shipments module (CRUD, role-based access) + state machine + tests
       → plan: `docs/superpowers/plans/2026-11-12-m3-shipments.md`
   - [x] Task 1 — record M3 shipment decisions in the spec
   - [x] Task 2 — shared contract I: statuses, event sources, response schemas, error code
@@ -39,7 +39,7 @@ Detailed per-milestone plans live in `docs/superpowers/plans/`.
   - [x] Task 11 — event pipeline I: `appendShipmentEvent` + `POST /api/v1/shipments/:id/events`
   - [x] Task 12 — event pipeline II: `occurredAt` guards, idempotent duplicates, concurrency
   - [x] Task 13 — `GET /api/v1/users?role=CLIENT`
-  - [ ] Task 14 — M3 wrap-up, smoke test, sign-off
+  - [x] Task 14 — M3 wrap-up, smoke test, sign-off
 - [ ] M4 — webhook endpoint (HMAC, idempotency) + carrier simulator CLI + tests
 - [ ] M5 — frontend: auth pages + api client
 - [ ] M6 — frontend: dashboard list + detail timeline + create/manual-update forms

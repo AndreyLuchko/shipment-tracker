@@ -1773,7 +1773,7 @@ git commit -m "feat: add users list endpoint for the client picker"
 - Consumes: everything above.
 - Produces: nothing consumed by later tasks — this closes M3.
 
-- [ ] **Step 1: Clean-state verification**
+- [x] **Step 1: Clean-state verification**
 
 ```bash
 docker compose down -v
@@ -1789,7 +1789,7 @@ git diff --stat 7d68bdc -- apps/api/prisma apps/api/package.json packages/shared
 Expected: every command exits `0`; the last command prints nothing — compared with `7d68bdc` (the last M2
 commit), M3 added no migration, did not touch the schema or the seed, and installed no dependency.
 
-- [ ] **Step 2: Smoke test against the dev server with the seeded users**
+- [x] **Step 2: Smoke test against the dev server with the seeded users**
 
 Terminal 1 (the inline variable lets `curl` send the cookies over plain HTTP):
 
@@ -1843,14 +1843,14 @@ year>-000003` when run in 2026, `ST-<current year>-000001` in a later year; `201
 `403`; `403`; `404`. Stop the dev server afterwards. The smoke shipment stays in the dev database; the next
 `npm run db:seed` does not remove it, `docker compose down -v` does.
 
-- [ ] **Step 3: Update `docs/plan.md`** — tick the M3 line and Task 14; Tasks 1–13 are already ticked:
+- [x] **Step 3: Update `docs/plan.md`** — tick the M3 line and Task 14; Tasks 1–13 are already ticked:
 
 ```markdown
 - [x] M3 — shipments module (CRUD, role-based access) + state machine + tests
       → plan: `docs/superpowers/plans/2026-11-12-m3-shipments.md`
 ```
 
-- [ ] **Step 4: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
+- [x] **Step 4: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
 
 ```bash
 git add docs/plan.md
