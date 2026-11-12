@@ -363,7 +363,7 @@ Field rules: every timestamp is `z.iso.datetime()`; `page` and `pageSize` are in
 `totalPages` are integers ≥ 0; `weightKg` is `z.number().nullable()`. Plain object schemas (unknown keys are
 stripped), so a response schema also strips `passwordHash` or `clientId` if one ever slipped in.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 Fixtures for `packages/shared/tests/schemas/shipment.test.ts` (import from `'../../src/index.js'`, as the
 existing shared tests do):
@@ -436,7 +436,7 @@ order'` and insert `'INVALID_STATUS_TRANSITION'` between `'EMAIL_TAKEN'` and `'R
 array; add one `it`: `errorResponseSchema` accepts
 `{ error: { code: 'INVALID_STATUS_TRANSITION', message: 'Cannot transition from DELIVERED to IN_TRANSIT' } }`.
 
-- [ ] **Step 2: Run to verify they fail**
+- [x] **Step 2: Run to verify they fail**
 
 ```bash
 npm run test -w packages/shared
@@ -444,13 +444,13 @@ npm run test -w packages/shared
 
 Expected: FAIL — the new schemas are `undefined`, and `ERROR_CODES` has ten entries.
 
-- [ ] **Step 3: Implement the constant, the error code, `schemas/user.ts`, `schemas/shipment.ts`, and re-export both modules from `index.ts`**
+- [x] **Step 3: Implement the constant, the error code, `schemas/user.ts`, `schemas/shipment.ts`, and re-export both modules from `index.ts`**
 
 Add to `index.ts`, after the existing lines: `export * from './schemas/user.ts';` and
 `export * from './schemas/shipment.ts';`. Inside `schemas/shipment.ts` import `userSummarySchema` with
 `from './user.ts'`.
 
-- [ ] **Step 4: Run the tests, typecheck, lint — in every workspace, because `ERROR_CODES` is consumed by the API**
+- [x] **Step 4: Run the tests, typecheck, lint — in every workspace, because `ERROR_CODES` is consumed by the API**
 
 ```bash
 npm run test -w packages/shared && npm run typecheck && npm run lint
@@ -458,7 +458,7 @@ npm run test -w packages/shared && npm run typecheck && npm run lint
 
 Expected: all exit `0`.
 
-- [ ] **Step 5: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
+- [x] **Step 5: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
 
 ```bash
 git add packages/shared docs/plan.md

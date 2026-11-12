@@ -26,10 +26,17 @@ describe('errorResponseSchema', () => {
   it('rejects a body without the error envelope', () => {
     expect(errorResponseSchema.safeParse({ message: 'x' }).success).toBe(false);
   });
+
+  it('accepts an INVALID_STATUS_TRANSITION error', () => {
+    const body = {
+      error: { code: 'INVALID_STATUS_TRANSITION', message: 'Cannot transition from DELIVERED to IN_TRANSIT' },
+    };
+    expect(errorResponseSchema.safeParse(body).success).toBe(true);
+  });
 });
 
 describe('ERROR_CODES', () => {
-  it('lists the ten codes in order', () => {
+  it('lists the eleven codes in order', () => {
     expect(ERROR_CODES).toEqual([
       'VALIDATION_ERROR',
       'BAD_REQUEST',
@@ -39,6 +46,7 @@ describe('ERROR_CODES', () => {
       'CSRF_TOKEN_INVALID',
       'NOT_FOUND',
       'EMAIL_TAKEN',
+      'INVALID_STATUS_TRANSITION',
       'RATE_LIMITED',
       'INTERNAL_ERROR',
     ]);
