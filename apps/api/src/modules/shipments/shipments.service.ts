@@ -1,4 +1,4 @@
-import type { Prisma, PrismaClient } from '@prisma/client';
+import { Prisma, type PrismaClient } from '@prisma/client';
 import {
   SHIPMENTS_PAGE_SIZE,
   type CreateShipmentInput,
@@ -6,6 +6,7 @@ import {
   type Role,
   type ShipmentDetail,
   type ShipmentListResponse,
+  type UpdateShipmentInput,
 } from '@shipment-tracker/shared';
 import { AppError, validationError } from '../../lib/errors.js';
 import { shipmentDetailInclude, shipmentSummaryInclude, toShipmentDetail, toShipmentSummary } from './shipment.dto.js';
@@ -115,4 +116,33 @@ export async function createShipment(prisma: PrismaClient, input: CreateShipment
     });
   });
   return toShipmentDetail(row);
+}
+
+/**
+ * Edits the free-text fields of a shipment (D7). Only keys present in `input` are written; `weightKg: null`
+ * clears the weight. `status` is never part of `data` and no event is written — the timeline changes only
+ * through `appendShipmentEvent`.
+ */
+export async function updateShipment(
+  prisma: PrismaClient,
+  id: string,
+  input: UpdateShipmentInput,
+): Promise<ShipmentDetail> {
+  const data: Prisma.ShipmentUpdateInput = {};
+  if (input.description !== undefined) {
+    data.description = input.description;
+  }
+  if (input.weightKg !== undefined) {
+    data.weightKg = input.weightKg;
+  }
+
+  try {
+    const row = await prisma.shipment.update({ where: { id }, data, include: shipmentDetailInclude });
+    return toShipmentDetail(row);
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+      throw shipmentNotFound();
+    }
+    throw error;
+  }
 }

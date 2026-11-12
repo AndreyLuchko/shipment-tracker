@@ -1369,7 +1369,7 @@ git commit -m "feat: add create shipment endpoint"
 Prisma's `P2025` (record not found) to `shipmentNotFound()`; rethrow anything else. No `MovementEvent` is
 written and `status` is never part of `data`.
 
-- [ ] **Step 1: Write the failing tests** (`apps/api/tests/modules/shipments/update-shipment.test.ts`)
+- [x] **Step 1: Write the failing tests** (`apps/api/tests/modules/shipments/update-shipment.test.ts`)
 
 Setup: `dispatcher`, `owner`; `shipment` = `createTestShipment(app.prisma, owner.user.id,
 { status: 'IN_TRANSIT', description: 'Old text', weightKg: 12.5 })`.
@@ -1394,7 +1394,7 @@ Setup: `dispatcher`, `owner`; `shipment` = `createTestShipment(app.prisma, owner
 | id `'%00'`, `{ description: 'x' }` | `404`; body equals `NOT_FOUND` |
 | `{ description: 'New text' }`, then `GET /api/v1/shipments/:id` as `owner` | `200`; `description === 'New text'` |
 
-- [ ] **Step 2: Run to verify they fail**
+- [x] **Step 2: Run to verify they fail**
 
 ```bash
 npm run test -w apps/api -- tests/modules/shipments/update-shipment.test.ts
@@ -1402,9 +1402,9 @@ npm run test -w apps/api -- tests/modules/shipments/update-shipment.test.ts
 
 Expected: FAIL — `PATCH /api/v1/shipments/:id` returns `404 Route not found`.
 
-- [ ] **Step 3: Implement `updateShipment` and the `PATCH /:id` route**
+- [x] **Step 3: Implement `updateShipment` and the `PATCH /:id` route**
 
-- [ ] **Step 4: Run tests, typecheck, lint**
+- [x] **Step 4: Run tests, typecheck, lint**
 
 ```bash
 npm run test -w apps/api && npm run typecheck -w apps/api && npm run lint
@@ -1412,7 +1412,7 @@ npm run test -w apps/api && npm run typecheck -w apps/api && npm run lint
 
 Expected: all exit `0`.
 
-- [ ] **Step 5: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
+- [x] **Step 5: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
 
 ```bash
 git add apps/api/src/modules/shipments/shipments.service.ts apps/api/src/modules/shipments/shipments.routes.ts apps/api/tests/modules/shipments/update-shipment.test.ts docs/plan.md
