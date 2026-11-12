@@ -33,7 +33,7 @@ Detailed per-milestone plans live in `docs/superpowers/plans/`.
   - [x] Task 5 — error envelope: per-key details, `validationError`, URL-level errors
   - [x] Task 6 — `GET /api/v1/shipments/:id` (DTO mapping, ownership scoping)
   - [x] Task 7 — `GET /api/v1/shipments` (role scoping, `status`, `search`, `page`)
-  - [ ] Task 8 — tracking number generator
+  - [x] Task 8 — tracking number generator
   - [ ] Task 9 — `POST /api/v1/shipments`
   - [ ] Task 10 — `PATCH /api/v1/shipments/:id`
   - [ ] Task 11 — event pipeline I: `appendShipmentEvent` + `POST /api/v1/shipments/:id/events`

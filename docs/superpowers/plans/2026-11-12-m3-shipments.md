@@ -1180,7 +1180,7 @@ git commit -m "feat: add shipment list endpoint with filters and pagination"
 
 Rows that do not match the pattern — another year, `ST-TEST-…` fixtures, malformed values — are ignored.
 
-- [ ] **Step 1: Write the failing tests** (`apps/api/tests/modules/shipments/tracking-number.test.ts`)
+- [x] **Step 1: Write the failing tests** (`apps/api/tests/modules/shipments/tracking-number.test.ts`)
 
 `describe('formatTrackingNumber')` — pure:
 
@@ -1208,7 +1208,7 @@ with `createTestShipment(app.prisma, client.user.id, { trackingNumber })`.
 | `ST-2026-999999` | `next(NOW)` | rejects with `RangeError` |
 | none | `next()` without `now` | matches `/^ST-\d{4}-000001$/` with the year equal to `YEAR` |
 
-- [ ] **Step 2: Run to verify they fail**
+- [x] **Step 2: Run to verify they fail**
 
 ```bash
 npm run test -w apps/api -- tests/modules/shipments/tracking-number.test.ts
@@ -1216,9 +1216,9 @@ npm run test -w apps/api -- tests/modules/shipments/tracking-number.test.ts
 
 Expected: FAIL — cannot resolve `tracking-number.js`.
 
-- [ ] **Step 3: Implement `tracking-number.ts`**
+- [x] **Step 3: Implement `tracking-number.ts`**
 
-- [ ] **Step 4: Run tests, typecheck, lint**
+- [x] **Step 4: Run tests, typecheck, lint**
 
 ```bash
 npm run test -w apps/api && npm run typecheck -w apps/api && npm run lint
@@ -1226,7 +1226,7 @@ npm run test -w apps/api && npm run typecheck -w apps/api && npm run lint
 
 Expected: all exit `0`.
 
-- [ ] **Step 5: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
+- [x] **Step 5: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
 
 ```bash
 git add apps/api/src/modules/shipments/tracking-number.ts apps/api/tests/modules/shipments/tracking-number.test.ts docs/plan.md
