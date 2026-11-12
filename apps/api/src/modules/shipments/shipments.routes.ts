@@ -1,11 +1,13 @@
 import type { FastifyPluginAsync, FastifyRequest } from 'fastify';
 import {
+  createShipmentEventSchema,
   createShipmentSchema,
   listShipmentsQuerySchema,
   type ShipmentListResponse,
   type ShipmentResponse,
   updateShipmentSchema,
 } from '@shipment-tracker/shared';
+import { appendShipmentEvent } from './shipment-events.service.js';
 import {
   createShipment,
   getShipment,
@@ -59,6 +61,25 @@ export const shipmentRoutes: FastifyPluginAsync = async (app) => {
       const input = updateShipmentSchema.parse(request.body);
       const body: ShipmentResponse = { shipment: await updateShipment(app.prisma, id, input) };
       return body;
+    },
+  );
+
+  app.post<{ Params: { id: string } }>(
+    '/:id/events',
+    { onRequest: [app.authenticate, app.requireRole('DISPATCHER')] },
+    async (request, reply) => {
+      const id = shipmentIdFrom(request);
+      const input = createShipmentEventSchema.parse(request.body);
+      // `source` is fixed by the route, never taken from the body.
+      const result = await appendShipmentEvent(app.prisma, id, {
+        status: input.status,
+        source: 'MANUAL',
+        location: input.location,
+        note: input.note,
+        occurredAt: input.occurredAt === undefined ? undefined : new Date(input.occurredAt),
+      });
+      const body: ShipmentResponse = { shipment: result.shipment };
+      return reply.code(result.created ? 201 : 200).send(body);
     },
   );
 };
