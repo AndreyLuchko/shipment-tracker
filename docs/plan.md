@@ -34,7 +34,7 @@ Detailed per-milestone plans live in `docs/superpowers/plans/`.
   - [x] Task 6 — `GET /api/v1/shipments/:id` (DTO mapping, ownership scoping)
   - [x] Task 7 — `GET /api/v1/shipments` (role scoping, `status`, `search`, `page`)
   - [x] Task 8 — tracking number generator
-  - [ ] Task 9 — `POST /api/v1/shipments`
+  - [x] Task 9 — `POST /api/v1/shipments`
   - [ ] Task 10 — `PATCH /api/v1/shipments/:id`
   - [ ] Task 11 — event pipeline I: `appendShipmentEvent` + `POST /api/v1/shipments/:id/events`
   - [ ] Task 12 — event pipeline II: `occurredAt` guards, idempotent duplicates, concurrency

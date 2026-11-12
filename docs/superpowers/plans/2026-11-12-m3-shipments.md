@@ -1268,7 +1268,7 @@ concurrency is proven in Task 9, where the insert shares the transaction.
 
 `status` and `carrier` are never set from the request — they come from the schema defaults.
 
-- [ ] **Step 1: Write the failing tests** (`apps/api/tests/modules/shipments/create-shipment.test.ts`)
+- [x] **Step 1: Write the failing tests** (`apps/api/tests/modules/shipments/create-shipment.test.ts`)
 
 Setup: `dispatcher`, `client` = `registerTestUser(app, { name: 'Demo Client' })`.
 `base()` = `{ clientId: client.user.id, origin: 'Kyiv, UA', destination: 'Lviv, UA', description: 'Books',
@@ -1316,7 +1316,7 @@ Concurrency:
 |---|---|
 | five `create(base())` calls through `Promise.all` | all `201`; the five tracking numbers sorted equal `ST-<YEAR>-000001` … `ST-<YEAR>-000005`; `shipment.count() === 5`; `movementEvent.count() === 5` |
 
-- [ ] **Step 2: Run to verify they fail**
+- [x] **Step 2: Run to verify they fail**
 
 ```bash
 npm run test -w apps/api -- tests/modules/shipments/create-shipment.test.ts
@@ -1324,9 +1324,9 @@ npm run test -w apps/api -- tests/modules/shipments/create-shipment.test.ts
 
 Expected: FAIL — `POST /api/v1/shipments` returns `404 Route not found`.
 
-- [ ] **Step 3: Implement `createShipment` and the `POST /` route**
+- [x] **Step 3: Implement `createShipment` and the `POST /` route**
 
-- [ ] **Step 4: Run tests, typecheck, lint**
+- [x] **Step 4: Run tests, typecheck, lint**
 
 ```bash
 npm run test -w apps/api && npm run typecheck -w apps/api && npm run lint
@@ -1335,7 +1335,7 @@ npm run test -w apps/api && npm run typecheck -w apps/api && npm run lint
 Expected: all exit `0`. If the concurrency row shows a `500`, the insert is running outside the transaction
 that holds the advisory lock.
 
-- [ ] **Step 5: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
+- [x] **Step 5: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
 
 ```bash
 git add apps/api/src/modules/shipments/shipments.service.ts apps/api/src/modules/shipments/shipments.routes.ts apps/api/tests/modules/shipments/create-shipment.test.ts docs/plan.md
