@@ -510,7 +510,7 @@ Field rules:
 - `status` in the query: optional `shipmentStatusSchema`; no case folding.
 - `role` in the users query: required `roleSchema`.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 Append to `packages/shared/tests/schemas/shipment.test.ts`. Base inputs:
 `validCreate = { clientId: 'c1', origin: ' Kyiv, UA ', destination: 'Lviv, UA', description: ' Books ' }`.
@@ -558,7 +558,7 @@ Append to `packages/shared/tests/schemas/user.test.ts`:
 | `listUsersQuerySchema` | `{ role: 'DISPATCHER' }` | success |
 | `listUsersQuerySchema` | `{}`; `{ role: 'ADMIN' }`; `{ role: 'client' }` (`it.each`) | failure; path `['role']` |
 
-- [ ] **Step 2: Run to verify they fail**
+- [x] **Step 2: Run to verify they fail**
 
 ```bash
 npm run test -w packages/shared
@@ -566,7 +566,7 @@ npm run test -w packages/shared
 
 Expected: FAIL — the request schemas are `undefined`.
 
-- [ ] **Step 3: Implement the schemas**
+- [x] **Step 3: Implement the schemas**
 
 Verified on Zod 4.6.7 while planning: `z.strictObject` reports all unknown keys in **one** issue
 (`code: 'unrecognized_keys'`, `path: []`, `keys: [...]`); an empty object passes a strict schema whose fields
@@ -574,7 +574,7 @@ are all optional, hence the refinement; `z.coerce.number()` turns `''` into `0` 
 rejected by the rules above; `.transform((value) => (value === '' ? undefined : value))` followed by
 `.optional()` gives the "empty means absent" behavior.
 
-- [ ] **Step 4: Run the tests, typecheck, lint**
+- [x] **Step 4: Run the tests, typecheck, lint**
 
 ```bash
 npm run test -w packages/shared && npm run typecheck -w packages/shared && npm run lint
@@ -582,7 +582,7 @@ npm run test -w packages/shared && npm run typecheck -w packages/shared && npm r
 
 Expected: all exit `0`.
 
-- [ ] **Step 5: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
+- [x] **Step 5: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
 
 ```bash
 git add packages/shared docs/plan.md
