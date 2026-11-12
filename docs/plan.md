@@ -32,7 +32,7 @@ Detailed per-milestone plans live in `docs/superpowers/plans/`.
   - [x] Task 4 — status state machine (all 49 transitions)
   - [x] Task 5 — error envelope: per-key details, `validationError`, URL-level errors
   - [x] Task 6 — `GET /api/v1/shipments/:id` (DTO mapping, ownership scoping)
-  - [ ] Task 7 — `GET /api/v1/shipments` (role scoping, `status`, `search`, `page`)
+  - [x] Task 7 — `GET /api/v1/shipments` (role scoping, `status`, `search`, `page`)
   - [ ] Task 8 — tracking number generator
   - [ ] Task 9 — `POST /api/v1/shipments`
   - [ ] Task 10 — `PATCH /api/v1/shipments/:id`

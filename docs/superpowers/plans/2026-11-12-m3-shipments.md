@@ -1044,7 +1044,7 @@ backslash-escaped `%` matches literally). Page and count run together in
 { id: 'desc' }]`, `skip: (page - 1) * SHIPMENTS_PAGE_SIZE`, `take: SHIPMENTS_PAGE_SIZE`;
 `totalPages = Math.ceil(total / SHIPMENTS_PAGE_SIZE)`.
 
-- [ ] **Step 1: Write the failing tests** (`apps/api/tests/modules/shipments/list-shipments.test.ts`)
+- [x] **Step 1: Write the failing tests** (`apps/api/tests/modules/shipments/list-shipments.test.ts`)
 
 File-level `beforeEach` (after `resetDb`) registers only the users: `dispatcher`, `clientA`, `clientB`,
 `clientC` (never gets a shipment). The file has two sibling `describe` blocks. `describe('scoping and
@@ -1111,7 +1111,7 @@ apart and `trackingNumber` `ST-TEST-001` … `ST-TEST-045` (045 is the newest):
 | `page=0`; `page=-1`; `page=abc`; `page=1.5`; `page=100001`; `page=1&page=2` (`it.each`) | `VALIDATION_ERROR` on `page` |
 | `clientB`, `page=1` | `items` empty; `total === 0` |
 
-- [ ] **Step 2: Run to verify they fail**
+- [x] **Step 2: Run to verify they fail**
 
 ```bash
 npm run test -w apps/api -- tests/modules/shipments/list-shipments.test.ts
@@ -1119,9 +1119,9 @@ npm run test -w apps/api -- tests/modules/shipments/list-shipments.test.ts
 
 Expected: FAIL — `GET /api/v1/shipments` returns `404 Route not found`.
 
-- [ ] **Step 3: Implement `listShipments` and the `GET /` route**
+- [x] **Step 3: Implement `listShipments` and the `GET /` route**
 
-- [ ] **Step 4: Run tests, typecheck, lint**
+- [x] **Step 4: Run tests, typecheck, lint**
 
 ```bash
 npm run test -w apps/api && npm run typecheck -w apps/api && npm run lint
@@ -1130,7 +1130,7 @@ npm run test -w apps/api && npm run typecheck -w apps/api && npm run lint
 Expected: all exit `0`. If the `search=_` or `search=%25` row returns every shipment, the escaping is missing
 or runs after the value is wrapped.
 
-- [ ] **Step 5: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
+- [x] **Step 5: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
 
 ```bash
 git add apps/api/src/modules/shipments/shipments.service.ts apps/api/src/modules/shipments/shipments.routes.ts apps/api/tests/modules/shipments/list-shipments.test.ts docs/plan.md
