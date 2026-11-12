@@ -1,13 +1,15 @@
 import type { Prisma, PrismaClient } from '@prisma/client';
 import {
   SHIPMENTS_PAGE_SIZE,
+  type CreateShipmentInput,
   type ListShipmentsQuery,
   type Role,
   type ShipmentDetail,
   type ShipmentListResponse,
 } from '@shipment-tracker/shared';
-import { AppError } from '../../lib/errors.js';
+import { AppError, validationError } from '../../lib/errors.js';
 import { shipmentDetailInclude, shipmentSummaryInclude, toShipmentDetail, toShipmentSummary } from './shipment.dto.js';
+import { nextTrackingNumber } from './tracking-number.js';
 
 /** Who is asking. Every read takes one and scopes its query with `shipmentScope` (C1). */
 export interface Actor {
@@ -82,4 +84,35 @@ export async function listShipments(
     total,
     totalPages: Math.ceil(total / SHIPMENTS_PAGE_SIZE),
   };
+}
+
+/**
+ * Creates a shipment for an existing `CLIENT` with its initial `CREATED` event (C8). The tracking number is
+ * allocated and the row inserted in one transaction, so the advisory lock covers both (D14). `status` and
+ * `carrier` come from the schema defaults, never from the request.
+ */
+export async function createShipment(prisma: PrismaClient, input: CreateShipmentInput): Promise<ShipmentDetail> {
+  const client = await prisma.user.findUnique({ where: { id: input.clientId }, select: { role: true } });
+  if (client === null || client.role !== 'CLIENT') {
+    // One message for "missing" and "not a client" (D6).
+    throw validationError('clientId', 'Client not found');
+  }
+
+  const row = await prisma.$transaction(async (tx) => {
+    const now = new Date();
+    const trackingNumber = await nextTrackingNumber(tx, now);
+    return tx.shipment.create({
+      data: {
+        trackingNumber,
+        clientId: input.clientId,
+        origin: input.origin,
+        destination: input.destination,
+        description: input.description,
+        weightKg: input.weightKg ?? null,
+        events: { create: { status: 'CREATED', source: 'SYSTEM', occurredAt: now } },
+      },
+      include: shipmentDetailInclude,
+    });
+  });
+  return toShipmentDetail(row);
 }

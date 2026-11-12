@@ -1,6 +1,11 @@
 import type { FastifyPluginAsync, FastifyRequest } from 'fastify';
-import { listShipmentsQuerySchema, type ShipmentListResponse, type ShipmentResponse } from '@shipment-tracker/shared';
-import { getShipment, listShipments, shipmentNotFound, type Actor } from './shipments.service.js';
+import {
+  createShipmentSchema,
+  listShipmentsQuerySchema,
+  type ShipmentListResponse,
+  type ShipmentResponse,
+} from '@shipment-tracker/shared';
+import { createShipment, getShipment, listShipments, shipmentNotFound, type Actor } from './shipments.service.js';
 
 /** Prisma cuids are lowercase alphanumerics; anything else cannot name a shipment (C15). */
 const SHIPMENT_ID_PATTERN = /^[a-z0-9]{1,64}$/;
@@ -24,6 +29,12 @@ export const shipmentRoutes: FastifyPluginAsync = async (app) => {
     const query = listShipmentsQuerySchema.parse(request.query);
     const body: ShipmentListResponse = await listShipments(app.prisma, actorFrom(request), query);
     return body;
+  });
+
+  app.post('/', { onRequest: [app.authenticate, app.requireRole('DISPATCHER')] }, async (request, reply) => {
+    const input = createShipmentSchema.parse(request.body);
+    const body: ShipmentResponse = { shipment: await createShipment(app.prisma, input) };
+    return reply.code(201).send(body);
   });
 
   app.get<{ Params: { id: string } }>('/:id', { onRequest: [app.authenticate] }, async (request) => {
