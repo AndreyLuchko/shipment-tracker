@@ -1,6 +1,6 @@
 import type { PrismaClient } from '@prisma/client';
 import type { ShipmentDetail, ShipmentStatus } from '@shipment-tracker/shared';
-import { AppError } from '../../lib/errors.js';
+import { AppError, validationError } from '../../lib/errors.js';
 import { canTransition } from '../../lib/state-machine.js';
 import { shipmentDetailInclude, toShipmentDetail } from './shipment.dto.js';
 import { shipmentNotFound } from './shipments.service.js';
@@ -17,7 +17,7 @@ export interface AppendShipmentEventInput {
 
 export interface AppendShipmentEventResult {
   shipment: ShipmentDetail;
-  /** `false` when the event was an exact duplicate and nothing was written (Task 12). */
+  /** `false` when the event was an exact duplicate (same status + `occurredAt`) and nothing was written. */
   created: boolean;
 }
 
@@ -43,12 +43,38 @@ export async function appendShipmentEvent(
     const now = new Date();
     const occurredAt = input.occurredAt ?? now;
 
+    if (occurredAt.getTime() > now.getTime()) {
+      throw validationError('occurredAt', 'occurredAt must not be in the future');
+    }
+
+    // Checked before the state machine, so a retry after a status-changing transition is still a 200.
+    // `location`, `note` and `source` are not part of the comparison.
+    const duplicate = await tx.movementEvent.findFirst({
+      where: { shipmentId, status: input.status, occurredAt },
+      select: { id: true },
+    });
+    if (duplicate !== null) {
+      const row = await tx.shipment.findUniqueOrThrow({ where: { id: shipmentId }, include: shipmentDetailInclude });
+      return { created: false, shipment: toShipmentDetail(row) };
+    }
+
     if (!canTransition(current.status, input.status)) {
       throw new AppError(
         422,
         'INVALID_STATUS_TRANSITION',
         `Cannot transition from ${current.status} to ${input.status}`,
       );
+    }
+
+    // Equal to the latest event is allowed. A request without `occurredAt` cannot fail this: `now` is
+    // taken after the lock, so it is never earlier than an already committed event.
+    const latest = await tx.movementEvent.findFirst({
+      where: { shipmentId },
+      orderBy: { occurredAt: 'desc' },
+      select: { occurredAt: true },
+    });
+    if (latest !== null && occurredAt.getTime() < latest.occurredAt.getTime()) {
+      throw validationError('occurredAt', 'occurredAt must not be earlier than the latest event');
     }
 
     await tx.movementEvent.create({
