@@ -3,6 +3,7 @@ import type { FastifyInstance } from 'fastify';
 import {
   ACCESS_TOKEN_COOKIE_NAME,
   CSRF_COOKIE_NAME,
+  CSRF_HEADER_NAME,
   authResponseSchema,
   type PublicUser,
   type RegisterInput,
@@ -42,4 +43,12 @@ export async function registerTestUser(
   }
 
   return { user, cookies: { access_token: accessToken, csrf_token: csrfToken }, csrfToken };
+}
+
+/** Cookies plus the CSRF header of `session`, ready to spread into `app.inject({ … })`. */
+export function sessionRequest(session: TestSession): {
+  cookies: TestSession['cookies'];
+  headers: Record<string, string>;
+} {
+  return { cookies: session.cookies, headers: { [CSRF_HEADER_NAME]: session.csrfToken } };
 }
