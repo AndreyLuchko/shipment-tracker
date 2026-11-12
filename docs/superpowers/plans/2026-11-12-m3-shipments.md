@@ -806,7 +806,7 @@ verified: the handler must be a **named function passed by reference** with the 
 An inline arrow inside `Fastify({ … })` gets contextually typed with unresolved generics and `reply.status()`
 / `reply.send()` then fail to typecheck.
 
-- [ ] **Step 1: Write the failing tests** (append to `apps/api/tests/plugins/error-handler.test.ts`)
+- [x] **Step 1: Write the failing tests** (append to `apps/api/tests/plugins/error-handler.test.ts`)
 
 Add to `testRoutes` (import `z` from `'zod'` and `validationError` from `'../../src/lib/errors.js'`):
 
@@ -832,7 +832,7 @@ app.get('/__test/item/:id', async (request) => request.params);
 | `GET /__test/item/%zz` | `400`; `error.code === 'BAD_REQUEST'`; the body has no `statusCode` key |
 | every error response above | `expectEnvelope(response)` passes |
 
-- [ ] **Step 2: Run to verify they fail**
+- [x] **Step 2: Run to verify they fail**
 
 ```bash
 npm run test -w apps/api -- tests/plugins/error-handler.test.ts
@@ -842,9 +842,9 @@ Expected: FAIL — `validationError` is not exported; with it stubbed, the first
 `path: ''`, and the `414` / `%zz` rows fail `expectEnvelope` (Fastify's default shape has a top-level
 `statusCode` and no `error.code`).
 
-- [ ] **Step 3: Implement `VALIDATION_FAILED_MESSAGE`, `validationError`, the per-key rule in the handler, `handleFrameworkError`, and pass it to `Fastify(…)` in `buildApp`**
+- [x] **Step 3: Implement `VALIDATION_FAILED_MESSAGE`, `validationError`, the per-key rule in the handler, `handleFrameworkError`, and pass it to `Fastify(…)` in `buildApp`**
 
-- [ ] **Step 4: Run the whole API suite, typecheck, lint** — the M2 register and login tests must still pass
+- [x] **Step 4: Run the whole API suite, typecheck, lint** — the M2 register and login tests must still pass
 
 ```bash
 npm run test -w apps/api && npm run typecheck -w apps/api && npm run lint
@@ -852,7 +852,7 @@ npm run test -w apps/api && npm run typecheck -w apps/api && npm run lint
 
 Expected: all exit `0`.
 
-- [ ] **Step 5: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
+- [x] **Step 5: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
 
 ```bash
 git add apps/api/src/lib/errors.ts apps/api/src/plugins/error-handler.ts apps/api/src/app.ts apps/api/tests/plugins/error-handler.test.ts docs/plan.md

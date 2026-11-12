@@ -4,7 +4,7 @@ import { loadConfig, type AppConfig } from './config.js';
 import { authRoutes } from './modules/auth/auth.routes.js';
 import { authPlugin } from './plugins/auth.js';
 import { csrfPlugin } from './plugins/csrf.js';
-import { errorHandlerPlugin } from './plugins/error-handler.js';
+import { errorHandlerPlugin, handleFrameworkError } from './plugins/error-handler.js';
 import { prismaPlugin } from './plugins/prisma.js';
 
 declare module 'fastify' {
@@ -23,7 +23,7 @@ export interface BuildAppOptions {
 export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
   const config: AppConfig = { ...loadConfig(), ...options.config };
 
-  const app = Fastify({ logger: options.logger ?? false });
+  const app = Fastify({ logger: options.logger ?? false, frameworkErrors: handleFrameworkError });
 
   app.decorate('config', config);
 
