@@ -952,7 +952,7 @@ include: shipmentDetailInclude })`. A `null` result — unknown id **or** someon
 lowercase alphanumerics) it throws `shipmentNotFound()` without querying — a decoded `%00` would otherwise
 reach Postgres and come back as a 500.
 
-- [ ] **Step 1: Write the failing tests** (`apps/api/tests/modules/shipments/get-shipment.test.ts`)
+- [x] **Step 1: Write the failing tests** (`apps/api/tests/modules/shipments/get-shipment.test.ts`)
 
 `describe('shipmentScope')` — pure, no database:
 
@@ -985,7 +985,7 @@ reach Postgres and come back as a 500.
 | fixture without `weightKg` | `weightKg === null` |
 | `owner`'s session after `app.prisma.movementEvent.deleteMany()` + `app.prisma.shipment.deleteMany()` | `404`; body equals `NOT_FOUND` |
 
-- [ ] **Step 2: Run to verify they fail**
+- [x] **Step 2: Run to verify they fail**
 
 ```bash
 npm run test -w apps/api -- tests/modules/shipments/get-shipment.test.ts
@@ -994,11 +994,11 @@ npm run test -w apps/api -- tests/modules/shipments/get-shipment.test.ts
 Expected: FAIL — the service and helper modules do not exist; with empty stubs, the `200` rows get
 `404 Route not found`.
 
-- [ ] **Step 3: Implement the test helpers, `shipment.dto.ts`, `shipments.service.ts` (`Actor`, `shipmentScope`, `shipmentNotFound`, `getShipment`), `shipments.routes.ts` (`GET /:id`), and register the routes in `buildApp`**
+- [x] **Step 3: Implement the test helpers, `shipment.dto.ts`, `shipments.service.ts` (`Actor`, `shipmentScope`, `shipmentNotFound`, `getShipment`), `shipments.routes.ts` (`GET /:id`), and register the routes in `buildApp`**
 
 Type the route as `app.get<{ Params: { id: string } }>('/:id', …)`.
 
-- [ ] **Step 4: Run tests, typecheck, lint**
+- [x] **Step 4: Run tests, typecheck, lint**
 
 ```bash
 npm run test -w apps/api && npm run typecheck -w apps/api && npm run lint
@@ -1006,7 +1006,7 @@ npm run test -w apps/api && npm run typecheck -w apps/api && npm run lint
 
 Expected: all exit `0`.
 
-- [ ] **Step 5: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
+- [x] **Step 5: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
 
 ```bash
 git add apps/api/src/modules/shipments apps/api/src/app.ts apps/api/tests/helpers/shipments.ts apps/api/tests/helpers/auth.ts apps/api/tests/modules/shipments/get-shipment.test.ts docs/plan.md
