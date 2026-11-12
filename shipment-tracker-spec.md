@@ -176,6 +176,7 @@ Legal transitions (enforced in `apps/api/src/lib/state-machine.ts`, pure functio
 CREATED → PICKED_UP → IN_TRANSIT → AT_WAREHOUSE → OUT_FOR_DELIVERY → DELIVERED
    │           │           │           │                │
    └───────────┴───────────┴───────────┴────────────────┴──→ EXCEPTION
+IN_TRANSIT → OUT_FOR_DELIVERY               (direct delivery, no warehouse stop)
 EXCEPTION → IN_TRANSIT | OUT_FOR_DELIVERY   (recovery)
 DELIVERED → (terminal, no transitions out)
 ```
@@ -183,12 +184,15 @@ DELIVERED → (terminal, no transitions out)
 `CREATED` can also transition directly to `EXCEPTION` (e.g. carrier rejects the shipment before pickup).
 
 - `IN_TRANSIT → AT_WAREHOUSE` may repeat (multi-hop routes) — allow `AT_WAREHOUSE → IN_TRANSIT`.
-- **Self-loop (same status again):** legal for any non-terminal status. A new event with the same `status`
+- **Self-loop (same status again):** legal for any non-terminal status — all six of them, `CREATED` and `EXCEPTION` included; `DELIVERED → DELIVERED` is not. A new event with the same `status`
   as the shipment's current status but a different `location`/`occurredAt` (e.g. a second `IN_TRANSIT` scan
   at a different hub) is accepted and appended to the timeline — `Shipment.status` stays unchanged, only a
   new `MovementEvent` row is added. This is distinct from the exact-duplicate case (same status **and**
   same `occurredAt`), which stays a no-op per [Section 7](#webhooks).
-- Invalid transition ⇒ webhook returns `422` with a machine-readable error code; event is **not** stored.
+- `IN_TRANSIT → OUT_FOR_DELIVERY` is legal: a shipment can go out for delivery without a warehouse scan.
+- Invalid transition ⇒ `422 INVALID_STATUS_TRANSITION` from both the webhook and
+  `POST /shipments/:id/events`; the event is **not** stored.
+- That is 20 legal pairs out of 49 (M3 human checkpoint, 2026-11-11); the unit test lists all 49.
 
 ---
 
@@ -207,11 +211,16 @@ Base URL: `/api/v1`. All responses JSON. Errors: `{ error: { code, message, deta
 ### Shipments
 | Method | Path | Access | Notes |
 |---|---|---|---|
-| POST | `/shipments` | DISPATCHER | creates shipment + initial `CREATED` event |
-| GET | `/shipments` | authed | dispatcher: all; client: own only. Query: `status`, `search` (matches `trackingNumber`, `origin`, `destination`, `description`), `page` |
-| GET | `/shipments/:id` | authed (owner or dispatcher) | includes ordered `events[]` |
-| PATCH | `/shipments/:id` | DISPATCHER | editable fields only (description, weight) |
-| POST | `/shipments/:id/events` | DISPATCHER | manual status update (source=MANUAL), state machine enforced |
+| POST | `/shipments` | DISPATCHER | body `{ clientId, origin, destination, description, weightKg? }`; creates shipment + initial `CREATED` event (`source: SYSTEM`); `201` `{ shipment }` |
+| GET | `/shipments` | authed | dispatcher: all; client: own only. Query: `status` (one status), `search` (matches `trackingNumber`, `origin`, `destination`, `description`), `page`. `200` `{ items, page, pageSize, total, totalPages }` |
+| GET | `/shipments/:id` | authed (owner or dispatcher) | `200` `{ shipment }` with ordered `events[]` and `allowedNextStatuses[]`; someone else's shipment ⇒ `404` |
+| PATCH | `/shipments/:id` | DISPATCHER | editable fields only (`description`, `weightKg`); any other key ⇒ `400`; `200` `{ shipment }` |
+| POST | `/shipments/:id/events` | DISPATCHER | body `{ status, location?, note?, occurredAt? }`; manual status update (source=MANUAL), state machine enforced; `201` `{ shipment }`, exact duplicate ⇒ `200` |
+
+### Users
+| Method | Path | Access | Notes |
+|---|---|---|---|
+| GET | `/users?role=CLIENT` | DISPATCHER | `200` `{ items: [{ id, name, email }] }` ordered by name — feeds the client picker of the "New shipment" form |
 
 ### Webhooks
 | Method | Path | Access | Notes |
@@ -269,6 +278,38 @@ Duplicate event (same shipment + status + occurredAt) ⇒ `200` idempotent no-op
   `FORBIDDEN`, `CSRF_TOKEN_INVALID`, `NOT_FOUND`, `EMAIL_TAKEN`, `RATE_LIMITED`, `INTERNAL_ERROR`. The list
   lives in `packages/shared` and grows with later milestones.
 
+**Shipment decisions (M3 human checkpoint, 2026-11-11):**
+- **Roles:** `DISPATCHER` and `CLIENT` only. Dispatcher-only routes answer `403 FORBIDDEN` to a client.
+- **Ownership:** enforced in the service layer — every read takes the caller and scopes the query by
+  `clientId` unless the caller is a dispatcher. A client asking for someone else's shipment gets
+  `404 NOT_FOUND`, the same response as for an id that does not exist; foreign shipments never appear in a
+  client's list, counts or search results.
+- **Create:** the dispatcher names the client by `clientId` (picked from `GET /users?role=CLIENT`). An id
+  that does not exist or does not belong to a `CLIENT` ⇒ `400 VALIDATION_ERROR` with `details` on
+  `clientId`. The server generates `trackingNumber` as `ST-<UTC year>-<6 digits>`: highest existing number
+  of that year + 1, computed inside the create transaction under a Postgres advisory lock (no sequence, no
+  migration). Numbering restarts at `000001` each year.
+- **Edit:** `PATCH` accepts `description` and `weightKg` (`null` clears the weight) and nothing else — any
+  other key, or an empty body, ⇒ `400 VALIDATION_ERROR`. There is no delete endpoint.
+- **List:** `page` is 1-based; the page size is fixed at 20. Response
+  `{ items, page, pageSize, total, totalPages }`, newest first; a page past the end is `200` with empty
+  `items`. `status` takes exactly one status. `search` is a case-insensitive substring match; `%`, `_` and
+  `\` are matched literally.
+- **Shipment shape:** `{ id, trackingNumber, client: { id, name, email }, origin, destination, description,
+  weightKg, status, carrier, createdAt, updatedAt }`; the detail shape adds `events[]` (oldest first) and
+  `allowedNextStatuses[]` — the statuses the state machine accepts next, computed on the server so the
+  frontend never duplicates the transition table.
+- **Manual events:** `occurredAt` is optional and defaults to the server time. It must not be in the future
+  and must not be earlier than the shipment's latest event, otherwise `400 VALIDATION_ERROR` on
+  `occurredAt` — so the timeline is always in order and its last entry is the current status. Consequence:
+  an event cannot be dated before the shipment was entered into the system.
+- **Idempotency:** an event with the same shipment + `status` + `occurredAt` as a stored one is a no-op
+  answered with `200` and the current shipment (a new event is `201`). The check runs before the state
+  machine, so a retried request never turns into a `422`. Manual events and webhooks (M4) go through one
+  service function. Requests that rely on the default `occurredAt` are never duplicates of each other.
+- **Error codes (M3):** adds `INVALID_STATUS_TRANSITION` (`422`, message `Cannot transition from X to Y`,
+  no `details`).
+
 ---
 
 ## 8. Frontend (Next.js App Router)
@@ -276,8 +317,8 @@ Duplicate event (same shipment + status + occurredAt) ⇒ `200` idempotent no-op
 Routes:
 - `/login`, `/register`
 - `/shipments` — dashboard: table with status badges, filters (status, search across tracking number/origin/destination/description), pagination; dispatcher additionally sees client column + "New shipment" button
-- `/shipments/[id]` — detail: shipment info card + vertical movement timeline (event log rendered chronologically); dispatcher can add a manual status update (form with only legal next statuses enabled)
-- `/shipments/new` — dispatcher-only creation form (React Hook Form + shared Zod schema)
+- `/shipments/[id]` — detail: shipment info card + vertical movement timeline (event log rendered chronologically); dispatcher can add a manual status update (form with only legal next statuses enabled — the list is `allowedNextStatuses` from the detail response)
+- `/shipments/new` — dispatcher-only creation form (React Hook Form + shared Zod schema); the client is picked from `GET /users?role=CLIENT`
 
 UX details worth the effort:
 - Status badge colors per status; `EXCEPTION` visually loud
@@ -325,7 +366,7 @@ Test runner: **Vitest** everywhere.
    Tests use a dedicated `shipment_tracker_test` database inside that Postgres, created and migrated by Vitest
    global setup and truncated between tests.
    Cover: auth flow (cookies + CSRF), role-based access
-   (client cannot read foreign shipment ⇒ 403/404), webhook happy path, invalid signature, illegal transition,
+   (client cannot read foreign shipment ⇒ 404), webhook happy path, invalid signature, illegal transition,
    idempotent duplicate.
 3. **Frontend:** React Testing Library for critical components (shipment form validation, timeline rendering,
    status badge logic).

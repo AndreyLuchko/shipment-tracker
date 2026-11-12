@@ -26,7 +26,7 @@ Detailed per-milestone plans live in `docs/superpowers/plans/`.
   - [x] Task 13 — M2 wrap-up, smoke test, sign-off
 - [ ] M3 — shipments module (CRUD, role-based access) + state machine + tests
       → plan: `docs/superpowers/plans/2026-11-12-m3-shipments.md`
-  - [ ] Task 1 — record M3 shipment decisions in the spec
+  - [x] Task 1 — record M3 shipment decisions in the spec
   - [ ] Task 2 — shared contract I: statuses, event sources, response schemas, error code
   - [ ] Task 3 — shared contract II: request and query schemas
   - [ ] Task 4 — status state machine (all 49 transitions)

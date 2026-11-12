@@ -194,7 +194,7 @@ Inputs the spec implies but does not spell out; each is pinned by a test in the 
 - Consumes: the Decisions table above.
 - Produces: a spec that agrees with this plan — later tasks cite §6 and §7 "Shipment decisions".
 
-- [ ] **Step 1: §6 — add one line to the transition diagram**
+- [x] **Step 1: §6 — add one line to the transition diagram**
 
 Insert this line directly above the `EXCEPTION → IN_TRANSIT | OUT_FOR_DELIVERY   (recovery)` line, inside the
 same code block:
@@ -203,7 +203,7 @@ same code block:
 IN_TRANSIT → OUT_FOR_DELIVERY               (direct delivery, no warehouse stop)
 ```
 
-- [ ] **Step 2: §6 — replace the self-loop sentence opening and the last bullet, add two bullets**
+- [x] **Step 2: §6 — replace the self-loop sentence opening and the last bullet, add two bullets**
 
 Old: ``- **Self-loop (same status again):** legal for any non-terminal status. A new event``
 
@@ -220,7 +220,7 @@ New:
 - That is 20 legal pairs out of 49 (M3 human checkpoint, 2026-11-11); the unit test lists all 49.
 ```
 
-- [ ] **Step 3: §7 Shipments table — replace the five rows**
+- [x] **Step 3: §7 Shipments table — replace the five rows**
 
 ```markdown
 | POST | `/shipments` | DISPATCHER | body `{ clientId, origin, destination, description, weightKg? }`; creates shipment + initial `CREATED` event (`source: SYSTEM`); `201` `{ shipment }` |
@@ -230,7 +230,7 @@ New:
 | POST | `/shipments/:id/events` | DISPATCHER | body `{ status, location?, note?, occurredAt? }`; manual status update (source=MANUAL), state machine enforced; `201` `{ shipment }`, exact duplicate ⇒ `200` |
 ```
 
-- [ ] **Step 4: §7 — insert a Users table between the Shipments table and the `### Webhooks` heading**
+- [x] **Step 4: §7 — insert a Users table between the Shipments table and the `### Webhooks` heading**
 
 ```markdown
 ### Users
@@ -239,7 +239,7 @@ New:
 | GET | `/users?role=CLIENT` | DISPATCHER | `200` `{ items: [{ id, name, email }] }` ordered by name — feeds the client picker of the "New shipment" form |
 ```
 
-- [ ] **Step 5: §7 — append this block at the end of the section, after the "Auth decisions" list and before the `---` line**
+- [x] **Step 5: §7 — append this block at the end of the section, after the "Auth decisions" list and before the `---` line**
 
 ```markdown
 **Shipment decisions (M3 human checkpoint, 2026-11-11):**
@@ -275,7 +275,7 @@ New:
   no `details`).
 ```
 
-- [ ] **Step 6: §8 — extend two route bullets**
+- [x] **Step 6: §8 — extend two route bullets**
 
 Old: ``dispatcher can add a manual status update (form with only legal next statuses enabled)``
 
@@ -289,13 +289,13 @@ New (the line ends with the inline code `GET /users?role=CLIENT`):
 - `/shipments/new` — dispatcher-only creation form (React Hook Form + shared Zod schema); the client is picked from `GET /users?role=CLIENT`
 ```
 
-- [ ] **Step 7: §10, item 2 — settle the status code**
+- [x] **Step 7: §10, item 2 — settle the status code**
 
 Old: ``(client cannot read foreign shipment ⇒ 403/404)``
 
 New: ``(client cannot read foreign shipment ⇒ 404)``
 
-- [ ] **Step 8: Verify the edit**
+- [x] **Step 8: Verify the edit**
 
 ```bash
 grep -c 'INVALID_STATUS_TRANSITION' shipment-tracker-spec.md
@@ -309,7 +309,7 @@ diagram and the bullet); the diff lists only `shipment-tracker-spec.md` (and `do
 **not** run `prettier --write` on the spec: the file does not pass `prettier --check` today, and reformatting
 it is out of scope.
 
-- [ ] **Step 9: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
+- [x] **Step 9: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
 
 ```bash
 git add shipment-tracker-spec.md docs/plan.md
