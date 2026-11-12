@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { userListResponseSchema, userSummarySchema } from '../../src/index.js';
+import { listUsersQuerySchema, userListResponseSchema, userSummarySchema } from '../../src/index.js';
 
 const validUser = { id: 'u1', name: 'Olena', email: 'olena@example.com' };
 
@@ -35,5 +35,23 @@ describe('userListResponseSchema', () => {
     const result = userListResponseSchema.safeParse({ users: [] });
     expect(result.success).toBe(false);
     expect(result.error?.issues.map((issue) => issue.path)).toContainEqual(['items']);
+  });
+});
+
+describe('listUsersQuerySchema', () => {
+  it('accepts role CLIENT', () => {
+    const result = listUsersQuerySchema.safeParse({ role: 'CLIENT' });
+    expect(result.success).toBe(true);
+    expect(result.data).toEqual({ role: 'CLIENT' });
+  });
+
+  it('accepts role DISPATCHER', () => {
+    expect(listUsersQuerySchema.safeParse({ role: 'DISPATCHER' }).success).toBe(true);
+  });
+
+  it.each([{}, { role: 'ADMIN' }, { role: 'client' }])('rejects %j', (input) => {
+    const result = listUsersQuerySchema.safeParse(input);
+    expect(result.success).toBe(false);
+    expect(result.error?.issues.map((issue) => issue.path)).toContainEqual(['role']);
   });
 });

@@ -28,7 +28,7 @@ Detailed per-milestone plans live in `docs/superpowers/plans/`.
       → plan: `docs/superpowers/plans/2026-11-12-m3-shipments.md`
   - [x] Task 1 — record M3 shipment decisions in the spec
   - [x] Task 2 — shared contract I: statuses, event sources, response schemas, error code
-  - [ ] Task 3 — shared contract II: request and query schemas
+  - [x] Task 3 — shared contract II: request and query schemas
   - [ ] Task 4 — status state machine (all 49 transitions)
   - [ ] Task 5 — error envelope: per-key details, `validationError`, URL-level errors
   - [ ] Task 6 — `GET /api/v1/shipments/:id` (DTO mapping, ownership scoping)
