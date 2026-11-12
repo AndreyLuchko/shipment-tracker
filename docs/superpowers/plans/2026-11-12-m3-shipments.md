@@ -618,7 +618,7 @@ exported.
 The module is pure: no Prisma, no Fastify, no I/O. It imports the status type from
 `@shipment-tracker/shared`, not from `@prisma/client`; the contract test keeps the two lists equal.
 
-- [ ] **Step 1: Write the test helper — the legal pairs written out by hand**
+- [x] **Step 1: Write the test helper — the legal pairs written out by hand**
 
 ```ts
 // apps/api/tests/helpers/transitions.ts
@@ -662,7 +662,7 @@ export function isLegalTransition(from: ShipmentStatus, to: ShipmentStatus): boo
 
 This list is the test oracle. It must stay a literal — never derive it from `state-machine.ts`.
 
-- [ ] **Step 2: Write the failing tests**
+- [x] **Step 2: Write the failing tests**
 
 ```ts
 // apps/api/tests/lib/state-machine.test.ts
@@ -735,7 +735,7 @@ it('shared shipmentStatusSchema and the Prisma ShipmentStatus enum list the same
 });
 ```
 
-- [ ] **Step 3: Run to verify they fail**
+- [x] **Step 3: Run to verify they fail**
 
 ```bash
 npm run test -w apps/api -- tests/lib/state-machine.test.ts tests/modules/shipments/status-contract.test.ts
@@ -744,12 +744,12 @@ npm run test -w apps/api -- tests/lib/state-machine.test.ts tests/modules/shipme
 Expected: `state-machine.test.ts` FAILS — cannot resolve `../../src/lib/state-machine.js`. The contract test
 already passes (it depends only on Task 2).
 
-- [ ] **Step 4: Implement `canTransition` and `allowedNextStatuses` in `apps/api/src/lib/state-machine.ts`**
+- [x] **Step 4: Implement `canTransition` and `allowedNextStatuses` in `apps/api/src/lib/state-machine.ts`**
 
 Hold the rules as one `Readonly<Record<ShipmentStatus, readonly ShipmentStatus[]>>` table so the compiler
 forces an entry for every status. Do not import the test helper.
 
-- [ ] **Step 5: Run tests, typecheck, lint**
+- [x] **Step 5: Run tests, typecheck, lint**
 
 ```bash
 npm run test -w apps/api && npm run typecheck -w apps/api && npm run lint
@@ -757,7 +757,7 @@ npm run test -w apps/api && npm run typecheck -w apps/api && npm run lint
 
 Expected: all exit `0`; the output lists 49 `canTransition` cases.
 
-- [ ] **Step 6: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
+- [x] **Step 6: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
 
 ```bash
 git add apps/api/src/lib/state-machine.ts apps/api/tests/helpers/transitions.ts apps/api/tests/lib/state-machine.test.ts apps/api/tests/modules/shipments/status-contract.test.ts docs/plan.md
