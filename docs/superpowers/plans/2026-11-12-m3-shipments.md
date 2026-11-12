@@ -1614,7 +1614,7 @@ Resulting check order: not found (404) → future (400) → duplicate (200) → 
 latest (400) → write (201). Because `now` is taken after the row lock, a request without `occurredAt` can
 never fail the "earlier" check.
 
-- [ ] **Step 1: Write the failing tests** (`apps/api/tests/modules/shipments/shipment-events-timing.test.ts`)
+- [x] **Step 1: Write the failing tests** (`apps/api/tests/modules/shipments/shipment-events-timing.test.ts`)
 
 Setup: `dispatcher`, `owner`; `post` and `snapshot` as in Task 11. Time helpers: `ago(minutes)` =
 `new Date(Date.now() - minutes * 60_000)`; `iso(date)` = `date.toISOString()`. In `beforeEach` capture
@@ -1662,7 +1662,7 @@ Concurrency — fixture `status: 'OUT_FOR_DELIVERY'` with its latest event at `a
 | `Promise.all` of `{ status: 'DELIVERED', occurredAt: iso(ago(2)) }` and `{ status: 'DELIVERED', occurredAt: iso(ago(1)) }` | status codes sorted equal `[201, 422]`; exactly one stored `DELIVERED` event; `shipment.status === 'DELIVERED'` |
 | `Promise.all` of two identical `{ status: 'DELIVERED', occurredAt: X }` | status codes sorted equal `[200, 201]`; exactly one stored `DELIVERED` event |
 
-- [ ] **Step 2: Run to verify they fail**
+- [x] **Step 2: Run to verify they fail**
 
 ```bash
 npm run test -w apps/api -- tests/modules/shipments/shipment-events-timing.test.ts
@@ -1671,9 +1671,9 @@ npm run test -w apps/api -- tests/modules/shipments/shipment-events-timing.test.
 Expected: FAIL — the earlier/future rows return `201`, the duplicate rows return `201` or `422`. The first
 concurrency row may already pass: the row lock from Task 11 is what makes it pass.
 
-- [ ] **Step 3: Add the three checks to `appendShipmentEvent`**
+- [x] **Step 3: Add the three checks to `appendShipmentEvent`**
 
-- [ ] **Step 4: Run the whole API suite, typecheck, lint** — Task 11's file must still pass unchanged
+- [x] **Step 4: Run the whole API suite, typecheck, lint** — Task 11's file must still pass unchanged
 
 ```bash
 npm run test -w apps/api && npm run typecheck -w apps/api && npm run lint
@@ -1683,7 +1683,7 @@ Expected: all exit `0`. To see the row lock earn its keep, temporarily delete th
 query, run this file, and watch the concurrency rows fail (typically `[201, 201]` and two stored `DELIVERED`
 events); then restore the lock and re-run. Report the result of this check in the task summary.
 
-- [ ] **Step 5: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
+- [x] **Step 5: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
 
 ```bash
 git add apps/api/src/modules/shipments/shipment-events.service.ts apps/api/tests/modules/shipments/shipment-events-timing.test.ts docs/plan.md

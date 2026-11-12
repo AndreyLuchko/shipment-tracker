@@ -37,7 +37,7 @@ Detailed per-milestone plans live in `docs/superpowers/plans/`.
   - [x] Task 9 — `POST /api/v1/shipments`
   - [x] Task 10 — `PATCH /api/v1/shipments/:id`
   - [x] Task 11 — event pipeline I: `appendShipmentEvent` + `POST /api/v1/shipments/:id/events`
-  - [ ] Task 12 — event pipeline II: `occurredAt` guards, idempotent duplicates, concurrency
+  - [x] Task 12 — event pipeline II: `occurredAt` guards, idempotent duplicates, concurrency
   - [ ] Task 13 — `GET /api/v1/users?role=CLIENT`
   - [ ] Task 14 — M3 wrap-up, smoke test, sign-off
 - [ ] M4 — webhook endpoint (HMAC, idempotency) + carrier simulator CLI + tests
