@@ -21,6 +21,8 @@ export interface TestShipmentOptions {
   destination?: string;
   description?: string;
   weightKg?: number | null;
+  /** Defaults to the database default (`'SIMULATED'`). */
+  carrier?: string;
   /** Defaults to the database default (now). */
   createdAt?: Date;
   /** Replaces the default events; the caller keeps them consistent with `status`. */
@@ -60,6 +62,7 @@ export async function createTestShipment(
       description: options.description ?? 'Test parcel',
       weightKg: options.weightKg ?? null,
       status,
+      ...(options.carrier !== undefined ? { carrier: options.carrier } : {}),
       ...(options.createdAt !== undefined ? { createdAt: options.createdAt } : {}),
       events: {
         create: events.map((event) => ({
