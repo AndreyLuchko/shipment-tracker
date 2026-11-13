@@ -42,7 +42,7 @@ Detailed per-milestone plans live in `docs/superpowers/plans/`.
   - [x] Task 14 — M3 wrap-up, smoke test, sign-off
 - [ ] M4 — webhook endpoint (HMAC, idempotency) + carrier simulator CLI + tests
       → plan: `docs/superpowers/plans/2026-11-12-m4-webhooks.md`
-  - [ ] Task 1 — record M4 webhook decisions in the spec
+  - [x] Task 1 — record M4 webhook decisions in the spec
   - [ ] Task 2 — shared contract: `INVALID_SIGNATURE`, signature header, webhook payload and response schemas
   - [ ] Task 3 — config: `WEBHOOK_SECRET` (required, at least 32 characters)
   - [ ] Task 4 — HMAC signing and verification (`lib/hmac.ts`)

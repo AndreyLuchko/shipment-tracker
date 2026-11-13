@@ -61,11 +61,12 @@ shipment-tracker/
 │   │   ├── src/
 │   │   │   ├── modules/      # feature modules: auth, shipments, webhooks, users
 │   │   │   ├── plugins/      # fastify plugins: prisma, auth, csrf, error-handler
-│   │   │   ├── lib/          # state machine, hmac, helpers
+│   │   │   ├── lib/          # state machine, hmac, carriers/ (adapters), helpers
 │   │   │   └── app.ts        # app factory (buildApp) — used by server & tests
 │   │   ├── prisma/
 │   │   │   ├── schema.prisma
 │   │   │   └── seed.ts       # demo data: users, shipments, history
+│   │   ├── scripts/          # simulate-carrier.ts — carrier simulator CLI
 │   │   └── tests/            # integration tests (fastify.inject)
 │   └── web/                  # Next.js App Router frontend
 │       ├── src/
@@ -225,7 +226,7 @@ Base URL: `/api/v1`. All responses JSON. Errors: `{ error: { code, message, deta
 ### Webhooks
 | Method | Path | Access | Notes |
 |---|---|---|---|
-| POST | `/webhooks/carrier` | HMAC signature | simulated carrier events |
+| POST | `/webhooks/carrier` | HMAC signature | body `{ trackingNumber, status, occurredAt, location?, note? }`; simulated carrier events through the same pipeline as manual events (source=WEBHOOK); `201` `{ trackingNumber, shipmentStatus, duplicate }`, exact duplicate ⇒ `200` |
 
 Webhook payload:
 
@@ -238,9 +239,13 @@ Webhook payload:
 }
 ```
 
-Signature: `X-Carrier-Signature: sha256=HMAC_SHA256(rawBody, WEBHOOK_SECRET)`. Invalid signature ⇒ `401`.
-Unknown `trackingNumber` (no matching shipment) ⇒ `404` with a machine-readable error code.
+An optional `note` (≤ 500 characters) may accompany the event, e.g. the reason of an `EXCEPTION`.
+
+Signature: `X-Carrier-Signature: sha256=<hex of HMAC_SHA256(rawBody, WEBHOOK_SECRET)>`. Missing or invalid
+signature ⇒ `401 INVALID_SIGNATURE`.
+Unknown `trackingNumber` (no matching shipment) ⇒ `404 NOT_FOUND`.
 Duplicate event (same shipment + status + occurredAt) ⇒ `200` idempotent no-op.
+The full contract is under "Webhook decisions" below.
 
 **Security requirements (non-negotiable):**
 - JWT only in HttpOnly, `Secure`, `SameSite=Lax` cookies — never in localStorage
@@ -310,6 +315,36 @@ Duplicate event (same shipment + status + occurredAt) ⇒ `200` idempotent no-op
 - **Error codes (M3):** adds `INVALID_STATUS_TRANSITION` (`422`, message `Cannot transition from X to Y`,
   no `details`).
 
+**Webhook decisions (M4 human checkpoint, 2026-11-12):**
+- **Signature:** `X-Carrier-Signature: sha256=<64 hex digits>` — HMAC-SHA256 of the raw request bytes keyed
+  with `WEBHOOK_SECRET`, compared in constant time. The route reads the body as raw bytes (a content-type
+  parser scoped to the webhook plugin; every other route keeps Fastify's JSON parsing) and verifies the
+  signature before anything is parsed. A missing, malformed, repeated or non-matching signature ⇒ `401
+  INVALID_SIGNATURE` with one identical body. `WEBHOOK_SECRET` is required and at least 32 characters; the
+  API refuses to start otherwise. The signature carries no timestamp: a replayed request is an exact
+  duplicate and therefore a no-op (signed timestamps are roadmap).
+- **Check order:** rate limit (`429`) → content type / body size (`415` / `413`, code `BAD_REQUEST`) →
+  signature (`401`) → JSON syntax (`400 BAD_REQUEST`) → payload schema (`400 VALIDATION_ERROR`) → shipment
+  lookup (`404`) → the event pipeline of "Shipment decisions": future `occurredAt` (`400`) → exact duplicate
+  (`200`) → state machine (`422`) → `occurredAt` earlier than the latest event (`400`) → stored (`201`).
+- **Payload:** `trackingNumber` (1–64 characters, any format), `status` (one of the seven internal statuses),
+  `occurredAt` (required, ISO-8601 UTC with `Z`), optional `location` (≤ 200) and `note` (≤ 500). Text is
+  trimmed, unknown keys are dropped, `null` is not accepted for the optional fields. Only
+  `application/json`, at most 16 KiB.
+- **Response:** `{ trackingNumber, shipmentStatus, duplicate }` — `shipmentStatus` is the shipment's status
+  after processing. `201` for a stored event, `200` for an exact duplicate. The carrier never receives the
+  client's name or email or the timeline.
+- **Same rules as manual events:** the webhook calls the one service function manual events use, with
+  `source: WEBHOOK`. The `occurredAt` guards apply unchanged: no clock-skew tolerance, and an event older
+  than the shipment's latest event is rejected for good (`400`) — reconciling out-of-order events is
+  roadmap. An out-of-order delivery whose transition is illegal gets `422` and succeeds when the carrier
+  retries after the missing event has arrived.
+- **Carrier scope:** the shipment is looked up by `trackingNumber` **and** `carrier` = the adapter's name
+  (`SIMULATED`); another carrier's shipment answers the same `404` as an unknown number.
+- **Rate limit:** 120 requests per minute per IP on `POST /webhooks/carrier`, its own counter, every request
+  counted before the signature is checked ⇒ `429 RATE_LIMITED` with `Retry-After`.
+- **Error codes (M4):** adds `INVALID_SIGNATURE` (`401`, message `Invalid webhook signature`).
+
 ---
 
 ## 8. Frontend (Next.js App Router)
@@ -335,24 +370,49 @@ The MVP ships with a **simulated carrier**, but the architecture must make real 
 
 ```ts
 // apps/api/src/lib/carriers/types.ts — backend-only concern, not shared with the frontend
+interface CarrierEvent {
+  trackingNumber: string;
+  status: ShipmentStatus; // already mapped to the internal status
+  occurredAt: Date;
+  location?: string;
+  note?: string;
+}
+
 interface CarrierAdapter {
-  readonly name: string; // "SIMULATED" | "NOVA_POSHTA" | ...
-  parseWebhook(rawBody: unknown, headers: Record<string, string>): CarrierEvent; // verify + normalize
+  readonly name: string; // "SIMULATED" | "NOVA_POSHTA" | ... — equals Shipment.carrier
+  parseWebhook(rawBody: Buffer, headers: IncomingHttpHeaders): CarrierEvent; // verify + normalize
   // post-MVP (polling-based carriers):
   fetchStatus?(trackingNumber: string): Promise<CarrierEvent[]>;
 }
 ```
 
-- `SimulatedCarrierAdapter` is the only MVP implementation.
+- `SimulatedCarrierAdapter` is the only MVP implementation: it verifies `X-Carrier-Signature`, validates the
+  payload of Section 7 and returns the event. `POST /webhooks/carrier` is wired to it directly — an adapter
+  registry and a per-carrier route (`/webhooks/:carrier`) arrive with the second adapter.
 - **Nova Poshta** is the first real target: public, well-documented JSON API (free API key), tracking via
   `TrackingDocument/getStatusDocuments`. NP has no push webhooks for small accounts ⇒ the adapter will use
   `fetchStatus` + a scheduled poller (cron) that converts NP statuses into internal `MovementEvent`s through
   the same state-machine pipeline as webhooks.
 - Ukrposhta and Meest follow the same adapter contract.
 - A small mapping table per carrier translates external status codes → internal `ShipmentStatus`.
+- Roadmap for the webhook contract itself: a signed timestamp (`X-Carrier-Timestamp`) with a tolerance
+  window, clock-skew tolerance for `occurredAt`, reconciliation of out-of-order events, secret rotation.
 
-Include a `scripts/simulate-carrier.ts` CLI that fires realistic webhook sequences at the API (with valid HMAC)
-— used for demos, seeding, and E2E-ish testing.
+`apps/api/scripts/simulate-carrier.ts` is a CLI that fires realistic webhook sequences at the API (with valid
+HMAC) — used for demos and E2E-ish testing:
+
+```bash
+npm run simulate -w apps/api -- <trackingNumber> [--scenario <name>] [--delay <ms>] [--url <baseUrl>]
+```
+
+Scenarios: `delivery` (default: pickup → transit → warehouse → transit → out for delivery → delivered),
+`direct` (no warehouse stop), `exception` (stops in `EXCEPTION`), `recovery` (from `EXCEPTION` to
+`DELIVERED`), and three that demonstrate the contract — `duplicate` (`201` then `200`), `illegal` (`422`),
+`bad-signature` (`401`). Every scenario knows the status codes it expects; the exit code is `0` only when the
+API answered exactly that. Events are stamped with the send time (the `occurredAt` guards leave no room for
+back-dated history), `--delay` defaults to 1000 ms, `--url` to `http://localhost:3001`, and the secret is read
+from `WEBHOOK_SECRET`. The simulator does not create shipments — create one through the API first; demo seed
+data stays in `prisma/seed.ts`.
 
 ---
 
@@ -366,8 +426,9 @@ Test runner: **Vitest** everywhere.
    Tests use a dedicated `shipment_tracker_test` database inside that Postgres, created and migrated by Vitest
    global setup and truncated between tests.
    Cover: auth flow (cookies + CSRF), role-based access
-   (client cannot read foreign shipment ⇒ 404), webhook happy path, invalid signature, illegal transition,
-   idempotent duplicate.
+   (client cannot read foreign shipment ⇒ 404), webhook happy path, missing / invalid signature, a signature
+   made for another body, unknown tracking number, illegal transition, idempotent duplicate, rate limit; the
+   carrier simulator's scenarios run through the real app.
 3. **Frontend:** React Testing Library for critical components (shipment form validation, timeline rendering,
    status badge logic).
 4. Target: meaningful coverage of domain logic, not a vanity percentage. State machine and access control must
@@ -390,7 +451,7 @@ accounts on Render/Railway/Neon/Vercel, connecting the repo, and entering secret
 
 **Deployment:**
 - **API** → Render or Railway (Dockerfile or Node build), env vars: `DATABASE_URL`, `JWT_SECRET` (≥ 32
-  characters), `WEBHOOK_SECRET`. No CORS: the browser reaches the API same-origin through Next.js rewrites
+  characters), `WEBHOOK_SECRET` (≥ 32 characters). No CORS: the browser reaches the API same-origin through Next.js rewrites
   (Section 7, Auth decisions). Behind that proxy the API must take the client IP from `X-Forwarded-For`
   (Fastify `trustProxy`, wired in M7) — otherwise every visitor shares one rate-limit bucket.
 - **PostgreSQL** → Neon (free tier) or Railway Postgres; `prisma migrate deploy` on release
