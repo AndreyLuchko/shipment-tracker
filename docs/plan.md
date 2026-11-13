@@ -45,7 +45,7 @@ Detailed per-milestone plans live in `docs/superpowers/plans/`.
   - [x] Task 1 — record M4 webhook decisions in the spec
   - [x] Task 2 — shared contract: `INVALID_SIGNATURE`, signature header, webhook payload and response schemas
   - [x] Task 3 — config: `WEBHOOK_SECRET` (required, at least 32 characters)
-  - [ ] Task 4 — HMAC signing and verification (`lib/hmac.ts`)
+  - [x] Task 4 — HMAC signing and verification (`lib/hmac.ts`)
   - [ ] Task 5 — carrier adapter: `CarrierAdapter` + `SimulatedCarrierAdapter`
   - [ ] Task 6 — webhook endpoint I: `POST /api/v1/webhooks/carrier` (raw body, signature, lookup, acknowledgement)
   - [ ] Task 7 — webhook endpoint II: event pipeline contract (validation, state machine, idempotency, `occurredAt` guards, concurrency)
