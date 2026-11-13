@@ -5,26 +5,36 @@ export interface AppConfig {
   cookieSecure: boolean;
   /** Per-IP limit applied separately to `POST /auth/login` and `POST /auth/register`. */
   authRateLimit: { max: number; timeWindowMs: number };
+  /** HMAC-SHA256 key of `X-Carrier-Signature`. At least 32 characters. */
+  webhookSecret: string;
 }
 
-const MIN_JWT_SECRET_LENGTH = 32;
+const MIN_SECRET_LENGTH = 32;
 const AUTH_RATE_LIMIT = { max: 5, timeWindowMs: 60_000 } as const;
 
 /** Reads and validates the API configuration. Throws on a missing or invalid variable, naming it. */
 export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
-  const jwtSecret = env['JWT_SECRET'];
-  if (jwtSecret === undefined || jwtSecret === '') {
-    throw new Error('JWT_SECRET is required');
-  }
-  if (jwtSecret.length < MIN_JWT_SECRET_LENGTH) {
-    throw new Error(`JWT_SECRET must be at least ${MIN_JWT_SECRET_LENGTH} characters long`);
-  }
+  const jwtSecret = readSecret(env, 'JWT_SECRET');
+  const webhookSecret = readSecret(env, 'WEBHOOK_SECRET');
 
   return {
     jwtSecret,
     cookieSecure: parseCookieSecure(env['COOKIE_SECURE']),
     authRateLimit: { ...AUTH_RATE_LIMIT },
+    webhookSecret,
   };
+}
+
+/** Reads a required secret of at least `MIN_SECRET_LENGTH` characters. Errors name the variable, never its value. */
+function readSecret(env: NodeJS.ProcessEnv, name: string): string {
+  const value = env[name];
+  if (value === undefined || value === '') {
+    throw new Error(`${name} is required`);
+  }
+  if (value.length < MIN_SECRET_LENGTH) {
+    throw new Error(`${name} must be at least ${MIN_SECRET_LENGTH} characters long`);
+  }
+  return value;
 }
 
 function parseCookieSecure(value: string | undefined): boolean {
