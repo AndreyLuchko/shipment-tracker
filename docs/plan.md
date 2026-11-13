@@ -48,7 +48,7 @@ Detailed per-milestone plans live in `docs/superpowers/plans/`.
   - [x] Task 4 — HMAC signing and verification (`lib/hmac.ts`)
   - [x] Task 5 — carrier adapter: `CarrierAdapter` + `SimulatedCarrierAdapter`
   - [x] Task 6 — webhook endpoint I: `POST /api/v1/webhooks/carrier` (raw body, signature, lookup, acknowledgement)
-  - [ ] Task 7 — webhook endpoint II: event pipeline contract (validation, state machine, idempotency, `occurredAt` guards, concurrency)
+  - [x] Task 7 — webhook endpoint II: event pipeline contract (validation, state machine, idempotency, `occurredAt` guards, concurrency)
   - [ ] Task 8 — rate limiting on the webhook route
   - [ ] Task 9 — carrier simulator core (scenarios, signing, runner)
   - [ ] Task 10 — carrier simulator CLI (`npm run simulate -w apps/api`)
