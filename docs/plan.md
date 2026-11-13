@@ -40,7 +40,7 @@ Detailed per-milestone plans live in `docs/superpowers/plans/`.
   - [x] Task 12 — event pipeline II: `occurredAt` guards, idempotent duplicates, concurrency
   - [x] Task 13 — `GET /api/v1/users?role=CLIENT`
   - [x] Task 14 — M3 wrap-up, smoke test, sign-off
-- [ ] M4 — webhook endpoint (HMAC, idempotency) + carrier simulator CLI + tests
+- [x] M4 — webhook endpoint (HMAC, idempotency) + carrier simulator CLI + tests
       → plan: `docs/superpowers/plans/2026-11-12-m4-webhooks.md`
   - [x] Task 1 — record M4 webhook decisions in the spec
   - [x] Task 2 — shared contract: `INVALID_SIGNATURE`, signature header, webhook payload and response schemas
@@ -52,7 +52,7 @@ Detailed per-milestone plans live in `docs/superpowers/plans/`.
   - [x] Task 8 — rate limiting on the webhook route
   - [x] Task 9 — carrier simulator core (scenarios, signing, runner)
   - [x] Task 10 — carrier simulator CLI (`npm run simulate -w apps/api`)
-  - [ ] Task 11 — M4 wrap-up, simulator smoke test, extended sign-off
+  - [x] Task 11 — M4 wrap-up, simulator smoke test, extended sign-off
 - [ ] M5 — frontend: auth pages + api client
 - [ ] M6 — frontend: dashboard list + detail timeline + create/manual-update forms
 - [ ] M7 — polish (empty states, badges), README, architecture diagram, deploy
