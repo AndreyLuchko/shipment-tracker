@@ -14,7 +14,8 @@
     "db:migrate:dev": "prisma migrate dev",
     "db:migrate:deploy": "prisma migrate deploy",
     "db:seed": "prisma db seed",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio",
+    "simulate": "tsx scripts/simulate-carrier.ts"
   },
   "devDependencies": {
     "@types/node": "^26.1.1",

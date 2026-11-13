@@ -51,7 +51,7 @@ Detailed per-milestone plans live in `docs/superpowers/plans/`.
   - [x] Task 7 — webhook endpoint II: event pipeline contract (validation, state machine, idempotency, `occurredAt` guards, concurrency)
   - [x] Task 8 — rate limiting on the webhook route
   - [x] Task 9 — carrier simulator core (scenarios, signing, runner)
-  - [ ] Task 10 — carrier simulator CLI (`npm run simulate -w apps/api`)
+  - [x] Task 10 — carrier simulator CLI (`npm run simulate -w apps/api`)
   - [ ] Task 11 — M4 wrap-up, simulator smoke test, extended sign-off
 - [ ] M5 — frontend: auth pages + api client
 - [ ] M6 — frontend: dashboard list + detail timeline + create/manual-update forms
