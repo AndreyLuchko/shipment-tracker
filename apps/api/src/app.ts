@@ -4,6 +4,7 @@ import { loadConfig, type AppConfig } from './config.js';
 import { authRoutes } from './modules/auth/auth.routes.js';
 import { shipmentRoutes } from './modules/shipments/shipments.routes.js';
 import { userRoutes } from './modules/users/users.routes.js';
+import { webhookRoutes } from './modules/webhooks/webhooks.routes.js';
 import { authPlugin } from './plugins/auth.js';
 import { csrfPlugin } from './plugins/csrf.js';
 import { errorHandlerPlugin, handleFrameworkError } from './plugins/error-handler.js';
@@ -39,6 +40,7 @@ export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
   app.register(authRoutes, { prefix: '/api/v1/auth' });
   app.register(shipmentRoutes, { prefix: '/api/v1/shipments' });
   app.register(userRoutes, { prefix: '/api/v1/users' });
+  app.register(webhookRoutes, { prefix: '/api/v1/webhooks' });
 
   app.get('/health', async () => {
     return { status: 'ok' as const };
