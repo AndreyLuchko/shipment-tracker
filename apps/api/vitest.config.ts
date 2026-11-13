@@ -14,6 +14,7 @@ export default defineConfig({
     env: {
       DATABASE_URL: toTestDatabaseUrl(process.env['DATABASE_URL']),
       JWT_SECRET: 'test-only-jwt-secret-0123456789abcdef',
+      WEBHOOK_SECRET: 'test-only-webhook-secret-0123456789abcdef',
     },
   },
 });
