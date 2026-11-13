@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { SHIPMENTS_MAX_PAGE } from '../constants.ts';
+import { cleanText, optionalCleanText } from './text.ts';
 import { userSummarySchema } from './user.ts';
 
 export const SHIPMENT_STATUSES = [
@@ -73,23 +74,6 @@ export type ShipmentListResponse = z.infer<typeof shipmentListResponseSchema>;
 // ---------------------------------------------------------------------------
 // Request bodies and query strings. Every type below is the parsed output.
 // ---------------------------------------------------------------------------
-
-/** Trimmed text of `min`–`max` characters without NUL (Postgres cannot store `\u0000` in `text`). */
-function cleanText(min: number, max: number) {
-  return z
-    .string()
-    .trim()
-    .min(min)
-    .max(max)
-    .refine((value) => !value.includes('\u0000'), { message: 'Must not contain NUL characters' });
-}
-
-/** Optional trimmed text of at most `max` characters; empty after trimming parses to `undefined`. */
-function optionalCleanText(max: number) {
-  return cleanText(0, max)
-    .transform((value) => (value === '' ? undefined : value))
-    .optional();
-}
 
 /** A JSON number (no coercion from strings), > 0 and ≤ 100 000. */
 const weightKgSchema = z.number().positive().max(100_000);
