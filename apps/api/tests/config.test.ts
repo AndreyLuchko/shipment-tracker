@@ -14,11 +14,16 @@ describe('loadConfig', () => {
       cookieSecure: true,
       authRateLimit: { max: 5, timeWindowMs: 60_000 },
       webhookSecret: WEBHOOK,
+      webhookRateLimit: { max: 120, timeWindowMs: 60_000 },
     });
   });
 
   it('limits auth endpoints to 5 requests per minute', () => {
     expect(loadConfig(ENV).authRateLimit).toEqual({ max: 5, timeWindowMs: 60000 });
+  });
+
+  it('limits the carrier webhook to 120 requests per minute', () => {
+    expect(loadConfig(ENV).webhookRateLimit).toEqual({ max: 120, timeWindowMs: 60000 });
   });
 
   it("disables Secure cookies only for COOKIE_SECURE='false'", () => {
@@ -91,6 +96,12 @@ describe('buildTestApp', () => {
 
     expect(app.config.webhookSecret).toBe(process.env['WEBHOOK_SECRET']);
     expect(app.config.webhookSecret.length).toBeGreaterThanOrEqual(32);
+  });
+
+  it('defaults the webhook rate limit to 1000 requests per minute', async () => {
+    app = await buildTestApp();
+
+    expect(app.config.webhookRateLimit).toEqual({ max: 1000, timeWindowMs: 60000 });
   });
 
   it('lets a test override the webhook secret', async () => {

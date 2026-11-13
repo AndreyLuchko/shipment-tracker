@@ -7,10 +7,13 @@ export interface AppConfig {
   authRateLimit: { max: number; timeWindowMs: number };
   /** HMAC-SHA256 key of `X-Carrier-Signature`. At least 32 characters. */
   webhookSecret: string;
+  /** Per-IP limit of `POST /webhooks/carrier`. */
+  webhookRateLimit: { max: number; timeWindowMs: number };
 }
 
 const MIN_SECRET_LENGTH = 32;
 const AUTH_RATE_LIMIT = { max: 5, timeWindowMs: 60_000 } as const;
+const WEBHOOK_RATE_LIMIT = { max: 120, timeWindowMs: 60_000 } as const;
 
 /** Reads and validates the API configuration. Throws on a missing or invalid variable, naming it. */
 export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
@@ -22,6 +25,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
     cookieSecure: parseCookieSecure(env['COOKIE_SECURE']),
     authRateLimit: { ...AUTH_RATE_LIMIT },
     webhookSecret,
+    webhookRateLimit: { ...WEBHOOK_RATE_LIMIT },
   };
 }
 

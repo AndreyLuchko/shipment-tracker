@@ -20,7 +20,11 @@ export const webhookRoutes: FastifyPluginAsync = async (app) => {
     done(null, body);
   });
 
-  app.post('/carrier', { bodyLimit: WEBHOOK_BODY_LIMIT_BYTES }, async (request, reply) => {
+  // Per-IP, its own counter; the limiter runs on `onRequest`, so every request counts and an over-limit one is
+  // rejected before its body is read or its signature is checked.
+  const rateLimit = { max: app.config.webhookRateLimit.max, timeWindow: app.config.webhookRateLimit.timeWindowMs };
+
+  app.post('/carrier', { bodyLimit: WEBHOOK_BODY_LIMIT_BYTES, config: { rateLimit } }, async (request, reply) => {
     // A request with no body and no content type skips the parser: treat it as zero bytes.
     const rawBody = Buffer.isBuffer(request.body) ? request.body : Buffer.alloc(0);
     const event = adapter.parseWebhook(rawBody, request.headers);

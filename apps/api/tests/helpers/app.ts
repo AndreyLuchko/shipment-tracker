@@ -12,11 +12,13 @@ export interface BuildTestAppOptions {
 
 /** High enough that test files which are not about rate limiting never trip the auth limiter. */
 const TEST_AUTH_RATE_LIMIT: AppConfig['authRateLimit'] = { max: 1000, timeWindowMs: 60_000 };
+/** Same for the carrier webhook limiter. */
+const TEST_WEBHOOK_RATE_LIMIT: AppConfig['webhookRateLimit'] = { max: 1000, timeWindowMs: 60_000 };
 
 /** Builds the real app (optionally with config overrides and extra routes) and waits until it is ready. */
 export async function buildTestApp(options: BuildTestAppOptions = {}): Promise<FastifyInstance> {
   const app = buildApp({
-    config: { authRateLimit: TEST_AUTH_RATE_LIMIT, ...options.config },
+    config: { authRateLimit: TEST_AUTH_RATE_LIMIT, webhookRateLimit: TEST_WEBHOOK_RATE_LIMIT, ...options.config },
     ...(options.logger !== undefined ? { logger: options.logger } : {}),
   });
 
