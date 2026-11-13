@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   ACCESS_TOKEN_COOKIE_NAME,
+  CARRIER_SIGNATURE_HEADER_NAME,
   CSRF_COOKIE_NAME,
   CSRF_HEADER_NAME,
   ERROR_CODES,
@@ -33,15 +34,21 @@ describe('errorResponseSchema', () => {
     };
     expect(errorResponseSchema.safeParse(body).success).toBe(true);
   });
+
+  it('accepts an INVALID_SIGNATURE error', () => {
+    const body = { error: { code: 'INVALID_SIGNATURE', message: 'Invalid webhook signature' } };
+    expect(errorResponseSchema.safeParse(body).success).toBe(true);
+  });
 });
 
 describe('ERROR_CODES', () => {
-  it('lists the eleven codes in order', () => {
+  it('lists the twelve codes in order', () => {
     expect(ERROR_CODES).toEqual([
       'VALIDATION_ERROR',
       'BAD_REQUEST',
       'UNAUTHORIZED',
       'INVALID_CREDENTIALS',
+      'INVALID_SIGNATURE',
       'FORBIDDEN',
       'CSRF_TOKEN_INVALID',
       'NOT_FOUND',
@@ -58,5 +65,6 @@ describe('cookie and header names', () => {
     expect(ACCESS_TOKEN_COOKIE_NAME).toBe('access_token');
     expect(CSRF_COOKIE_NAME).toBe('csrf_token');
     expect(CSRF_HEADER_NAME).toBe('x-csrf-token');
+    expect(CARRIER_SIGNATURE_HEADER_NAME).toBe('x-carrier-signature');
   });
 });
