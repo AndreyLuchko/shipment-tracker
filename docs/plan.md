@@ -54,6 +54,22 @@ Detailed per-milestone plans live in `docs/superpowers/plans/`.
   - [x] Task 10 — carrier simulator CLI (`npm run simulate -w apps/api`)
   - [x] Task 11 — M4 wrap-up, simulator smoke test, extended sign-off
 - [ ] M5 — frontend: auth pages + api client
+      → plan: `docs/superpowers/plans/2026-11-14-m5-frontend-auth.md`
+  - [x] Task 1 — record M5 frontend decisions in the spec
+  - [ ] Task 2 — shared contract: human-readable validation messages on the auth schemas
+  - [ ] Task 3 — web tooling: dependencies, Tailwind 4, Vitest config, test setup
+  - [ ] Task 4 — API proxy: `API_ORIGIN`, the Next.js rewrite of `/api/v1/*`, `.env.example` clean-up
+  - [ ] Task 5 — API client core: `apiRequest`, `ApiError`, `NetworkError`, CSRF header, error envelope
+  - [ ] Task 6 — auth API functions and the session store (Zustand)
+  - [ ] Task 7 — UI primitives (`Button`, `TextField`, `FormAlert`) and the auth layout shell
+  - [ ] Task 8 — form error mapping: API errors → React Hook Form
+  - [ ] Task 9 — session guards: `AuthGuard` and `GuestOnly`
+  - [ ] Task 10 — `/login` page
+  - [ ] Task 11 — dashboard shell: header, logout, placeholder `/shipments`, `/` redirect (day minimum: demo login end to end)
+  - [ ] Task 12 — `/register` page (role selector)
+  - [ ] Task 13 — one-click demo login
+  - [ ] Task 14 — `proxy.ts`: optimistic redirect for anonymous visitors
+  - [ ] Task 15 — M5 wrap-up, smoke test through the proxy, sign-off
 - [ ] M6 — frontend: dashboard list + detail timeline + create/manual-update forms
 - [ ] M7 — polish (empty states, badges), README, architecture diagram, deploy
 
