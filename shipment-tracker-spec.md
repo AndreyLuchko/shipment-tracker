@@ -72,8 +72,9 @@ shipment-tracker/
 │       ├── src/
 │       │   ├── app/          # routes: (auth)/login, (dashboard)/shipments, ...
 │       │   ├── components/
-│       │   ├── lib/          # api client (fetch, credentials: 'include'), zod schemas
-│       │   └── stores/       # zustand
+│       │   ├── lib/          # api client (fetch, credentials: 'include'), form helpers
+│       │   ├── stores/       # zustand
+│       │   └── proxy.ts      # Next.js 16 Proxy (formerly Middleware): optimistic redirect to /login
 │       └── tests/
 ├── packages/
 │   └── shared/               # shared TypeScript types + Zod schemas (single source of truth)
@@ -95,7 +96,7 @@ shipment-tracker/
 | ORM | **Prisma** + **PostgreSQL** | Type-safe queries, migrations, easy seeding; Postgres = industry default |
 | Validation | **Zod** (shared package) | One schema → API validation + frontend forms + shared types (`z.infer`) |
 | Auth | **JWT in HttpOnly cookies** + CSRF token | Secure-by-default: no tokens in localStorage; double-submit CSRF pattern |
-| Frontend | **Next.js (App Router)** + **TypeScript** | Server Components for data fetching, matches modern hiring expectations |
+| Frontend | **Next.js (App Router)** + **TypeScript** | Layouts and route groups of the App Router; pages are Server Component shells and data is fetched in the browser through the same-origin API proxy (Section 8, Frontend decisions) — matches modern hiring expectations |
 | State | **Zustand** | Minimal client state (auth/session, UI filters) |
 | Forms | **React Hook Form + Zod resolver** | Reuses shared Zod schemas end-to-end |
 | Styling | **Tailwind CSS** | Fast, consistent; wrap long `className` at printWidth 120 |
@@ -350,7 +351,7 @@ The full contract is under "Webhook decisions" below.
 ## 8. Frontend (Next.js App Router)
 
 Routes:
-- `/login`, `/register`
+- `/login` (email + password, plus one-click demo accounts), `/register` (name, email, password, role)
 - `/shipments` — dashboard: table with status badges, filters (status, search across tracking number/origin/destination/description), pagination; dispatcher additionally sees client column + "New shipment" button
 - `/shipments/[id]` — detail: shipment info card + vertical movement timeline (event log rendered chronologically); dispatcher can add a manual status update (form with only legal next statuses enabled — the list is `allowedNextStatuses` from the detail response)
 - `/shipments/new` — dispatcher-only creation form (React Hook Form + shared Zod schema); the client is picked from `GET /users?role=CLIENT`
@@ -361,6 +362,34 @@ UX details worth the effort:
 - Optimistic-free MVP: simple refetch after mutations, and on navigation/mount — no live push for
   webhook-driven updates in MVP (keep it honest and simple)
 - Empty states and loading skeletons — small things recruiters notice
+
+**Frontend decisions (M5 human checkpoint, 2026-11-13):**
+- **Data flow:** client-first. Only the browser talks to the API, always same-origin through the Next.js
+  rewrite of `/api/v1/*` (Section 7, Auth decisions → Topology). Pages and layouts are Server Components that
+  render shells; data is fetched by Client Components. There is one API client
+  (`apps/web/src/lib/api/client.ts`): relative URLs, `credentials: 'include'`, `X-CSRF-Token` read from the
+  `csrf_token` cookie on every unsafe request, 2xx bodies parsed with the shared Zod schemas, every failure
+  thrown as a typed error carrying the `code` of the error envelope.
+- **Session:** a Zustand store holds `{ status, user }` and nothing else — no token of any kind. It is filled
+  by `GET /auth/me` once per page load (skipped when there is no `csrf_token` cookie) and by the login and
+  register responses. A `401 UNAUTHORIZED` or `403 CSRF_TOKEN_INVALID` on any later request clears it.
+- **Route protection:** two layers. `apps/web/src/proxy.ts` (Next.js 16 Proxy, formerly Middleware) only
+  looks for the `access_token` cookie and redirects a visitor without one from `/shipments*` to `/login` — an
+  optimistic check that keeps protected pages from flashing. The client guard backed by `/auth/me` is the
+  source of truth, and the API remains the only real authorization. The proxy never redirects *away* from
+  `/login`: a cookie whose session is dead would otherwise loop.
+- **Forms:** React Hook Form with the Zod resolver on the shared `loginSchema` / `registerSchema`; the
+  human-readable validation messages live in those schemas, so a form and the API's `details` say the same
+  thing. API errors map as: `VALIDATION_ERROR` details → their fields; `EMAIL_TAKEN` → the email field;
+  `INVALID_CREDENTIALS` → a form-level message; `RATE_LIMITED` → a form-level message with the seconds from
+  `Retry-After`; a `5xx`, a non-JSON answer or a network failure → "Service is unavailable. Please try again."
+- **Demo access:** `/login` offers "Demo dispatcher" and "Demo client" buttons that sign in with the seeded
+  accounts in one click. `/register` lets the visitor pick the role (demo only).
+- **After signing in** the user lands on `/shipments`; `/` redirects there. There is no "return to the page I
+  came from" yet.
+- **Styling:** Tailwind CSS 4 (CSS-first, no config file), light theme, English UI.
+- **Dependencies:** Zustand, React Hook Form, `@hookform/resolvers`, Tailwind. Framer Motion is added by the
+  milestone that first animates something (M6).
 
 ---
 
@@ -430,7 +459,10 @@ Test runner: **Vitest** everywhere.
    made for another body, unknown tracking number, illegal transition, idempotent duplicate, rate limit; the
    carrier simulator's scenarios run through the real app.
 3. **Frontend:** React Testing Library for critical components (shipment form validation, timeline rendering,
-   status badge logic).
+   status badge logic). The API client, the session store, the auth forms and the route guards are covered
+   the same way, with `@testing-library/user-event` for interaction and a stubbed `fetch` — no MSW and no
+   browser e2e. The end-to-end path (browser → rewrite → API) is a smoke checklist at the end of each
+   frontend milestone.
 4. Target: meaningful coverage of domain logic, not a vanity percentage. State machine and access control must
    be at 100%.
 
@@ -455,8 +487,10 @@ accounts on Render/Railway/Neon/Vercel, connecting the repo, and entering secret
   (Section 7, Auth decisions). Behind that proxy the API must take the client IP from `X-Forwarded-For`
   (Fastify `trustProxy`, wired in M7) — otherwise every visitor shares one rate-limit bucket.
 - **PostgreSQL** → Neon (free tier) or Railway Postgres; `prisma migrate deploy` on release
-- **Frontend** → Vercel; proxies `/api/v1/*` to the API via Next.js rewrites (the env var holding the proxy
-  target is settled in M5)
+- **Frontend** → Vercel; proxies `/api/v1/*` to the API via Next.js rewrites. The target is the server-only
+  env var `API_ORIGIN` — the API's origin without a path, e.g. `https://<api-host>` — read when the frontend
+  is built: unset ⇒ `http://localhost:3001`, except on Vercel (`VERCEL=1`), where the build fails without it.
+  Changing it requires a redeploy.
 - Seed script creates demo accounts (`dispatcher@demo.dev` / `client@demo.dev`) — credentials listed in README
 - README must include: live demo link, screenshots/GIF, architecture diagram (Mermaid), "Why I built this"
   (ex-logistics founder story), roadmap
@@ -496,6 +530,7 @@ How this project should be built:
    pulled from this spec) that a fresh session can resume it cold by reading the plan + this spec, without
    access to prior chat history.
 7. **Extra-weight human checkpoints:** beyond the per-task reviews above, treat M2 (auth decisions), M4
-   (webhook contract), and pre-deploy as points requiring an explicit, more thorough sign-off before moving on.
+   (webhook contract), M5 (frontend architecture), and pre-deploy as points requiring an explicit, more
+   thorough sign-off before moving on.
 8. **Code style constraints:** TypeScript strict mode; no `any`; shared Zod schemas as the single source of truth;
    Tailwind `className` wrapped at `printWidth: 120`; clean, maintainable, no duplicated fields.
