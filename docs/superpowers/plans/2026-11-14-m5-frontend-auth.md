@@ -1647,7 +1647,7 @@ and the red run in Step 2 was observed.
 `No account yet?` followed by a link `Register` to `/register` (`text-sm text-slate-600`; the link
 `font-medium text-indigo-600 hover:underline`). The link leads to a 404 until Task 12.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 `login-form.test.tsx` — `renderForm()` = `render(<LoginForm />)`; `fill(email, password)` types into the two
 fields; `submit()` clicks the button named `Log in`:
@@ -1674,7 +1674,7 @@ fields; `submit()` clicks the button named `Log in`:
 | `render(<LoginPage />)` | a level-1 heading `Log in`; the fields `Email` and `Password`; the text `No account yet?`; a link `Register` with `href="/register"` |
 | `metadata` imported from the page module | `metadata.title === 'Log in — Shipment Tracker'` |
 
-- [ ] **Step 2: Run to verify they fail**
+- [x] **Step 2: Run to verify they fail**
 
 ```bash
 npm run test -w apps/web -- tests/components/auth/login-form.test.tsx tests/app/login-page.test.tsx
@@ -1682,9 +1682,9 @@ npm run test -w apps/web -- tests/components/auth/login-form.test.tsx tests/app/
 
 Expected: FAIL — neither module exists.
 
-- [ ] **Step 3: Implement `LoginForm` and the login page**
+- [x] **Step 3: Implement `LoginForm` and the login page**
 
-- [ ] **Step 4: Run tests, typecheck, lint, build**
+- [x] **Step 4: Run tests, typecheck, lint, build**
 
 ```bash
 npm run test -w apps/web && npm run typecheck -w apps/web && npm run lint && npm run build -w apps/web
@@ -1692,7 +1692,7 @@ npm run test -w apps/web && npm run typecheck -w apps/web && npm run lint && npm
 
 Expected: all exit `0`; the build's route list now contains `/login`.
 
-- [ ] **Step 5: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
+- [x] **Step 5: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
 
 ```bash
 git add apps/web/src/components/auth/login-form.tsx "apps/web/src/app/(auth)/login" apps/web/tests/components/auth/login-form.test.tsx apps/web/tests/app/login-page.test.tsx docs/plan.md
