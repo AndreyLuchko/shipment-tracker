@@ -2,6 +2,8 @@ import '@testing-library/jest-dom/vitest';
 import { cleanup } from '@testing-library/react';
 import { afterEach, vi } from 'vitest';
 
+import { useAuthStore } from '@/stores/auth';
+
 import { clearCookies } from './helpers/fetch';
 import { redirectMock, routerMock } from './helpers/router';
 
@@ -21,4 +23,5 @@ afterEach(() => {
   routerMock.refresh.mockReset();
   redirectMock.mockReset();
   clearCookies();
+  useAuthStore.setState(useAuthStore.getInitialState(), true);
 });

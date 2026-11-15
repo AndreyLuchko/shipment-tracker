@@ -1,18 +1,10 @@
-import { authResponseSchema, type PublicUser } from '@shipment-tracker/shared';
+import { authResponseSchema } from '@shipment-tracker/shared';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { ApiError, apiRequest, NetworkError, readCookie, setSessionExpiredHandler } from '@/lib/api/client';
 
 import { emptyResponse, errorResponse, jsonResponse, mockFetch, setCookie, textResponse } from '../../helpers/fetch';
-
-// Task 6 moves this to `tests/helpers/fixtures.ts`.
-const USER: PublicUser = {
-  id: 'u1',
-  email: 'client@demo.dev',
-  name: 'Demo Client',
-  role: 'CLIENT',
-  createdAt: '2026-11-13T10:00:00.000Z',
-};
+import { USER } from '../../helpers/fixtures';
 
 const OK = (user: unknown) => jsonResponse(200, { user });
 const UNAUTH = () => errorResponse(401, 'UNAUTHORIZED', 'Authentication required');

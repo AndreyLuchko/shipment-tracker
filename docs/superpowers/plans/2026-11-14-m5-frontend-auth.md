@@ -1159,12 +1159,12 @@ The store, rule by rule:
 - When the module is loaded it registers `setSessionExpiredHandler(() => useAuthStore.getState().clear())`.
 - The state has exactly the seven keys of `AuthState`. No CSRF token, no JWT, no expiry.
 
-- [ ] **Step 1: Create `tests/helpers/fixtures.ts`, switch `client.test.ts` to it, and add the store reset to `tests/setup.ts`**
+- [x] **Step 1: Create `tests/helpers/fixtures.ts`, switch `client.test.ts` to it, and add the store reset to `tests/setup.ts`**
 
 The setup file now imports `@/stores/auth`, which does not exist yet — the whole web suite is red until
 Step 4. That is expected.
 
-- [ ] **Step 2: Write the failing tests**
+- [x] **Step 2: Write the failing tests**
 
 `apps/web/tests/lib/api/auth.test.ts`:
 
@@ -1223,7 +1223,7 @@ No token in the store:
 | `Object.keys(store()).sort()` | equals `['bootstrap', 'clear', 'login', 'logout', 'register', 'status', 'user']` |
 | the CSRF cookie set to `'secret-csrf-value'`; `mockFetch(OK(USER))`; after `login(…)`: `JSON.stringify(store())` | does not contain `'secret-csrf-value'` |
 
-- [ ] **Step 3: Run to verify they fail**
+- [x] **Step 3: Run to verify they fail**
 
 ```bash
 npm run test -w apps/web
@@ -1231,12 +1231,12 @@ npm run test -w apps/web
 
 Expected: FAIL — `@/stores/auth` (imported by the setup file) and `@/lib/api/auth` cannot be resolved.
 
-- [ ] **Step 4: Implement `apps/web/src/lib/api/auth.ts` and `apps/web/src/stores/auth.ts`**
+- [x] **Step 4: Implement `apps/web/src/lib/api/auth.ts` and `apps/web/src/stores/auth.ts`**
 
 `fetchCurrentUser` passes `sessionProbe: true`. All four request functions parse with `authResponseSchema`
 and return its `user`, except `logout`, which passes no schema.
 
-- [ ] **Step 5: Run tests, typecheck, lint**
+- [x] **Step 5: Run tests, typecheck, lint**
 
 ```bash
 npm run test -w apps/web && npm run typecheck -w apps/web && npm run lint
@@ -1245,7 +1245,7 @@ grep -rn -E 'localStorage|sessionStorage|persist' apps/web/src
 
 Expected: the first line exits `0`; the `grep` prints nothing.
 
-- [ ] **Step 6: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
+- [x] **Step 6: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
 
 ```bash
 git add apps/web/src/lib/api/auth.ts apps/web/src/stores/auth.ts apps/web/tests/helpers/fixtures.ts apps/web/tests/lib/api apps/web/tests/stores apps/web/tests/setup.ts docs/plan.md
