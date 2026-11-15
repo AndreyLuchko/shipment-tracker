@@ -730,7 +730,7 @@ contains Tailwind's utilities, and there is no `tailwind.config.*`.
 
 The env is read inside `rewrites()`, not at module load, so importing the config never throws.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 `apps/web/tests/lib/api-origin.test.ts` (first line `// @vitest-environment node`):
 
@@ -756,7 +756,7 @@ The env is read inside `rewrites()`, not at module load, so importing the config
 | `vi.stubEnv('API_ORIGIN', '')`, `vi.stubEnv('VERCEL', '1')` | `nextConfig.rewrites?.()` rejects with `/API_ORIGIN is required/` |
 | — | `nextConfig.transpilePackages` deep-equals `['@shipment-tracker/shared']` |
 
-- [ ] **Step 2: Run to verify they fail**
+- [x] **Step 2: Run to verify they fail**
 
 ```bash
 npm run test -w apps/web -- tests/lib/api-origin.test.ts tests/next-config.test.ts
@@ -764,9 +764,9 @@ npm run test -w apps/web -- tests/lib/api-origin.test.ts tests/next-config.test.
 
 Expected: FAIL — `@/lib/api-origin` cannot be resolved and `nextConfig.rewrites` is `undefined`.
 
-- [ ] **Step 3: Implement `resolveApiOrigin` and add `rewrites()` to `next.config.ts`**
+- [x] **Step 3: Implement `resolveApiOrigin` and add `rewrites()` to `next.config.ts`**
 
-- [ ] **Step 4: Update `.env.example`** — delete the two lines `FRONTEND_ORIGIN="http://localhost:3000"` and `NEXT_PUBLIC_API_URL="http://localhost:3001"` and put this in their place:
+- [x] **Step 4: Update `.env.example`** — delete the two lines `FRONTEND_ORIGIN="http://localhost:3000"` and `NEXT_PUBLIC_API_URL="http://localhost:3001"` and put this in their place:
 
 ```dotenv
 # Frontend (apps/web): origin of the API that Next.js proxies /api/v1/* to — scheme and host, no path.
@@ -779,7 +779,7 @@ No code reads the two removed variables (`grep -rn 'FRONTEND_ORIGIN\|NEXT_PUBLIC
 prints nothing). The owner's local `apps/api/.env` may still contain them; they are harmless — mention it in
 the task report and do not edit the file.
 
-- [ ] **Step 5: Run tests, typecheck, lint, build**
+- [x] **Step 5: Run tests, typecheck, lint, build**
 
 ```bash
 npm run test -w apps/web && npm run typecheck -w apps/web && npm run lint && npm run build -w apps/web
@@ -787,7 +787,7 @@ npm run test -w apps/web && npm run typecheck -w apps/web && npm run lint && npm
 
 Expected: all exit `0` (the build runs without `API_ORIGIN` and without `VERCEL`, so it uses the default).
 
-- [ ] **Step 6: Prove the Vercel guard on a real build**
+- [x] **Step 6: Prove the Vercel guard on a real build**
 
 ```bash
 VERCEL=1 npm run build -w apps/web; echo "exit=$?"
@@ -797,7 +797,7 @@ npm run build -w apps/web > /dev/null 2>&1; echo "rebuild exit=$?"
 Expected: `Error: API_ORIGIN is required…` and a non-zero `exit=`; then `rebuild exit=0` (leave a good build
 behind).
 
-- [ ] **Step 7: Check the rewrite against the running API**
+- [x] **Step 7: Check the rewrite against the running API**
 
 Terminal 1: `npm run dev -w apps/api` (needs Postgres). Terminal 2: `npm run dev -w apps/web`. Terminal 3:
 
@@ -812,7 +812,7 @@ Expected: `HTTP/1.1 401`, a JSON content type and
 `{"error":{"code":"NOT_FOUND","message":"Route not found"}}` (the API's own 404 — proof the request was
 proxied); then `404` from Next.js (`/health` is outside `/api/v1` and is not proxied). Stop both dev servers.
 
-- [ ] **Step 8: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
+- [x] **Step 8: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
 
 ```bash
 git add apps/web/next.config.ts apps/web/src/lib/api-origin.ts apps/web/tests/lib/api-origin.test.ts apps/web/tests/next-config.test.ts .env.example docs/plan.md
