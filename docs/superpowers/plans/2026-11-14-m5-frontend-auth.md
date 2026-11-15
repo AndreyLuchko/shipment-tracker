@@ -450,7 +450,7 @@ is tested, §11 names `API_ORIGIN` and its three cases, and §12.7 lists M5.
 Every limit, the trimming and lower-casing, the `role` default and the stripping of unknown keys stay exactly
 as they are. A missing key or a value of the wrong type keeps Zod's default message (C21).
 
-- [ ] **Step 1: Write the failing tests** — a new `describe('validation messages')` at the end of `packages/shared/tests/schemas/auth.test.ts`
+- [x] **Step 1: Write the failing tests** — a new `describe('validation messages')` at the end of `packages/shared/tests/schemas/auth.test.ts`
 
 Helper in the test file: `messagesAt(result, field)` returns
 `result.error?.issues.filter((issue) => issue.path.join('.') === field).map((issue) => issue.message) ?? []`.
@@ -472,7 +472,7 @@ Helper in the test file: `messagesAt(result, field)` returns
 | `loginSchema` | `{ ...validLogin, password: 'x'.repeat(129) }` | `['Password must be at most 128 characters']` |
 | `registerSchema` | `validRegister` | still succeeds with `{ email: 'client@demo.dev', password: 'password1', name: 'Olena', role: 'CLIENT' }` |
 
-- [ ] **Step 2: Run to verify they fail**
+- [x] **Step 2: Run to verify they fail**
 
 ```bash
 npm run test -w packages/shared
@@ -481,11 +481,11 @@ npm run test -w packages/shared
 Expected: FAIL — the eleven message rows receive Zod's defaults (`Invalid email address`,
 `Too small: expected string to have >=8 characters`, …); the last row and every existing test pass.
 
-- [ ] **Step 3: Implement — pass each message as the argument of the check it belongs to** (`z.email('…')`, `.min(8, '…')`, `.max(128, '…')`, …)
+- [x] **Step 3: Implement — pass each message as the argument of the check it belongs to** (`z.email('…')`, `.min(8, '…')`, `.max(128, '…')`, …)
 
 `git diff packages/shared/src` must show only added message arguments: no check added, removed or reordered.
 
-- [ ] **Step 4: Run the tests, typecheck, lint — in every workspace, because the API validates with these schemas**
+- [x] **Step 4: Run the tests, typecheck, lint — in every workspace, because the API validates with these schemas**
 
 ```bash
 npm run test && npm run typecheck && npm run lint
@@ -495,7 +495,7 @@ git diff --stat -- apps/api
 Expected: the first line exits `0` (the API suite passes unchanged: its tests assert paths and codes, not
 Zod's wording); the second prints nothing.
 
-- [ ] **Step 5: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
+- [x] **Step 5: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
 
 ```bash
 git add packages/shared docs/plan.md

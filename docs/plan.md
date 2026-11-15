@@ -56,7 +56,7 @@ Detailed per-milestone plans live in `docs/superpowers/plans/`.
 - [ ] M5 — frontend: auth pages + api client
       → plan: `docs/superpowers/plans/2026-11-14-m5-frontend-auth.md`
   - [x] Task 1 — record M5 frontend decisions in the spec
-  - [ ] Task 2 — shared contract: human-readable validation messages on the auth schemas
+  - [x] Task 2 — shared contract: human-readable validation messages on the auth schemas
   - [ ] Task 3 — web tooling: dependencies, Tailwind 4, Vitest config, test setup
   - [ ] Task 4 — API proxy: `API_ORIGIN`, the Next.js rewrite of `/api/v1/*`, `.env.example` clean-up
   - [ ] Task 5 — API client core: `apiRequest`, `ApiError`, `NetworkError`, CSRF header, error envelope
