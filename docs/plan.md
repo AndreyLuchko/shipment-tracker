@@ -63,7 +63,7 @@ Detailed per-milestone plans live in `docs/superpowers/plans/`.
   - [x] Task 6 — auth API functions and the session store (Zustand)
   - [x] Task 7 — UI primitives (`Button`, `TextField`, `FormAlert`) and the auth layout shell
   - [x] Task 8 — form error mapping: API errors → React Hook Form
-  - [ ] Task 9 — session guards: `AuthGuard` and `GuestOnly`
+  - [x] Task 9 — session guards: `AuthGuard` and `GuestOnly`
   - [ ] Task 10 — `/login` page
   - [ ] Task 11 — dashboard shell: header, logout, placeholder `/shipments`, `/` redirect (day minimum: demo login end to end)
   - [ ] Task 12 — `/register` page (role selector)

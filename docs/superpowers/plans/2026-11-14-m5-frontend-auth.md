@@ -1548,7 +1548,7 @@ Both components call `bootstrap()` in an effect on mount and read `status` from 
 
 Neither component writes to the store during render.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 `auth-guard.test.tsx` — `renderGuard()` = `render(<AuthGuard><p>secret</p></AuthGuard>)`:
 
@@ -1579,7 +1579,7 @@ add:
 |---|---|
 | signed in as `USER`; `render(<AuthLayout><h1>Log in</h1></AuthLayout>)` | `routerMock.replace` called with `'/shipments'` |
 
-- [ ] **Step 2: Run to verify they fail**
+- [x] **Step 2: Run to verify they fail**
 
 ```bash
 npm run test -w apps/web -- tests/components/auth tests/app/auth-layout.test.tsx
@@ -1587,11 +1587,11 @@ npm run test -w apps/web -- tests/components/auth tests/app/auth-layout.test.tsx
 
 Expected: FAIL — the two guard modules do not exist, and the new layout row sees no redirect.
 
-- [ ] **Step 3: Implement `AuthGuard` and `GuestOnly`; wrap the children of `app/(auth)/layout.tsx` in `<GuestOnly>`**
+- [x] **Step 3: Implement `AuthGuard` and `GuestOnly`; wrap the children of `app/(auth)/layout.tsx` in `<GuestOnly>`**
 
 The layout stays a Server Component: it only renders the client component around its children.
 
-- [ ] **Step 4: Run tests, typecheck, lint**
+- [x] **Step 4: Run tests, typecheck, lint**
 
 ```bash
 npm run test -w apps/web && npm run typecheck -w apps/web && npm run lint
@@ -1599,7 +1599,7 @@ npm run test -w apps/web && npm run typecheck -w apps/web && npm run lint
 
 Expected: all exit `0`.
 
-- [ ] **Step 5: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
+- [x] **Step 5: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
 
 ```bash
 git add apps/web/src/components/auth "apps/web/src/app/(auth)/layout.tsx" apps/web/tests/components/auth apps/web/tests/app/auth-layout.test.tsx docs/plan.md
