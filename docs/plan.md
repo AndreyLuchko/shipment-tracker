@@ -53,7 +53,7 @@ Detailed per-milestone plans live in `docs/superpowers/plans/`.
   - [x] Task 9 — carrier simulator core (scenarios, signing, runner)
   - [x] Task 10 — carrier simulator CLI (`npm run simulate -w apps/api`)
   - [x] Task 11 — M4 wrap-up, simulator smoke test, extended sign-off
-- [ ] M5 — frontend: auth pages + api client
+- [x] M5 — frontend: auth pages + api client
       → plan: `docs/superpowers/plans/2026-11-14-m5-frontend-auth.md`
   - [x] Task 1 — record M5 frontend decisions in the spec
   - [x] Task 2 — shared contract: human-readable validation messages on the auth schemas
@@ -69,7 +69,7 @@ Detailed per-milestone plans live in `docs/superpowers/plans/`.
   - [x] Task 12 — `/register` page (role selector)
   - [x] Task 13 — one-click demo login
   - [x] Task 14 — `proxy.ts`: optimistic redirect for anonymous visitors
-  - [ ] Task 15 — M5 wrap-up, smoke test through the proxy, sign-off
+  - [x] Task 15 — M5 wrap-up, smoke test through the proxy, sign-off
 - [ ] M6 — frontend: dashboard list + detail timeline + create/manual-update forms
 - [ ] M7 — polish (empty states, badges), README, architecture diagram, deploy
 
