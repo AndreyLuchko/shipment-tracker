@@ -2138,7 +2138,7 @@ git commit -m "feat: redirect anonymous visitors away from protected pages in th
 - Consumes: everything above; local `apps/api/.env` with valid secrets (M2, M4).
 - Produces: nothing consumed by later tasks — this closes M5.
 
-- [ ] **Step 1: Clean-state verification**
+- [x] **Step 1: Clean-state verification**
 
 ```bash
 docker compose down -v
@@ -2161,7 +2161,7 @@ lines of `apps/web/src/lib/api-origin.ts` (the default origin) — no storage AP
 absolute URL anywhere else in the frontend source. (`docker compose down -v` drops the local databases on
 purpose; the seed recreates the demo accounts.)
 
-- [ ] **Step 2: Smoke test — the whole path through the rewrite**
+- [x] **Step 2: Smoke test — the whole path through the rewrite**
 
 Terminal 1 (the inline variable lets `curl` keep and send the cookies over plain HTTP):
 
@@ -2246,7 +2246,7 @@ curl -s -i $API/auth/me | tr -d '\r' | sed -n '1p;$p'
 Expected: a `500` status line and a last line that is not the JSON envelope — the case the client turns into
 "Service is unavailable. Please try again.". Stop the web dev server.
 
-- [ ] **Step 3: Browser check (owner) — prepare the list and report it; the owner runs it**
+- [x] **Step 3: Browser check (owner) — prepare the list and report it; the owner runs it**
 
 Start the API again **without** `COOKIE_SECURE=false` (a restart also resets the in-memory rate-limit
 counters) and the web app; use Chrome or Firefox.
@@ -2269,21 +2269,21 @@ counters) and the web app; use Chrome or Firefox.
     Reload `/shipments` → ends on `/login` with a usable form; the address bar settles (no redirect loop).
 11. Stop the API → `Demo client` → `Service is unavailable. Please try again.`; the page keeps working.
 
-- [ ] **Step 4: Update `docs/plan.md`** — tick the M5 line and Task 15; Tasks 1–14 are already ticked:
+- [x] **Step 4: Update `docs/plan.md`** — tick the M5 line and Task 15; Tasks 1–14 are already ticked:
 
 ```markdown
 - [x] M5 — frontend: auth pages + api client
       → plan: `docs/superpowers/plans/2026-11-14-m5-frontend-auth.md`
 ```
 
-- [ ] **Step 5: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
+- [x] **Step 5: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
 
 ```bash
 git add docs/plan.md
 git commit -m "docs: mark M5 complete in plan tracker"
 ```
 
-- [ ] **Step 6: Human sign-off (spec §12.7) — report this checklist with the evidence for each line and wait for an explicit "approved"**
+- [x] **Step 6: Human sign-off (spec §12.7) — report this checklist with the evidence for each line and wait for an explicit "approved"**
 
 Session and security:
 
