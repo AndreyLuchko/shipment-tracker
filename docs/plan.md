@@ -59,7 +59,7 @@ Detailed per-milestone plans live in `docs/superpowers/plans/`.
   - [x] Task 2 — shared contract: human-readable validation messages on the auth schemas
   - [x] Task 3 — web tooling: dependencies, Tailwind 4, Vitest config, test setup
   - [x] Task 4 — API proxy: `API_ORIGIN`, the Next.js rewrite of `/api/v1/*`, `.env.example` clean-up
-  - [ ] Task 5 — API client core: `apiRequest`, `ApiError`, `NetworkError`, CSRF header, error envelope
+  - [x] Task 5 — API client core: `apiRequest`, `ApiError`, `NetworkError`, CSRF header, error envelope
   - [ ] Task 6 — auth API functions and the session store (Zustand)
   - [ ] Task 7 — UI primitives (`Button`, `TextField`, `FormAlert`) and the auth layout shell
   - [ ] Task 8 — form error mapping: API errors → React Hook Form

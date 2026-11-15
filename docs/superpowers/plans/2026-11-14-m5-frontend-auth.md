@@ -961,7 +961,7 @@ Test-helper notes: `emptyResponse` must pass `null` as the body (`new Response('
 `url: String(input)`, `method: init?.method ?? 'GET'`, `headers: new Headers(init?.headers)`,
 `body: typeof init?.body === 'string' ? init.body : undefined`, `credentials: init?.credentials`.
 
-- [ ] **Step 1: Write the test helper `apps/web/tests/helpers/fetch.ts` and its own test, and add `clearCookies()` to `tests/setup.ts`**
+- [x] **Step 1: Write the test helper `apps/web/tests/helpers/fetch.ts` and its own test, and add `clearCookies()` to `tests/setup.ts`**
 
 `apps/web/tests/helpers/fetch.test.ts`:
 
@@ -976,7 +976,7 @@ Test-helper notes: `emptyResponse` must pass `null` as the body (`new Response('
 | `errorResponse(404, 'NOT_FOUND', 'Route not found')` | JSON deep-equals `{ error: { code: 'NOT_FOUND', message: 'Route not found' } }` — no `details` key |
 | `setCookie('csrf_token', 'tok_-1')` in one `it`; `document.cookie` in the next `it` | `'csrf_token=tok_-1'`; then `''` (the setup file cleared it) |
 
-- [ ] **Step 2: Run the helper's test**
+- [x] **Step 2: Run the helper's test**
 
 ```bash
 npm run test -w apps/web -- tests/helpers/fetch.test.ts
@@ -984,7 +984,7 @@ npm run test -w apps/web -- tests/helpers/fetch.test.ts
 
 Expected: PASS — the helper is test infrastructure and is written together with its test.
 
-- [ ] **Step 3: Write the failing tests** (`apps/web/tests/lib/api/client.test.ts`)
+- [x] **Step 3: Write the failing tests** (`apps/web/tests/lib/api/client.test.ts`)
 
 `afterEach(() => setSessionExpiredHandler(null))`. `call()` below is `apiRequest('/auth/me', { schema: authResponseSchema })`.
 "Rejects with `ApiError {…}`" means: the rejection is an `ApiError` whose listed properties equal the given
@@ -1051,7 +1051,7 @@ The session-expired handler (`const handler = vi.fn(); setSessionExpiredHandler(
 `USER` is not available before Task 6 — define it locally in this test file with the value from the test
 vocabulary; Task 6 moves it to `tests/helpers/fixtures.ts`.
 
-- [ ] **Step 4: Run to verify they fail**
+- [x] **Step 4: Run to verify they fail**
 
 ```bash
 npm run test -w apps/web -- tests/lib/api/client.test.ts
@@ -1059,9 +1059,9 @@ npm run test -w apps/web -- tests/lib/api/client.test.ts
 
 Expected: FAIL — `@/lib/api/client` cannot be resolved.
 
-- [ ] **Step 5: Implement `apps/web/src/lib/api/client.ts`**
+- [x] **Step 5: Implement `apps/web/src/lib/api/client.ts`**
 
-- [ ] **Step 6: Run tests, typecheck, lint**
+- [x] **Step 6: Run tests, typecheck, lint**
 
 ```bash
 npm run test -w apps/web && npm run typecheck -w apps/web && npm run lint
@@ -1070,7 +1070,7 @@ grep -n -E 'localStorage|sessionStorage|http://|https://' apps/web/src/lib/api/c
 
 Expected: the first line exits `0`; the `grep` prints nothing — no storage and no absolute URL.
 
-- [ ] **Step 7: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
+- [x] **Step 7: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
 
 ```bash
 git add apps/web/src/lib/api/client.ts apps/web/tests/helpers/fetch.ts apps/web/tests/helpers/fetch.test.ts apps/web/tests/lib/api/client.test.ts apps/web/tests/setup.ts docs/plan.md

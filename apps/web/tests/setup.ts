@@ -2,6 +2,7 @@ import '@testing-library/jest-dom/vitest';
 import { cleanup } from '@testing-library/react';
 import { afterEach, vi } from 'vitest';
 
+import { clearCookies } from './helpers/fetch';
 import { redirectMock, routerMock } from './helpers/router';
 
 // `vi.mock` is hoisted above the imports, so the factory loads the helper lazily.
@@ -19,4 +20,5 @@ afterEach(() => {
   routerMock.push.mockReset();
   routerMock.refresh.mockReset();
   redirectMock.mockReset();
+  clearCookies();
 });
