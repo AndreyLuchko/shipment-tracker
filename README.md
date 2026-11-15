@@ -28,7 +28,7 @@ Full specification: [`shipment-tracker-spec.md`](./shipment-tracker-spec.md).
 
 ## Prerequisites
 
-- Node 20+ (see `.nvmrc`)
+- Node 22.13+ (see `.nvmrc`)
 - Docker (for local Postgres)
 
 ## Local development

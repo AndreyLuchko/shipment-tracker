@@ -33,7 +33,7 @@ the API's `details` say the same thing.
 **Tech Stack:** Next.js 16.2.11 (App Router, Turbopack, `rewrites`, `proxy.ts`), React 19.2.8, Tailwind CSS
 4.3 (`@tailwindcss/postcss`, CSS-first), Zustand 5.1, React Hook Form 7.92 + `@hookform/resolvers` 7.0, Zod
 4.6.7, Vitest 4.1 (Vite 8.1) + jsdom 29 + React Testing Library 16 + `@testing-library/user-event` 14.6,
-TypeScript 6.0.3, Node 20. Task 3 adds seven packages to `apps/web` (versions checked against the npm registry
+TypeScript 6.0.3, Node 22. Task 3 adds seven packages to `apps/web` (versions checked against the npm registry
 on 2026-11-13); nothing else is installed and nothing is upgraded.
 
 **Spec:** `shipment-tracker-spec.md` — §3 (structure of `apps/web`), §4 (stack), §7 (Auth table, Security
@@ -51,7 +51,7 @@ Decided by the project owner:
 | D2 | Who talks to the API, where the session lives | Client-first: only the browser, through the rewrite; one API client; the session (`user` + `status`) in a Zustand store filled by `GET /auth/me`. The CSRF token lives only in its cookie. |
 | D3 | Route protection | Both layers: `src/proxy.ts` (Next.js 16 Proxy, formerly Middleware) checks only that the `access_token` cookie is present and redirects anonymous visitors to `/login`; the client guard backed by `/auth/me` is the source of truth. The proxy redirects in one direction only. |
 | D4 | Form errors | `VALIDATION_ERROR` details → their fields; `INVALID_CREDENTIALS` → form-level message; `EMAIL_TAKEN` → the email field; `RATE_LIMITED` → form-level message with the seconds from `Retry-After`; `5xx`, non-JSON or network failure → one generic message; `UNAUTHORIZED` or `CSRF_TOKEN_INVALID` on any request → the store is cleared and the guard sends the user to `/login`. Human-readable validation messages live in the auth schemas of `packages/shared`. |
-| D5 | Frontend tests | Vitest + React Testing Library + `@testing-library/user-event` with a stubbed `fetch`. No MSW (3.x needs Node ≥ 22.12; the repo is on Node 20), no Playwright. The end-to-end path is the smoke test of Task 15 (`curl` through `:3000` plus the owner's browser check). |
+| D5 | Frontend tests | Vitest + React Testing Library + `@testing-library/user-event` with a stubbed `fetch`. No MSW (3.x needs Node ≥ 22.12; the repo was on Node 20 when this was decided), no Playwright. The end-to-end path is the smoke test of Task 15 (`curl` through `:3000` plus the owner's browser check). |
 | D6 | Packages | Tailwind 4.3, Zustand 5.1, React Hook Form 7.92, `@hookform/resolvers` 7.0, `zod` (declared as the resolver's peer), `@testing-library/user-event` 14.6. Framer Motion waits for M6. Next.js and React are not upgraded. |
 | D7 | Demo access | Two buttons on `/login` — "Demo dispatcher" and "Demo client" — that sign in with the seeded accounts in one click. |
 | D8 | Proxy target | Server-only env var `API_ORIGIN`. Unset ⇒ `http://localhost:3001`; unset while `VERCEL=1` ⇒ `next build` fails. `FRONTEND_ORIGIN` and `NEXT_PUBLIC_API_URL` leave `.env.example`. |
@@ -132,7 +132,7 @@ theme, i18n (roadmap or never).
 
 ## Global Constraints
 
-- Node 20+ (all workspaces). npm workspaces only. **Dependencies: exactly the seven packages of Task 3, added
+- Node 22.13+ (all workspaces). npm workspaces only. **Dependencies: exactly the seven packages of Task 3, added
   to `apps/web`; no other package, no upgrade of an installed one.**
 - **`apps/api/**` is frozen** — no task modifies a file there. `packages/shared` changes only in
   `src/schemas/auth.ts` and `tests/schemas/auth.test.ts` (Task 2). If a task seems to need more, stop and ask

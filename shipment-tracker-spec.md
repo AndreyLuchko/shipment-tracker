@@ -84,7 +84,7 @@ shipment-tracker/
 └── README.md
 ```
 
-**Tooling:** npm workspaces (no Turborepo for MVP — keep it simple). Node 20+. Prettier `printWidth: 120`.
+**Tooling:** npm workspaces (no Turborepo for MVP — keep it simple). Node 22+. Prettier `printWidth: 120`.
 
 ---
 
