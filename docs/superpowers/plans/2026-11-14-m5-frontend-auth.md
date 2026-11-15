@@ -1868,7 +1868,7 @@ browser steps — the week plan's minimum for M5.
 `RegisterPage`: `<h1>Create account</h1>`, `<RegisterForm />`, then `Already have an account?` followed by a
 link `Log in` to `/login` — the same classes as on the login page.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 `register-form.test.tsx` — `fill({ name, email, password })` types into the three fields; `submit()` clicks
 `Create account`; `VALID` = `{ name: ' Olena ', email: ' New.Client@Example.com ', password: 'password123' }`:
@@ -1894,7 +1894,7 @@ link `Log in` to `/login` — the same classes as on the login page.
 | `render(<RegisterPage />)` | a level-1 heading `Create account`; the fields `Name`, `Email`, `Password`; the text `Already have an account?`; a link `Log in` with `href="/login"` |
 | `metadata` | `metadata.title === 'Create account — Shipment Tracker'` |
 
-- [ ] **Step 2: Run to verify they fail**
+- [x] **Step 2: Run to verify they fail**
 
 ```bash
 npm run test -w apps/web -- tests/components/auth/register-form.test.tsx tests/app/register-page.test.tsx
@@ -1902,9 +1902,9 @@ npm run test -w apps/web -- tests/components/auth/register-form.test.tsx tests/a
 
 Expected: FAIL — neither module exists.
 
-- [ ] **Step 3: Implement `RegisterForm` and the register page**
+- [x] **Step 3: Implement `RegisterForm` and the register page**
 
-- [ ] **Step 4: Run tests, typecheck, lint, build**
+- [x] **Step 4: Run tests, typecheck, lint, build**
 
 ```bash
 npm run test -w apps/web && npm run typecheck -w apps/web && npm run lint && npm run build -w apps/web
@@ -1912,7 +1912,7 @@ npm run test -w apps/web && npm run typecheck -w apps/web && npm run lint && npm
 
 Expected: all exit `0`; the build's route list now contains `/register`.
 
-- [ ] **Step 5: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
+- [x] **Step 5: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
 
 ```bash
 git add apps/web/src/components/auth/register-form.tsx "apps/web/src/app/(auth)/register" apps/web/tests/components/auth/register-form.test.tsx apps/web/tests/app/register-page.test.tsx docs/plan.md
