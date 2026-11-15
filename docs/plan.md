@@ -68,7 +68,7 @@ Detailed per-milestone plans live in `docs/superpowers/plans/`.
   - [x] Task 11 — dashboard shell: header, logout, placeholder `/shipments`, `/` redirect (day minimum: demo login end to end)
   - [x] Task 12 — `/register` page (role selector)
   - [x] Task 13 — one-click demo login
-  - [ ] Task 14 — `proxy.ts`: optimistic redirect for anonymous visitors
+  - [x] Task 14 — `proxy.ts`: optimistic redirect for anonymous visitors
   - [ ] Task 15 — M5 wrap-up, smoke test through the proxy, sign-off
 - [ ] M6 — frontend: dashboard list + detail timeline + create/manual-update forms
 - [ ] M7 — polish (empty states, badges), README, architecture diagram, deploy

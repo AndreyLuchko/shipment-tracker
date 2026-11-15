@@ -2061,7 +2061,7 @@ redirect *away* from them would loop on a dead session — Review Focus 1), not 
 get the API's `401`, not an HTML redirect), not `/` (it redirects to `/shipments` by itself), not static
 files. M6's pages live under `/shipments`, so they are covered without touching this file.
 
-- [ ] **Step 1: Write the failing tests** (`apps/web/tests/proxy.test.ts`, first line `// @vitest-environment node`)
+- [x] **Step 1: Write the failing tests** (`apps/web/tests/proxy.test.ts`, first line `// @vitest-environment node`)
 
 `request(url, cookie?)` = `new NextRequest(url, cookie === undefined ? undefined : { headers: { cookie } })`.
 Do not import `next/experimental/testing/server` (C19).
@@ -2076,7 +2076,7 @@ Do not import `next/experimental/testing/server` (C19).
 | cookie `'csrf_token=x'`; `'xaccess_token=abc'`; `'access_token='` (`it.each`) | `307` to `/login` |
 | `config` | deep-equals `{ matcher: ['/shipments/:path*'] }` |
 
-- [ ] **Step 2: Run to verify they fail**
+- [x] **Step 2: Run to verify they fail**
 
 ```bash
 npm run test -w apps/web -- tests/proxy.test.ts
@@ -2084,9 +2084,9 @@ npm run test -w apps/web -- tests/proxy.test.ts
 
 Expected: FAIL — `@/proxy` cannot be resolved.
 
-- [ ] **Step 3: Implement `apps/web/src/proxy.ts`**
+- [x] **Step 3: Implement `apps/web/src/proxy.ts`**
 
-- [ ] **Step 4: Run tests, typecheck, lint, build**
+- [x] **Step 4: Run tests, typecheck, lint, build**
 
 ```bash
 npm run test -w apps/web && npm run typecheck -w apps/web && npm run lint
@@ -2097,7 +2097,7 @@ ls apps/web/src/middleware.ts apps/web/middleware.ts 2>/dev/null
 Expected: the first line exits `0`; the build output has the line `ƒ Proxy (Middleware)`; the `ls` prints
 nothing.
 
-- [ ] **Step 5: Check the matcher on the running app**
+- [x] **Step 5: Check the matcher on the running app**
 
 Terminal 1: `npm run dev -w apps/api`. Terminal 2: `npm run dev -w apps/web`. Terminal 3:
 
@@ -2117,7 +2117,7 @@ Expected, in order: `307 http://localhost:3000/login`; the same; `200 ` (the pag
 will reject the fake cookie); `200 `; `200 `; `307 http://localhost:3000/shipments`; `401 ` (the API's answer,
 not a redirect). Stop both dev servers.
 
-- [ ] **Step 6: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
+- [x] **Step 6: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
 
 ```bash
 git add apps/web/src/proxy.ts apps/web/tests/proxy.test.ts docs/plan.md
