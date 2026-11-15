@@ -1437,7 +1437,7 @@ the `<input>`, and the red run in Step 2 was observed.
 2. `ApiError` with `code: 'EMAIL_TAKEN'` and `'email'` among `fields`: set `email` to the error's `message`.
 3. Otherwise: set `FORM_ERROR_KEY` to `formErrorMessage(error)`.
 
-- [ ] **Step 1: Write the failing tests** (`apps/web/tests/lib/form-errors.test.ts`)
+- [x] **Step 1: Write the failing tests** (`apps/web/tests/lib/form-errors.test.ts`)
 
 `apiError(init)` = `new ApiError(init)`; `server(message)` = `{ type: 'server', message }`.
 
@@ -1475,7 +1475,7 @@ the `<input>`, and the red run in Step 2 was observed.
 | `new NetworkError(new TypeError('Failed to fetch'))`; `apiError({ status: 500, code: 'INTERNAL_ERROR', message: 'Internal server error' })`; `new Error('boom')` (`it.each`) | `FIELDS` | exactly `('root.server', server('Service is unavailable. Please try again.'))` |
 | — | — | `FORM_ERROR_KEY === 'root.server'` |
 
-- [ ] **Step 2: Run to verify they fail**
+- [x] **Step 2: Run to verify they fail**
 
 ```bash
 npm run test -w apps/web -- tests/lib/form-errors.test.ts
@@ -1483,13 +1483,13 @@ npm run test -w apps/web -- tests/lib/form-errors.test.ts
 
 Expected: FAIL — `@/lib/form-errors` cannot be resolved.
 
-- [ ] **Step 3: Implement `apps/web/src/lib/form-errors.ts`**
+- [x] **Step 3: Implement `apps/web/src/lib/form-errors.ts`**
 
 `details[].path` is a plain string while `fields` holds `Path<T>` values: test membership through
 `(fields as readonly string[]).includes(path)` and narrow the matched path with `as Path<T>` — the one cast in
 the module.
 
-- [ ] **Step 4: Run tests, typecheck, lint**
+- [x] **Step 4: Run tests, typecheck, lint**
 
 ```bash
 npm run test -w apps/web && npm run typecheck -w apps/web && npm run lint
@@ -1497,7 +1497,7 @@ npm run test -w apps/web && npm run typecheck -w apps/web && npm run lint
 
 Expected: all exit `0`.
 
-- [ ] **Step 5: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
+- [x] **Step 5: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
 
 ```bash
 git add apps/web/src/lib/form-errors.ts apps/web/tests/lib/form-errors.test.ts docs/plan.md

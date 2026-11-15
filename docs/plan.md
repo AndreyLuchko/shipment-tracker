@@ -62,7 +62,7 @@ Detailed per-milestone plans live in `docs/superpowers/plans/`.
   - [x] Task 5 — API client core: `apiRequest`, `ApiError`, `NetworkError`, CSRF header, error envelope
   - [x] Task 6 — auth API functions and the session store (Zustand)
   - [x] Task 7 — UI primitives (`Button`, `TextField`, `FormAlert`) and the auth layout shell
-  - [ ] Task 8 — form error mapping: API errors → React Hook Form
+  - [x] Task 8 — form error mapping: API errors → React Hook Form
   - [ ] Task 9 — session guards: `AuthGuard` and `GuestOnly`
   - [ ] Task 10 — `/login` page
   - [ ] Task 11 — dashboard shell: header, logout, placeholder `/shipments`, `/` redirect (day minimum: demo login end to end)
