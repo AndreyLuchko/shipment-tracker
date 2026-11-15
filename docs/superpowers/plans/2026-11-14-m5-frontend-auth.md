@@ -1964,7 +1964,7 @@ pending both buttons are disabled and the clicked one has `loading`. A rejection
 `formErrorMessage(error)` in the `FormAlert`; the next click clears it. No navigation (C12). The component is
 rendered **outside** the `<form>` of `LoginForm`, so its buttons can never submit that form.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 `demo-accounts.test.ts` (first line `// @vitest-environment node`; the seed is read with
 `readFileSync(fileURLToPath(new URL('../../../api/prisma/seed.ts', import.meta.url)), 'utf8')`):
@@ -1996,7 +1996,7 @@ rendered **outside** the `<form>` of `LoginForm`, so its buttons can never submi
 | `render(<LoginPage />)` | the buttons `Demo dispatcher` and `Demo client` are in the document; `screen.getByRole('button', { name: 'Demo client' }).closest('form')` is `null`; `screen.getByRole('button', { name: 'Log in' }).closest('form')` is not |
 | `mockFetch()`; click `Log in` on the empty form | the form's two field messages appear; `calls.length === 0` — submitting the form never triggers a demo login |
 
-- [ ] **Step 2: Run to verify they fail**
+- [x] **Step 2: Run to verify they fail**
 
 ```bash
 npm run test -w apps/web -- tests/lib/demo-accounts.test.ts tests/components/auth/demo-login.test.tsx tests/app/login-page.test.tsx
@@ -2005,12 +2005,12 @@ npm run test -w apps/web -- tests/lib/demo-accounts.test.ts tests/components/aut
 Expected: FAIL — `@/lib/demo-accounts` and `@/components/auth/demo-login` cannot be resolved, and the login
 page has no demo buttons.
 
-- [ ] **Step 3: Implement `DEMO_ACCOUNTS`, `DemoLogin`, and render it on the login page**
+- [x] **Step 3: Implement `DEMO_ACCOUNTS`, `DemoLogin`, and render it on the login page**
 
 Caption styling: `text-center text-sm text-slate-500`; the two buttons side by side
 (`grid grid-cols-2 gap-3`).
 
-- [ ] **Step 4: Run tests, typecheck, lint, build**
+- [x] **Step 4: Run tests, typecheck, lint, build**
 
 ```bash
 npm run test -w apps/web && npm run typecheck -w apps/web && npm run lint && npm run build -w apps/web
@@ -2019,7 +2019,7 @@ git diff --stat -- apps/api
 
 Expected: the first line exits `0`; the second prints nothing — the seed was read, not changed.
 
-- [ ] **Step 5: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
+- [x] **Step 5: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
 
 ```bash
 git add apps/web/src/lib/demo-accounts.ts apps/web/src/components/auth/demo-login.tsx "apps/web/src/app/(auth)/login/page.tsx" apps/web/tests/lib/demo-accounts.test.ts apps/web/tests/components/auth/demo-login.test.tsx apps/web/tests/app/login-page.test.tsx docs/plan.md
