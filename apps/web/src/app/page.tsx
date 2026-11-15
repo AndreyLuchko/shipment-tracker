@@ -1,10 +1,5 @@
-import { APP_NAME } from '@shipment-tracker/shared';
+import { redirect } from 'next/navigation';
 
-export default function HomePage() {
-  return (
-    <main>
-      <h1>{APP_NAME}</h1>
-      <p>Dashboard coming soon.</p>
-    </main>
-  );
+export default function HomePage(): never {
+  redirect('/shipments');
 }
