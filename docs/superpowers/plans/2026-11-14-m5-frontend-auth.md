@@ -1320,7 +1320,7 @@ Visual reference — follow it so M6 inherits one look; the tests do not assert 
 | FormAlert | `rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700` |
 | Auth layout | `<main>`: `flex min-h-screen items-center justify-center px-4 py-12`; card: `w-full max-w-sm rounded-xl border border-slate-200 bg-white p-6 shadow-sm`; app name: `text-sm font-semibold text-indigo-600` |
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 `button.test.tsx`:
 
@@ -1356,7 +1356,7 @@ Visual reference — follow it so M6 inherits one look; the tests do not assert 
 |---|---|
 | `<AuthLayout><h1>Log in</h1></AuthLayout>` | the text `Shipment Tracker` and the heading `Log in` are in a `<main>`; the app name is not a heading (the page owns the `<h1>`) |
 
-- [ ] **Step 2: Run to verify they fail**
+- [x] **Step 2: Run to verify they fail**
 
 ```bash
 npm run test -w apps/web -- tests/components/ui tests/app/auth-layout.test.tsx
@@ -1364,9 +1364,9 @@ npm run test -w apps/web -- tests/components/ui tests/app/auth-layout.test.tsx
 
 Expected: FAIL — none of the four modules exists.
 
-- [ ] **Step 3: Implement the three primitives and `app/(auth)/layout.tsx`**
+- [x] **Step 3: Implement the three primitives and `app/(auth)/layout.tsx`**
 
-- [ ] **Step 4: Run tests, typecheck, lint, build**
+- [x] **Step 4: Run tests, typecheck, lint, build**
 
 ```bash
 npm run test -w apps/web && npm run typecheck -w apps/web && npm run lint && npm run build -w apps/web
@@ -1374,7 +1374,7 @@ npm run test -w apps/web && npm run typecheck -w apps/web && npm run lint && npm
 
 Expected: all exit `0`. (The layout has no page under it yet, so the build's route list is unchanged.)
 
-- [ ] **Step 5: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
+- [x] **Step 5: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
 
 ```bash
 git add apps/web/src/components/ui "apps/web/src/app/(auth)/layout.tsx" apps/web/tests/components/ui apps/web/tests/app/auth-layout.test.tsx docs/plan.md
