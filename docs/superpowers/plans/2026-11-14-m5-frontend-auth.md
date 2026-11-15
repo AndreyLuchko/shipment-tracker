@@ -544,7 +544,7 @@ unchanged, and nothing under `apps/api` was touched.
     entries joined with one space.
   - Tailwind utility classes work in every file under `apps/web/src`.
 
-- [ ] **Step 1: Record the starting state**
+- [x] **Step 1: Record the starting state**
 
 ```bash
 npm ls zod
@@ -553,7 +553,7 @@ git status --short
 
 Expected: one `zod@4.6.7` (the other entries `deduped`); no output from the second command.
 
-- [ ] **Step 2: Install the seven packages**
+- [x] **Step 2: Install the seven packages**
 
 ```bash
 npm install --save zustand@^5.1.0 react-hook-form@^7.92.0 @hookform/resolvers@^7.0.6 zod@^4.6.7 -w apps/web
@@ -567,7 +567,7 @@ Expected: `npm ls zod` still shows a single `zod@4.6.7`, now also under `@shipme
 npm may place `@hookform/resolvers` in `apps/web/node_modules` instead of hoisting it — that is fine. The
 `EBADENGINE` warning about `@prisma/streams-local` is pre-existing; ignore it.
 
-- [ ] **Step 3: Replace `apps/web/vitest.config.ts`**
+- [x] **Step 3: Replace `apps/web/vitest.config.ts`**
 
 ```ts
 import react from '@vitejs/plugin-react';
@@ -584,7 +584,7 @@ export default defineConfig({
 });
 ```
 
-- [ ] **Step 4: Write the failing tests**
+- [x] **Step 4: Write the failing tests**
 
 `apps/web/tests/lib/cn.test.ts` (imports `cn` from `'@/lib/cn'`):
 
@@ -605,7 +605,7 @@ file: `'use client'` is not needed there; it calls `useRouter()` from `next/navi
 | third `it`: `redirect('/x')` imported from `next/navigation` | `redirectMock` was called with `'/x'`; nothing throws |
 | fourth `it`: `vi.stubGlobal('fetch', vi.fn())` then, in a fifth `it`, `expect(vi.isMockFunction(fetch)).toBe(false)` | the stub does not leak into the next test |
 
-- [ ] **Step 5: Run to verify they fail**
+- [x] **Step 5: Run to verify they fail**
 
 ```bash
 npm run test -w apps/web
@@ -615,7 +615,7 @@ Expected: FAIL — `@/lib/cn` cannot be resolved; in `setup.test.tsx` the second
 `redirect` is the real one and throws, and `../helpers/router` does not exist. `tests/page.test.tsx` still
 passes.
 
-- [ ] **Step 6: Implement `src/lib/cn.ts`, `tests/helpers/router.ts` and `tests/setup.ts`**
+- [x] **Step 6: Implement `src/lib/cn.ts`, `tests/helpers/router.ts` and `tests/setup.ts`**
 
 In `tests/setup.ts` the mock factory must import the helper lazily, because `vi.mock` is hoisted above the
 imports:
@@ -627,7 +627,7 @@ vi.mock('next/navigation', async () => {
 });
 ```
 
-- [ ] **Step 7: Run the tests**
+- [x] **Step 7: Run the tests**
 
 ```bash
 npm run test -w apps/web
@@ -635,7 +635,7 @@ npm run test -w apps/web
 
 Expected: PASS — `cn.test.ts`, `setup.test.tsx` and the existing `page.test.tsx`.
 
-- [ ] **Step 8: Add Tailwind**
+- [x] **Step 8: Add Tailwind**
 
 `apps/web/postcss.config.mjs`:
 
@@ -658,7 +658,7 @@ export default config;
 `apps/web/src/app/layout.tsx`: add `import './globals.css';` and give `<body>` the classes
 `min-h-screen bg-slate-50 text-slate-900 antialiased`. `metadata` and the rest stay as they are.
 
-- [ ] **Step 9: Verify — tests, typecheck, lint, build, and that the utilities reach the CSS**
+- [x] **Step 9: Verify — tests, typecheck, lint, build, and that the utilities reach the CSS**
 
 ```bash
 npm run test -w apps/web && npm run typecheck -w apps/web && npm run lint && npm run build -w apps/web
@@ -668,7 +668,7 @@ ls apps/web/tailwind.config.* 2>/dev/null
 
 Expected: the first line exits `0`; the second prints the path of one CSS file; the third prints nothing.
 
-- [ ] **Step 10: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
+- [x] **Step 10: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
 
 ```bash
 git add apps/web/package.json package-lock.json apps/web/vitest.config.ts apps/web/postcss.config.mjs apps/web/src/app/globals.css apps/web/src/app/layout.tsx apps/web/src/lib/cn.ts apps/web/tests docs/plan.md
