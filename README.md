@@ -34,7 +34,7 @@ Full specification: [`shipment-tracker-spec.md`](./shipment-tracker-spec.md).
 ## Local development
 
 ```bash
-cp .env.example .env
+cp .env.example apps/api/.env
 npm install
 docker compose up -d
 npm run dev -w apps/api    # http://localhost:3001
