@@ -30,13 +30,13 @@ describe('AppHeader', () => {
     expect(routerMock.replace).not.toHaveBeenCalled();
   });
 
-  it("shows the app name, the user's name, the role and a Log out button", () => {
+  it("shows the app name as a link to the list, the user's name, the role and a Log out button", () => {
     signIn();
     mockFetch();
 
     render(<AppHeader />);
 
-    expect(screen.getByText('Shipment Tracker')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Shipment Tracker' })).toHaveAttribute('href', '/shipments');
     expect(screen.getByText('Demo Client')).toBeInTheDocument();
     expect(screen.getByText('Client')).toBeInTheDocument();
     expect(logOutButton()).toHaveAttribute('type', 'button');

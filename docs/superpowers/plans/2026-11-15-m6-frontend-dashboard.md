@@ -1272,7 +1272,7 @@ uppercase tracking-wide text-slate-500`; body rows `border-t border-slate-100`; 
 link `font-medium text-indigo-600 hover:underline`; description cell `max-w-xs truncate text-slate-600`;
 header app-name link `font-semibold text-slate-900 hover:text-indigo-600`.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 `button.test.tsx` — add:
 
@@ -1324,7 +1324,7 @@ renders with `renderWithQuery(<ShipmentsList />)`:
 |---|---|
 | signed in as `USER`; `mockFetch(LIST([SHIPMENT]))`; `renderWithQuery(<ShipmentsPage />)` | the heading `Shipments`; then a table with the row `ST-2026-000002` |
 
-- [ ] **Step 2: Run to verify they fail**
+- [x] **Step 2: Run to verify they fail**
 
 ```bash
 npm run test -w apps/web -- tests/components/shipments/shipments-table.test.tsx tests/components/shipments/shipments-list.test.tsx tests/app/shipments-page.test.tsx tests/components/ui/button.test.tsx tests/components/layout/app-header.test.tsx
@@ -1333,11 +1333,11 @@ npm run test -w apps/web -- tests/components/shipments/shipments-table.test.tsx 
 Expected: FAIL — the two shipment modules do not exist, `buttonClassName` is not exported, the header has no
 link, and the page still shows the placeholder.
 
-- [ ] **Step 3: Implement `buttonClassName` (and use it inside `Button`), the header link, `ShipmentsTable`, `ShipmentsList`, and the page**
+- [x] **Step 3: Implement `buttonClassName` (and use it inside `Button`), the header link, `ShipmentsTable`, `ShipmentsList`, and the page**
 
 `Button` must build its `className` with `buttonClassName(variant, className)` — one source for the look.
 
-- [ ] **Step 4: Run tests, typecheck, lint, build; check the badge colours in the built CSS**
+- [x] **Step 4: Run tests, typecheck, lint, build; check the badge colours in the built CSS**
 
 ```bash
 npm run test -w apps/web && npm run typecheck -w apps/web && npm run lint && npm run build -w apps/web
@@ -1348,7 +1348,7 @@ grep -rl 'bg-emerald-50' apps/web/.next/static --include='*.css' | head -1
 Expected: the first line exits `0` and the route list still shows `○ /shipments`; each `grep` prints the path
 of one CSS file.
 
-- [ ] **Step 5: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
+- [x] **Step 5: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
 
 ```bash
 git add apps/web/src/components/ui/button.tsx apps/web/src/components/layout/app-header.tsx apps/web/src/components/shipments/shipments-table.tsx apps/web/src/components/shipments/shipments-list.tsx "apps/web/src/app/(dashboard)/shipments/page.tsx" apps/web/tests/components/ui/button.test.tsx apps/web/tests/components/layout/app-header.test.tsx apps/web/tests/components/shipments apps/web/tests/app/shipments-page.test.tsx docs/plan.md

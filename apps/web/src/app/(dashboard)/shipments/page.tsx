@@ -1,13 +1,14 @@
-import type { ReactNode } from 'react';
+import { type ReactNode, Suspense } from 'react';
+
+import { ShipmentsList } from '@/components/shipments/shipments-list';
 
 export const metadata = { title: 'Shipments — Shipment Tracker' };
 
-/** A placeholder until M6 builds the shipments list. */
+/** `ShipmentsList` reads the URL through `useSearchParams`, so it needs a `Suspense` boundary (C18). */
 export default function ShipmentsPage(): ReactNode {
   return (
-    <>
-      <h1 className="text-2xl font-semibold text-slate-900">Shipments</h1>
-      <p className="mt-2 text-sm text-slate-600">The dashboard is coming soon.</p>
-    </>
+    <Suspense fallback={<p role="status">Loading…</p>}>
+      <ShipmentsList />
+    </Suspense>
   );
 }

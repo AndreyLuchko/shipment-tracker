@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 
-import { Button } from '@/components/ui/button';
+import { Button, buttonClassName } from '@/components/ui/button';
 
 describe('Button', () => {
   it('defaults to a primary, enabled button of type "button"', () => {
@@ -59,5 +59,24 @@ describe('Button', () => {
 
     await user.click(screen.getByRole('button', { name: 'Save' }));
     expect(onClick).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('buttonClassName', () => {
+  it('is the look of a primary Button', () => {
+    render(<Button>Save</Button>);
+
+    expect(screen.getByRole('button', { name: 'Save' })).toHaveClass(...buttonClassName('primary').split(' '));
+  });
+
+  it('differs per variant and appends a className', () => {
+    const secondary = buttonClassName('secondary', 'w-full');
+
+    expect(secondary).not.toBe(buttonClassName('primary'));
+    expect(secondary.split(' ')).toContain('w-full');
+  });
+
+  it('defaults to primary', () => {
+    expect(buttonClassName()).toBe(buttonClassName('primary'));
   });
 });

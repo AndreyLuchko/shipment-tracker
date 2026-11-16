@@ -1,6 +1,7 @@
 'use client';
 
 import { APP_NAME } from '@shipment-tracker/shared';
+import Link from 'next/link';
 import { type ReactNode, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -32,7 +33,9 @@ export function AppHeader(): ReactNode {
   return (
     <header className="border-b border-slate-200 bg-white">
       <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
-        <p className="font-semibold text-slate-900">{APP_NAME}</p>
+        <Link href="/shipments" className="font-semibold text-slate-900 hover:text-indigo-600">
+          {APP_NAME}
+        </Link>
         <div className="flex items-center gap-3">
           <span className="text-sm font-medium text-slate-900">{user.name}</span>
           <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600">
