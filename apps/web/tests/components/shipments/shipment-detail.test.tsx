@@ -6,11 +6,14 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ShipmentDetailView } from '@/components/shipments/shipment-detail';
 import { useAuthStore } from '@/stores/auth';
 
-import { deferred, errorResponse, jsonResponse, mockFetch, textResponse } from '../../helpers/fetch';
-import { DELIVERED_DETAIL, NOW, SHIPMENT_AFTER_EVENT, SHIPMENT_DETAIL, USER } from '../../helpers/fixtures';
+import { deferred, errorResponse, jsonResponse, mockFetch, setCookie, textResponse } from '../../helpers/fetch';
+import { DELIVERED_DETAIL, DISPATCHER, NOW, SHIPMENT_AFTER_EVENT, SHIPMENT_DETAIL, USER } from '../../helpers/fixtures';
 import { renderWithQuery } from '../../helpers/query';
 
 const DETAIL = (shipment: ShipmentDetail) => jsonResponse(200, { shipment });
+const CREATED = (shipment: ShipmentDetail) => jsonResponse(201, { shipment });
+const ILLEGAL = () =>
+  errorResponse(422, 'INVALID_STATUS_TRANSITION', 'Cannot transition from OUT_FOR_DELIVERY to AT_WAREHOUSE');
 const NOT_FOUND = () => errorResponse(404, 'NOT_FOUND', 'Shipment not found');
 const FORBIDDEN = () => errorResponse(403, 'FORBIDDEN', 'Insufficient permissions');
 const UNAUTH = () => errorResponse(401, 'UNAUTHORIZED', 'Authentication required');
@@ -203,5 +206,94 @@ describe('ShipmentDetailView', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent('Could not refresh. Showing the last loaded data.');
     expect(timelineEntries()).toHaveLength(3);
     await vi.waitFor(() => expect(refreshButton()).toBeEnabled());
+  });
+});
+
+describe('ShipmentDetailView — the status update form', () => {
+  const formHeading = () => screen.queryByRole('heading', { level: 2, name: 'Add status update' });
+  const statusSelect = () => screen.getByLabelText('New status');
+  const option = (name: string) => within(statusSelect()).getByRole('option', { name });
+
+  async function submitStatus(label: string): Promise<void> {
+    const user = userEvent.setup();
+    await user.selectOptions(statusSelect(), option(label));
+    await user.click(screen.getByRole('button', { name: 'Add update' }));
+  }
+
+  beforeEach(() => {
+    vi.setSystemTime(NOW);
+    setCookie('csrf_token', 'tok_-1');
+    useAuthStore.setState({ status: 'authenticated', user: DISPATCHER });
+  });
+
+  it('shows the form below the timeline to a dispatcher', async () => {
+    mockFetch(DETAIL(SHIPMENT_DETAIL));
+    renderDetail();
+
+    const heading = await screen.findByRole('heading', { level: 2, name: 'Add status update' });
+    const timeline = screen.getByRole('list', { name: 'Movement timeline' });
+    expect(timeline.compareDocumentPosition(heading) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it('shows no form to a client', async () => {
+    useAuthStore.setState({ status: 'authenticated', user: USER });
+    mockFetch(DETAIL(SHIPMENT_DETAIL));
+    renderDetail();
+
+    await screen.findByRole('list', { name: 'Movement timeline' });
+    expect(formHeading()).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('New status')).not.toBeInTheDocument();
+  });
+
+  it('adds the new entry from the response without refetching the detail', async () => {
+    const { calls } = mockFetch(DETAIL(SHIPMENT_DETAIL), CREATED(SHIPMENT_AFTER_EVENT));
+    renderDetail();
+    await screen.findByRole('heading', { level: 2, name: 'Add status update' });
+
+    await submitStatus('At warehouse');
+
+    await vi.waitFor(() => expect(timelineEntries()).toHaveLength(4));
+    const last = timelineEntries().at(-1);
+    expect(last).toHaveTextContent('At warehouse');
+    expect(last).toHaveAttribute('aria-current', 'step');
+    expect(headingBadge()).toHaveTextContent('At warehouse');
+    await noFurtherRequest();
+    expect(calls).toHaveLength(2);
+  });
+
+  it('refetches a stale detail after an illegal transition', async () => {
+    const STALE: ShipmentDetail = {
+      ...SHIPMENT_DETAIL,
+      status: 'OUT_FOR_DELIVERY',
+      allowedNextStatuses: ['OUT_FOR_DELIVERY', 'DELIVERED', 'EXCEPTION'],
+    };
+    const { calls } = mockFetch(DETAIL(SHIPMENT_DETAIL), ILLEGAL(), DETAIL(STALE));
+    renderDetail();
+    await screen.findByRole('heading', { level: 2, name: 'Add status update' });
+
+    await submitStatus('At warehouse');
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'Cannot transition from OUT_FOR_DELIVERY to AT_WAREHOUSE',
+    );
+    await vi.waitFor(() => {
+      expect(option('At warehouse')).toBeDisabled();
+      expect(option('Delivered')).toBeEnabled();
+    });
+    expect(headingBadge()).toHaveTextContent('Out for delivery');
+    expect(screen.getByRole('alert')).toHaveTextContent('Cannot transition from OUT_FOR_DELIVERY to AT_WAREHOUSE');
+    expect(calls).toHaveLength(3);
+    expect(calls[2]?.method).toBe('GET');
+    expect(calls[2]?.url).toBe('/api/v1/shipments/shp1');
+  });
+
+  it('shows the final-status note for a delivered shipment', async () => {
+    mockFetch(DETAIL(DELIVERED_DETAIL));
+    renderDetail('shp3');
+
+    expect(
+      await screen.findByText('This shipment has reached its final status. No further updates can be added.'),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Add update' })).not.toBeInTheDocument();
   });
 });

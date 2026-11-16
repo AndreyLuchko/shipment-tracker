@@ -1983,7 +1983,7 @@ Visual reference: section `mt-8 rounded-xl border border-slate-200 bg-white p-6`
 `grid gap-4 sm:grid-cols-2`; textarea — the classes of `TextField`'s input; the confirmation
 `text-sm text-emerald-700`; the final-status note `mt-2 text-sm text-slate-600`.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 `textarea-field.test.tsx` — the rows of `select-field.test.tsx` adapted: a `<textarea>` found by its label,
 `aria-invalid`, the described error, distinct `id`s, and `rows`, `name`, `ref`, `onChange` reaching the
@@ -2022,7 +2022,7 @@ element.
 | `DISPATCHER`; `STALE` = `{ ...SHIPMENT_DETAIL, status: 'OUT_FOR_DELIVERY', allowedNextStatuses: ['OUT_FOR_DELIVERY', 'DELIVERED', 'EXCEPTION'] }`; `mockFetch(DETAIL(SHIPMENT_DETAIL), ILLEGAL, DETAIL(STALE))`; choose `At warehouse`, submit | the alert `Cannot transition from OUT_FOR_DELIVERY to AT_WAREHOUSE`; then (`vi.waitFor`) the option `At warehouse` is disabled and `Delivered` is enabled; the heading's badge reads `Out for delivery`; the alert is still shown; `calls.length === 3`, the third a `GET /api/v1/shipments/shp1` |
 | `DISPATCHER`; `mockFetch(DETAIL(DELIVERED_DETAIL))`; `renderDetail('shp3')` | the final-status sentence; no `Add update` button |
 
-- [ ] **Step 2: Run to verify they fail**
+- [x] **Step 2: Run to verify they fail**
 
 ```bash
 npm run test -w apps/web -- tests/components/ui/textarea-field.test.tsx tests/components/shipments/status-update-form.test.tsx tests/components/shipments/shipment-detail.test.tsx
@@ -2031,9 +2031,9 @@ npm run test -w apps/web -- tests/components/ui/textarea-field.test.tsx tests/co
 Expected: FAIL — the two new modules do not exist and the detail has no form. The earlier rows of
 `shipment-detail.test.tsx` still pass.
 
-- [ ] **Step 3: Implement `TextareaField`, `StatusUpdateForm`, and render the form in `ShipmentDetailView` for a dispatcher**
+- [x] **Step 3: Implement `TextareaField`, `StatusUpdateForm`, and render the form in `ShipmentDetailView` for a dispatcher**
 
-- [ ] **Step 4: Run tests, typecheck, lint, build**
+- [x] **Step 4: Run tests, typecheck, lint, build**
 
 ```bash
 npm run test -w apps/web && npm run typecheck -w apps/web && npm run lint && npm run build -w apps/web
@@ -2043,7 +2043,7 @@ grep -n 'occurredAt' apps/web/src -r
 Expected: the first line exits `0`; the `grep` prints nothing — no frontend code sends or names the event
 time (D5).
 
-- [ ] **Step 5: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
+- [x] **Step 5: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
 
 ```bash
 git add apps/web/src/components/ui/textarea-field.tsx apps/web/src/components/shipments/status-update-form.tsx apps/web/src/components/shipments/shipment-detail.tsx apps/web/tests/components/ui/textarea-field.test.tsx apps/web/tests/components/shipments/status-update-form.test.tsx apps/web/tests/components/shipments/shipment-detail.test.tsx docs/plan.md

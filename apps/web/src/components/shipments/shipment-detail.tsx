@@ -6,6 +6,7 @@ import type { ReactNode } from 'react';
 import { ShipmentInfoCard } from '@/components/shipments/shipment-info-card';
 import { ShipmentTimeline } from '@/components/shipments/shipment-timeline';
 import { StatusBadge } from '@/components/shipments/status-badge';
+import { StatusUpdateForm } from '@/components/shipments/status-update-form';
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
 import { ErrorState, StaleDataNotice } from '@/components/ui/error-state';
@@ -13,10 +14,12 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { ApiError } from '@/lib/api/client';
 import { SHIPMENTS_PATH } from '@/lib/shipments/list-params';
 import { useShipmentQuery } from '@/lib/shipments/queries';
+import { useAuthStore } from '@/stores/auth';
 
-/** The whole detail screen of one shipment. Task 11 adds the status form to it. */
+/** The whole detail screen of one shipment; a dispatcher also gets the manual status update. */
 export function ShipmentDetailView({ id }: { id: string }): ReactNode {
   const detail = useShipmentQuery(id);
+  const isDispatcher = useAuthStore((state) => state.user?.role === 'DISPATCHER');
 
   let content: ReactNode;
   if (detail.data !== undefined) {
@@ -44,6 +47,7 @@ export function ShipmentDetailView({ id }: { id: string }): ReactNode {
           </div>
           <ShipmentTimeline events={shipment.events} />
         </section>
+        {isDispatcher && <StatusUpdateForm shipment={shipment} />}
       </>
     );
   } else if (detail.isPending) {
