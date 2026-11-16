@@ -83,7 +83,7 @@ Detailed per-milestone plans live in `docs/superpowers/plans/`.
   - [x] Task 9 — `/shipments` list II: status filter, debounced search, pagination
   - [x] Task 10 — shared contract: human-readable validation messages on the shipment schemas
   - [x] Task 11 — manual status update form (legal next statuses only, `422` / `400` handling)
-  - [ ] Task 12 — `/shipments/new` I: dispatcher-only guard and the client picker
+  - [x] Task 12 — `/shipments/new` I: dispatcher-only guard and the client picker
   - [ ] Task 13 — `/shipments/new` II: creation form (React Hook Form + shared schema), redirect to the detail
   - [ ] Task 14 — `?next=` return URL: proxy, `AuthGuard`, `GuestOnly`, `safeNextPath`
   - [ ] Task 15 — M6 wrap-up, smoke test through `:3000`, sign-off
