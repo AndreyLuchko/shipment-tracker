@@ -76,7 +76,7 @@ Detailed per-milestone plans live in `docs/superpowers/plans/`.
   - [x] Task 2 — web tooling: TanStack Query, `QueryProvider` in the dashboard layout, `renderWithQuery`
   - [x] Task 3 — shipments API functions, query hooks, shipment fixtures
   - [x] Task 4 — status labels and `StatusBadge`, date and relative-time formatting, state primitives
-  - [ ] Task 5 — list state in the URL: params parsing and building, `useDebouncedValue`, stateful navigation mock
+  - [x] Task 5 — list state in the URL: params parsing and building, `useDebouncedValue`, stateful navigation mock
   - [ ] Task 6 — `/shipments` list I: table, skeleton, empty and error states, role-specific column and button
   - [ ] Task 7 — `/shipments/[id]` I: detail page — info card, loading / not-found / error states
   - [ ] Task 8 — `/shipments/[id]` II: movement timeline with Motion (day minimum: list + detail with timeline end to end)

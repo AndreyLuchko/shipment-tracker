@@ -10,7 +10,19 @@ import { redirectMock, routerMock } from './helpers/router';
 // `vi.mock` is hoisted above the imports, so the factory loads the helper lazily.
 vi.mock('next/navigation', async () => {
   const router = await import('./helpers/router');
-  return { useRouter: () => router.routerMock, redirect: router.redirectMock };
+  const { useMemo, useSyncExternalStore } = await import('react');
+  return {
+    useRouter: () => router.routerMock,
+    redirect: router.redirectMock,
+    useSearchParams: () => {
+      const search = useSyncExternalStore(
+        router.subscribeToLocation,
+        () => window.location.search,
+        () => '',
+      );
+      return useMemo(() => new URLSearchParams(search), [search]);
+    },
+  };
 });
 
 // Vitest `globals` is off, so React Testing Library's automatic cleanup does not run.
@@ -25,4 +37,5 @@ afterEach(() => {
   redirectMock.mockReset();
   clearCookies();
   useAuthStore.setState(useAuthStore.getInitialState(), true);
+  if (typeof window !== 'undefined') window.history.replaceState(null, '', '/');
 });

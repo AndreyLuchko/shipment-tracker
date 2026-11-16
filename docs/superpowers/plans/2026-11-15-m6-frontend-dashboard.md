@@ -1082,7 +1082,7 @@ git commit -m "feat: add status badges, time formatting and loading, empty and e
     (test files in the `node` environment have no `window`). The existing `mockReset()` calls stay: in Vitest
     4.1 `mockReset` returns a `vi.fn(impl)` to `impl`, so `replace` and `push` keep navigating.
 
-- [ ] **Step 1: Replace `tests/helpers/router.ts`, extend `tests/setup.ts`, and write `tests/helpers/router.test.tsx`**
+- [x] **Step 1: Replace `tests/helpers/router.ts`, extend `tests/setup.ts`, and write `tests/helpers/router.test.tsx`**
 
 `Probe` is defined in the test file: it calls `useRouter()` and `useSearchParams()` and renders
 `page:<page or 1> status:<status or ->` and a button `go` that calls
@@ -1096,7 +1096,7 @@ git commit -m "feat: add status badges, time formatting and loading, empty and e
 | on `/shipments?page=3`; render; `act(() => navigate('/shipments'))` | `page:3 status:-`, then `page:1 status:-` |
 | `routerMock.replace('/login')` | `window.location.pathname` is `'/login'`; `routerMock.replace` called with `'/login'` |
 
-- [ ] **Step 2: Run the helper's test and the whole suite**
+- [x] **Step 2: Run the helper's test and the whole suite**
 
 ```bash
 npm run test -w apps/web
@@ -1105,7 +1105,7 @@ npm run test -w apps/web
 Expected: PASS — the helper is test infrastructure and is written together with its test; every M5 test still
 passes on the stateful mock.
 
-- [ ] **Step 3: Write the failing tests**
+- [x] **Step 3: Write the failing tests**
 
 `tests/lib/shipments/list-params.test.tsx` — `parse(text)` = `parseListParams(new URLSearchParams(text))`;
 results are compared with `toEqual` (it ignores `undefined` properties):
@@ -1161,7 +1161,7 @@ start of each test; the setup file restores real timers):
 | then advance `1` | `'abc'` |
 | `rerender({ value: 'x' })`; `unmount()`; advance `300` | nothing throws and no "state update on an unmounted component" is logged — the timer was cleared |
 
-- [ ] **Step 4: Run to verify they fail**
+- [x] **Step 4: Run to verify they fail**
 
 ```bash
 npm run test -w apps/web -- tests/lib/shipments/list-params.test.tsx tests/lib/use-debounced-value.test.ts
@@ -1169,9 +1169,9 @@ npm run test -w apps/web -- tests/lib/shipments/list-params.test.tsx tests/lib/u
 
 Expected: FAIL — `@/lib/shipments/list-params` and `@/lib/use-debounced-value` cannot be resolved.
 
-- [ ] **Step 5: Implement the two modules**
+- [x] **Step 5: Implement the two modules**
 
-- [ ] **Step 6: Run tests, typecheck, lint**
+- [x] **Step 6: Run tests, typecheck, lint**
 
 ```bash
 npm run test -w apps/web && npm run typecheck -w apps/web && npm run lint
@@ -1179,7 +1179,7 @@ npm run test -w apps/web && npm run typecheck -w apps/web && npm run lint
 
 Expected: all exit `0`.
 
-- [ ] **Step 7: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
+- [x] **Step 7: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
 
 ```bash
 git add apps/web/src/lib/shipments/list-params.ts apps/web/src/lib/use-debounced-value.ts apps/web/tests/helpers/router.ts apps/web/tests/helpers/router.test.tsx apps/web/tests/setup.ts apps/web/tests/lib/shipments/list-params.test.tsx apps/web/tests/lib/use-debounced-value.test.ts docs/plan.md
