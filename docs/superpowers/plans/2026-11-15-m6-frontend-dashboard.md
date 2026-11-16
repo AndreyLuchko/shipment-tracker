@@ -705,12 +705,12 @@ particular (Review Focus 1) — and the red run in Step 5 was observed.
     `DELIVERED_DETAIL`, `listPage` — values in the test vocabulary, each typed with its shared type. `USER`
     and `DISPATCHER` stay as they are.
 
-- [ ] **Step 1: Add the fixtures to `apps/web/tests/helpers/fixtures.ts`**
+- [x] **Step 1: Add the fixtures to `apps/web/tests/helpers/fixtures.ts`**
 
 Fixtures are test infrastructure: no red run of their own. They must satisfy the shared schemas — the tests
 of Step 2 parse them through the API functions.
 
-- [ ] **Step 2: Write the failing tests**
+- [x] **Step 2: Write the failing tests**
 
 `apps/web/tests/lib/api/shipments.test.ts`:
 
@@ -753,7 +753,7 @@ of Step 2 parse them through the API functions.
 | the detail seeded; `mockFetch(ILLEGAL)`; the same mutation | rejects with `ApiError { code: 'INVALID_STATUS_TRANSITION' }`; the detail entry still deep-equals `SHIPMENT_DETAIL` and `isInvalidated === true` |
 | the detail seeded; `mockFetch(DOWN)`; `mockFetch(OFFLINE)` (`it.each`) | rejects; the detail entry is unchanged and not invalidated |
 
-- [ ] **Step 3: Run to verify they fail**
+- [x] **Step 3: Run to verify they fail**
 
 ```bash
 npm run test -w apps/web -- tests/lib/api/shipments.test.ts tests/lib/api/users.test.ts tests/lib/shipments
@@ -761,12 +761,12 @@ npm run test -w apps/web -- tests/lib/api/shipments.test.ts tests/lib/api/users.
 
 Expected: FAIL — `@/lib/api/shipments`, `@/lib/api/users` and `@/lib/shipments/queries` cannot be resolved.
 
-- [ ] **Step 4: Implement the two API modules and `src/lib/shipments/queries.ts`**
+- [x] **Step 4: Implement the two API modules and `src/lib/shipments/queries.ts`**
 
 Each mutation hook gets the client from `useQueryClient()`. The `onSuccess` / `onError` callbacks return the
 promise of `invalidateQueries`, so `mutateAsync` settles after the cache is marked.
 
-- [ ] **Step 5: Run tests, typecheck, lint**
+- [x] **Step 5: Run tests, typecheck, lint**
 
 ```bash
 npm run test -w apps/web && npm run typecheck -w apps/web && npm run lint
@@ -775,7 +775,7 @@ grep -rn -E 'fetch\(' apps/web/src --include='*.ts' --include='*.tsx' | grep -v 
 
 Expected: the first line exits `0`; the `grep` prints nothing — `client.ts` holds the only `fetch(`.
 
-- [ ] **Step 6: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
+- [x] **Step 6: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
 
 ```bash
 git add apps/web/src/lib/api/shipments.ts apps/web/src/lib/api/users.ts apps/web/src/lib/shipments apps/web/tests/helpers/fixtures.ts apps/web/tests/lib/api/shipments.test.ts apps/web/tests/lib/api/users.test.ts apps/web/tests/lib/shipments docs/plan.md
