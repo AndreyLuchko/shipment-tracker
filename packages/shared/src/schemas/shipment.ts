@@ -76,14 +76,17 @@ export type ShipmentListResponse = z.infer<typeof shipmentListResponseSchema>;
 // ---------------------------------------------------------------------------
 
 /** A JSON number (no coercion from strings), > 0 and ≤ 100 000. */
-const weightKgSchema = z.number().positive().max(100_000);
+const weightKgSchema = z
+  .number('Enter the weight as a number')
+  .positive('Weight must be greater than 0')
+  .max(100_000, 'Weight must be at most 100000 kg');
 
 /** Body of `POST /shipments`. Unknown keys (id, trackingNumber, status, …) are stripped. */
 export const createShipmentSchema = z.object({
-  clientId: cleanText(1, 64),
-  origin: cleanText(1, 200),
-  destination: cleanText(1, 200),
-  description: cleanText(1, 500),
+  clientId: cleanText(1, 64, { min: 'Select a client' }),
+  origin: cleanText(1, 200, { min: 'Enter the origin', max: 'Origin must be at most 200 characters' }),
+  destination: cleanText(1, 200, { min: 'Enter the destination', max: 'Destination must be at most 200 characters' }),
+  description: cleanText(1, 500, { min: 'Enter a description', max: 'Description must be at most 500 characters' }),
   weightKg: weightKgSchema.optional(),
 });
 export type CreateShipmentInput = z.infer<typeof createShipmentSchema>;
@@ -102,9 +105,10 @@ export type UpdateShipmentInput = z.infer<typeof updateShipmentSchema>;
 
 /** Body of `POST /shipments/:id/events`. `source` is set by the server, so it is stripped here. */
 export const createShipmentEventSchema = z.object({
-  status: shipmentStatusSchema,
-  location: optionalCleanText(200),
-  note: optionalCleanText(500),
+  /** Its own enum (not `shipmentStatusSchema`) so only the form-facing schemas carry the message. */
+  status: z.enum(SHIPMENT_STATUSES, 'Select a status'),
+  location: optionalCleanText(200, 'Location must be at most 200 characters'),
+  note: optionalCleanText(500, 'Note must be at most 500 characters'),
   /** ISO-8601 UTC with `Z` only; defaults to the server time when absent. */
   occurredAt: z.iso.datetime().optional(),
 });

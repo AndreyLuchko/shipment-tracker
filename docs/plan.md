@@ -81,7 +81,7 @@ Detailed per-milestone plans live in `docs/superpowers/plans/`.
   - [x] Task 7 — `/shipments/[id]` I: detail page — info card, loading / not-found / error states
   - [x] Task 8 — `/shipments/[id]` II: movement timeline with Motion (day minimum: list + detail with timeline end to end)
   - [x] Task 9 — `/shipments` list II: status filter, debounced search, pagination
-  - [ ] Task 10 — shared contract: human-readable validation messages on the shipment schemas
+  - [x] Task 10 — shared contract: human-readable validation messages on the shipment schemas
   - [ ] Task 11 — manual status update form (legal next statuses only, `422` / `400` handling)
   - [ ] Task 12 — `/shipments/new` I: dispatcher-only guard and the client picker
   - [ ] Task 13 — `/shipments/new` II: creation form (React Hook Form + shared schema), redirect to the detail

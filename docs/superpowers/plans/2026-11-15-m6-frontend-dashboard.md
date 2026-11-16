@@ -1864,7 +1864,7 @@ passing the texts on to `.min(min, messages.min)` / `.max(max, messages.max)`; `
 The event schema's status gets its own enum with a message — `z.enum(SHIPMENT_STATUSES, 'Select a status')`
 — instead of the shared `shipmentStatusSchema`, which the query and response schemas keep using.
 
-- [ ] **Step 1: Write the failing tests** — a new `describe('validation messages')` at the end of `packages/shared/tests/schemas/shipment.test.ts`
+- [x] **Step 1: Write the failing tests** — a new `describe('validation messages')` at the end of `packages/shared/tests/schemas/shipment.test.ts`
 
 Helper in the test file: `messagesAt(result, field)` returns
 `result.error?.issues.filter((issue) => issue.path.join('.') === field).map((issue) => issue.message) ?? []`.
@@ -1887,7 +1887,7 @@ Helper in the test file: `messagesAt(result, field)` returns
 | `createShipmentEventSchema` | `{ status: 'IN_TRANSIT', location: '  ', note: ' hi ' }` | still succeeds with `{ status: 'IN_TRANSIT', note: 'hi' }` |
 | `listShipmentsQuerySchema` | `{ status: 'LOST' }` | fails with a message that is **not** `Select a status` — the query keeps its own enum |
 
-- [ ] **Step 2: Run to verify they fail**
+- [x] **Step 2: Run to verify they fail**
 
 ```bash
 npm run test -w packages/shared
@@ -1897,12 +1897,12 @@ Expected: FAIL — the message rows receive Zod's defaults (`Too small: expected
 `Invalid option: expected one of …`, …); the NUL row, the two "still succeeds" rows, the query row and every
 existing test pass.
 
-- [ ] **Step 3: Implement — add the message arguments to `cleanText` / `optionalCleanText` and pass the texts from `shipment.ts`**
+- [x] **Step 3: Implement — add the message arguments to `cleanText` / `optionalCleanText` and pass the texts from `shipment.ts`**
 
 `git diff packages/shared/src` must show only added message arguments, the `TextMessages` interface and the
 event schema's own enum: no check added, removed or reordered.
 
-- [ ] **Step 4: Run the tests, typecheck, lint — in every workspace, because the API validates with these schemas**
+- [x] **Step 4: Run the tests, typecheck, lint — in every workspace, because the API validates with these schemas**
 
 ```bash
 npm run test && npm run typecheck && npm run lint
@@ -1912,7 +1912,7 @@ git diff --stat -- apps/api
 Expected: the first line exits `0` (the API suite passes unchanged: its tests assert paths and codes, never
 Zod's wording for these fields); the second prints nothing.
 
-- [ ] **Step 5: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
+- [x] **Step 5: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
 
 ```bash
 git add packages/shared docs/plan.md

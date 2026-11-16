@@ -416,3 +416,94 @@ describe('SHIPMENTS_MAX_PAGE', () => {
     expect(SHIPMENTS_MAX_PAGE).toBe(100000);
   });
 });
+
+describe('validation messages', () => {
+  function messagesAt(
+    result: { success: boolean; error?: { issues: { path: PropertyKey[]; message: string }[] } },
+    field: string,
+  ): string[] {
+    return result.error?.issues.filter((issue) => issue.path.join('.') === field).map((issue) => issue.message) ?? [];
+  }
+
+  it('names each empty required field of createShipmentSchema', () => {
+    const result = createShipmentSchema.safeParse({ clientId: '', origin: ' ', destination: '', description: '' });
+    expect(result.success).toBe(false);
+    expect(messagesAt(result, 'clientId')).toEqual(['Select a client']);
+    expect(messagesAt(result, 'origin')).toEqual(['Enter the origin']);
+    expect(messagesAt(result, 'destination')).toEqual(['Enter the destination']);
+    expect(messagesAt(result, 'description')).toEqual(['Enter a description']);
+  });
+
+  it.each([
+    ['origin', 201, 'Origin must be at most 200 characters'],
+    ['destination', 201, 'Destination must be at most 200 characters'],
+    ['description', 501, 'Description must be at most 500 characters'],
+  ])('explains a too long %s', (field, length, message) => {
+    const result = createShipmentSchema.safeParse({ ...validCreate, [field]: 'x'.repeat(length) });
+    expect(messagesAt(result, field)).toEqual([message]);
+  });
+
+  it.each([0, -1])('rejects weightKg %j as not greater than 0', (weightKg) => {
+    const result = createShipmentSchema.safeParse({ ...validCreate, weightKg });
+    expect(messagesAt(result, 'weightKg')).toEqual(['Weight must be greater than 0']);
+  });
+
+  it('rejects weightKg above 100000', () => {
+    const result = createShipmentSchema.safeParse({ ...validCreate, weightKg: 100000.5 });
+    expect(messagesAt(result, 'weightKg')).toEqual(['Weight must be at most 100000 kg']);
+  });
+
+  it.each(['12', null, Number.NaN, Infinity])('asks for a number when weightKg is %j', (weightKg) => {
+    const result = createShipmentSchema.safeParse({ ...validCreate, weightKg });
+    expect(messagesAt(result, 'weightKg')).toEqual(['Enter the weight as a number']);
+  });
+
+  it('keeps the NUL message', () => {
+    const result = createShipmentSchema.safeParse({ ...validCreate, origin: 'a\u0000b' });
+    expect(messagesAt(result, 'origin')).toEqual(['Must not contain NUL characters']);
+  });
+
+  it('still accepts a valid body and strips unknown keys', () => {
+    const result = createShipmentSchema.safeParse({ ...validCreate, weightKg: 12.5, extra: 1 });
+    expect(result.success).toBe(true);
+    expect(result.data?.weightKg).toBe(12.5);
+    expect(result.data).not.toHaveProperty('extra');
+  });
+
+  it('uses the weight messages in updateShipmentSchema', () => {
+    expect(messagesAt(updateShipmentSchema.safeParse({ weightKg: 0 }), 'weightKg')).toEqual([
+      'Weight must be greater than 0',
+    ]);
+    expect(messagesAt(updateShipmentSchema.safeParse({ weightKg: 'x' }), 'weightKg')).toEqual([
+      'Enter the weight as a number',
+    ]);
+  });
+
+  it.each(['', 'LOST', undefined, null, 5])('asks to select a status when status is %j', (status) => {
+    const result = createShipmentEventSchema.safeParse({ status });
+    expect(messagesAt(result, 'status')).toEqual(['Select a status']);
+  });
+
+  it('explains a too long location and note', () => {
+    const result = createShipmentEventSchema.safeParse({
+      status: 'IN_TRANSIT',
+      location: 'x'.repeat(201),
+      note: 'x'.repeat(501),
+    });
+    expect(messagesAt(result, 'location')).toEqual(['Location must be at most 200 characters']);
+    expect(messagesAt(result, 'note')).toEqual(['Note must be at most 500 characters']);
+  });
+
+  it('still trims the event texts and drops empty ones', () => {
+    const result = createShipmentEventSchema.safeParse({ status: 'IN_TRANSIT', location: '  ', note: ' hi ' });
+    expect(result.success).toBe(true);
+    expect(result.data).toEqual({ status: 'IN_TRANSIT', note: 'hi' });
+  });
+
+  it('keeps the query status message apart from the event one', () => {
+    const result = listShipmentsQuerySchema.safeParse({ status: 'LOST' });
+    expect(result.success).toBe(false);
+    expect(messagesAt(result, 'status')).toHaveLength(1);
+    expect(messagesAt(result, 'status')).not.toEqual(['Select a status']);
+  });
+});
