@@ -903,9 +903,9 @@ Visual reference — follow it; the tests do not assert classes:
 | ErrorState | box `rounded-xl border border-red-200 bg-red-50 px-6 py-6 text-center`; title `text-sm font-semibold text-red-800`; reason `mt-1 text-sm text-red-700`; button wrapper `mt-4` |
 | StaleDataNotice | `rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800` |
 
-- [ ] **Step 1: Pin the time zone and the clock reset** — add `env: { TZ: 'UTC' }` to `test` in `apps/web/vitest.config.ts` and `vi.useRealTimers()` to the `afterEach` of `apps/web/tests/setup.ts`
+- [x] **Step 1: Pin the time zone and the clock reset** — add `env: { TZ: 'UTC' }` to `test` in `apps/web/vitest.config.ts` and `vi.useRealTimers()` to the `afterEach` of `apps/web/tests/setup.ts`
 
-- [ ] **Step 2: Write the failing tests**
+- [x] **Step 2: Write the failing tests**
 
 `tests/lib/shipments/status.test.ts` (first line `// @vitest-environment node`):
 
@@ -949,7 +949,7 @@ Visual reference — follow it; the tests do not assert classes:
 | `<ErrorState … retrying />` | `Try again` is disabled with `aria-busy="true"`; a click does not call `onRetry` |
 | `<StaleDataNotice />` | `getByRole('alert')` has the text `Could not refresh. Showing the last loaded data.` |
 
-- [ ] **Step 3: Run to verify they fail**
+- [x] **Step 3: Run to verify they fail**
 
 ```bash
 npm run test -w apps/web -- tests/lib/shipments/status.test.ts tests/lib/format.test.ts tests/components/shipments/status-badge.test.tsx tests/components/ui
@@ -958,9 +958,9 @@ npm run test -w apps/web -- tests/lib/shipments/status.test.ts tests/lib/format.
 Expected: FAIL — none of the six modules exists; the time-zone row would pass on its own. The M5 tests under
 `tests/components/ui` still pass.
 
-- [ ] **Step 4: Implement the six modules**
+- [x] **Step 4: Implement the six modules**
 
-- [ ] **Step 5: Run tests, typecheck, lint, and check that no class name is assembled from a value**
+- [x] **Step 5: Run tests, typecheck, lint, and check that no class name is assembled from a value**
 
 ```bash
 npm run test -w apps/web && npm run typecheck -w apps/web && npm run lint
@@ -970,7 +970,7 @@ grep -n -E 'bg-\$\{|text-\$\{|ring-\$\{' apps/web/src -r
 Expected: the first line exits `0`; the `grep` prints nothing — no class name is assembled from a value.
 (The colours are checked in the built CSS in Task 6, the first task that renders a badge on a page.)
 
-- [ ] **Step 6: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
+- [x] **Step 6: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
 
 ```bash
 git add apps/web/vitest.config.ts apps/web/tests/setup.ts apps/web/src/lib/shipments/status.ts apps/web/src/lib/format.ts apps/web/src/components/shipments/status-badge.tsx apps/web/src/components/ui/skeleton.tsx apps/web/src/components/ui/empty-state.tsx apps/web/src/components/ui/error-state.tsx apps/web/tests/lib/shipments/status.test.ts apps/web/tests/lib/format.test.ts apps/web/tests/components/shipments apps/web/tests/components/ui docs/plan.md

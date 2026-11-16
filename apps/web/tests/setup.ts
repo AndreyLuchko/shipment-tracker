@@ -16,6 +16,7 @@ vi.mock('next/navigation', async () => {
 // Vitest `globals` is off, so React Testing Library's automatic cleanup does not run.
 afterEach(() => {
   cleanup();
+  vi.useRealTimers();
   vi.unstubAllGlobals();
   vi.unstubAllEnvs();
   routerMock.replace.mockReset();
