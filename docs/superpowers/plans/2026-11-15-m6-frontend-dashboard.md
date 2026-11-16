@@ -2333,7 +2333,7 @@ Nothing else changes: the proxy still redirects in one direction only, `GuestOnl
 `anonymous`, and the forms still do not navigate — so a dead session on `/login?next=…` leaves a usable form
 and no loop (M5, Review Focus 1).
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 `tests/lib/next-path.test.ts` (first line `// @vitest-environment node`):
 
@@ -2389,7 +2389,7 @@ back to plain `/login`); add:
 | on `/register?next=%2Fshipments%2Fnew`; signed in as `DISPATCHER` | called with `'/shipments/new'` — the register page honours it too |
 | **`at('/shipments/shp1')`; the CSRF cookie; `mockFetch(UNAUTH)` (a dead session)** | `form` stays; after the store has settled on `anonymous`, `routerMock.replace` was never called — no loop |
 
-- [ ] **Step 2: Run to verify they fail**
+- [x] **Step 2: Run to verify they fail**
 
 ```bash
 npm run test -w apps/web -- tests/lib/next-path.test.ts tests/proxy.test.ts tests/components/auth/auth-guard.test.tsx tests/components/auth/guest-only.test.tsx
@@ -2398,9 +2398,9 @@ npm run test -w apps/web -- tests/lib/next-path.test.ts tests/proxy.test.ts test
 Expected: FAIL — `@/lib/next-path` cannot be resolved; the new proxy rows receive a bare `/login`; the new
 guard rows see `/login` and `/shipments`. Every unchanged row passes.
 
-- [ ] **Step 3: Implement `next-path.ts` and use it in the proxy and the two guards**
+- [x] **Step 3: Implement `next-path.ts` and use it in the proxy and the two guards**
 
-- [ ] **Step 4: Run tests, typecheck, lint, build**
+- [x] **Step 4: Run tests, typecheck, lint, build**
 
 ```bash
 npm run test -w apps/web && npm run typecheck -w apps/web && npm run lint
@@ -2409,7 +2409,7 @@ npm run build -w apps/web 2>&1 | grep -i 'proxy'
 
 Expected: the first line exits `0`; the build output still has the line `ƒ Proxy (Middleware)`.
 
-- [ ] **Step 5: Check the redirects on the running app**
+- [x] **Step 5: Check the redirects on the running app**
 
 Terminal 1: `npm run dev -w apps/api`. Terminal 2: `npm run dev -w apps/web`. Terminal 3:
 
@@ -2432,7 +2432,7 @@ Expected, in order: `307 http://localhost:3000/login`;
 reject the fake cookie); `200 ` (the proxy never redirects away from `/login`); `401 ` (the API's own answer).
 Stop both dev servers.
 
-- [ ] **Step 6: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
+- [x] **Step 6: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
 
 ```bash
 git add apps/web/src/lib/next-path.ts apps/web/src/proxy.ts apps/web/src/components/auth/auth-guard.tsx apps/web/src/components/auth/guest-only.tsx apps/web/tests/lib/next-path.test.ts apps/web/tests/proxy.test.ts apps/web/tests/components/auth/auth-guard.test.tsx apps/web/tests/components/auth/guest-only.test.tsx docs/plan.md

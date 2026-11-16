@@ -5,8 +5,8 @@ import { GuestOnly } from '@/components/auth/guest-only';
 import { useAuthStore } from '@/stores/auth';
 
 import { deferred, errorResponse, jsonResponse, mockFetch, setCookie } from '../../helpers/fetch';
-import { USER } from '../../helpers/fixtures';
-import { routerMock } from '../../helpers/router';
+import { DISPATCHER, USER } from '../../helpers/fixtures';
+import { navigate, routerMock } from '../../helpers/router';
 
 const OK = (user: unknown) => jsonResponse(200, { user });
 const UNAUTH = () => errorResponse(401, 'UNAUTHORIZED', 'Authentication required');
@@ -76,5 +76,65 @@ describe('GuestOnly', () => {
 
     await vi.waitFor(() => expect(routerMock.replace).toHaveBeenCalledWith('/shipments'));
     expect(calls).toHaveLength(0);
+  });
+
+  describe('?next=', () => {
+    const at = (value: string) => navigate(`/login?next=${encodeURIComponent(value)}`);
+
+    it('sends a signed-in user to the page in ?next=', async () => {
+      at('/shipments/shp1?tab=x');
+      signIn();
+      mockFetch();
+
+      renderGuest();
+
+      await vi.waitFor(() => expect(routerMock.replace).toHaveBeenCalledWith('/shipments/shp1?tab=x'));
+    });
+
+    it.each(['https://evil.com', '//evil.com', '/login', '/register', 'javascript:alert(1)', '/shipments/../login'])(
+      'sends a signed-in user to /shipments for ?next=%s',
+      async (value) => {
+        at(value);
+        signIn();
+        mockFetch();
+
+        renderGuest();
+
+        await vi.waitFor(() => expect(routerMock.replace).toHaveBeenCalledWith('/shipments'));
+      },
+    );
+
+    it('sends the user to the page in ?next= once after a successful login', async () => {
+      at('/shipments/shp1');
+      mockFetch();
+      renderGuest();
+
+      act(() => useAuthStore.setState({ status: 'authenticated', user: USER }));
+
+      await vi.waitFor(() => expect(routerMock.replace).toHaveBeenCalledWith('/shipments/shp1'));
+      expect(routerMock.replace).toHaveBeenCalledTimes(1);
+    });
+
+    it('honours ?next= on the register page too', async () => {
+      navigate('/register?next=%2Fshipments%2Fnew');
+      useAuthStore.setState({ status: 'authenticated', user: DISPATCHER });
+      mockFetch();
+
+      renderGuest();
+
+      await vi.waitFor(() => expect(routerMock.replace).toHaveBeenCalledWith('/shipments/new'));
+    });
+
+    it('keeps the form and does not redirect on a dead session', async () => {
+      at('/shipments/shp1');
+      withCsrfCookie();
+      mockFetch(UNAUTH());
+
+      renderGuest();
+
+      await vi.waitFor(() => expect(useAuthStore.getState().status).toBe('anonymous'));
+      expect(screen.getByText('form')).toBeInTheDocument();
+      expect(routerMock.replace).not.toHaveBeenCalled();
+    });
   });
 });

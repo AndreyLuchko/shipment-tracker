@@ -7,7 +7,7 @@ import { useAuthStore } from '@/stores/auth';
 
 import { deferred, errorResponse, jsonResponse, mockFetch, setCookie, textResponse } from '../../helpers/fetch';
 import { USER } from '../../helpers/fixtures';
-import { routerMock } from '../../helpers/router';
+import { navigate, routerMock } from '../../helpers/router';
 
 const OK = (user: unknown) => jsonResponse(200, { user });
 const UNAUTH = () => errorResponse(401, 'UNAUTHORIZED', 'Authentication required');
@@ -98,6 +98,52 @@ describe('AuthGuard', () => {
     expect(screen.queryByText('secret')).not.toBeInTheDocument();
     await vi.waitFor(() => expect(routerMock.replace).toHaveBeenCalledWith('/login'));
     expect(routerMock.replace).toHaveBeenCalledTimes(1);
+  });
+
+  describe('?next=', () => {
+    it('carries a nested page and its query over to /login', async () => {
+      navigate('/shipments/shp1?tab=x');
+      mockFetch();
+
+      renderGuard();
+
+      await vi.waitFor(() =>
+        expect(routerMock.replace).toHaveBeenCalledWith('/login?next=%2Fshipments%2Fshp1%3Ftab%3Dx'),
+      );
+    });
+
+    it('sends plain /login from /shipments', async () => {
+      navigate('/shipments');
+      mockFetch();
+
+      renderGuard();
+
+      await vi.waitFor(() => expect(routerMock.replace).toHaveBeenCalledWith('/login'));
+    });
+
+    it('carries the list filters over on a dead session', async () => {
+      navigate('/shipments?status=EXCEPTION&page=2');
+      withCsrfCookie();
+      mockFetch(UNAUTH());
+
+      renderGuard();
+
+      await vi.waitFor(() =>
+        expect(routerMock.replace).toHaveBeenCalledWith('/login?next=%2Fshipments%3Fstatus%3DEXCEPTION%26page%3D2'),
+      );
+    });
+
+    it('carries the page over once when the session is cleared', async () => {
+      navigate('/shipments/shp1');
+      signIn();
+      mockFetch();
+      renderGuard();
+
+      act(() => useAuthStore.getState().clear());
+
+      await vi.waitFor(() => expect(routerMock.replace).toHaveBeenCalledWith('/login?next=%2Fshipments%2Fshp1'));
+      expect(routerMock.replace).toHaveBeenCalledTimes(1);
+    });
   });
 
   it('asks for the session once under StrictMode', async () => {
