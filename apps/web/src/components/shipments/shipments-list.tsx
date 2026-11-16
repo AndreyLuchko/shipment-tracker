@@ -4,7 +4,9 @@ import type { ListShipmentsQuery, ShipmentListResponse } from '@shipment-tracker
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 
+import { Pagination } from '@/components/shipments/pagination';
 import { ShipmentsTable } from '@/components/shipments/shipments-table';
+import { ShipmentsToolbar } from '@/components/shipments/shipments-toolbar';
 import { buttonClassName } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
 import { ErrorState, StaleDataNotice } from '@/components/ui/error-state';
@@ -15,7 +17,10 @@ import { useAuthStore } from '@/stores/auth';
 
 const SKELETON_ROWS = 5;
 
-/** The whole list screen: heading, "New shipment", the table and its loading, empty and error states. */
+/**
+ * The whole list screen: heading, "New shipment", the toolbar, the table with its pagination, and the loading,
+ * empty and error states.
+ */
 export function ShipmentsList(): ReactNode {
   const query = useListParams();
   const list = useShipmentsQuery(query);
@@ -65,6 +70,7 @@ export function ShipmentsList(): ReactNode {
           </Link>
         )}
       </div>
+      <ShipmentsToolbar query={query} />
       {content}
     </>
   );
@@ -81,7 +87,14 @@ function ListContent({
   isDispatcher: boolean;
   busy: boolean;
 }): ReactNode {
-  if (data.items.length > 0) return <ShipmentsTable items={data.items} showClient={isDispatcher} busy={busy} />;
+  if (data.items.length > 0) {
+    return (
+      <>
+        <ShipmentsTable items={data.items} showClient={isDispatcher} busy={busy} />
+        <Pagination query={query} total={data.total} totalPages={data.totalPages} />
+      </>
+    );
+  }
 
   let empty: ReactNode;
   if (query.page > 1) {

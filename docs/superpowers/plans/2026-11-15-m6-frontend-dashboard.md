@@ -1718,7 +1718,7 @@ Visual reference: toolbar `mt-6 grid gap-4 sm:grid-cols-[1fr_14rem]`; select —
 of `TextField`; pagination row `mt-4 flex items-center justify-between text-sm text-slate-600`, the buttons in
 a `flex items-center gap-3`.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 `select-field.test.tsx` (`OPTIONS` = `<><option value="">Pick</option><option value="a">A</option></>`):
 
@@ -1777,7 +1777,7 @@ neither `routerMock.replace` nor `routerMock.push` was called after waiting 400 
 | on `/shipments?status=DELIVERED`; `mockFetch(LIST([]), LIST([SHIPMENT]))`; wait for `No shipments match your filters.`; `act(() => navigate('/shipments'))` — what following the `Clear filters` link does | the `Status` select shows `All statuses`; then one body row; `calls[1].url === '/api/v1/shipments?page=1'` |
 | `mockFetch(DOWN)` | the toolbar is there above the alert — a filter that caused the failure can be changed |
 
-- [ ] **Step 2: Run to verify they fail**
+- [x] **Step 2: Run to verify they fail**
 
 ```bash
 npm run test -w apps/web -- tests/components/ui/select-field.test.tsx tests/components/shipments
@@ -1786,9 +1786,9 @@ npm run test -w apps/web -- tests/components/ui/select-field.test.tsx tests/comp
 Expected: FAIL — the three new modules do not exist and the list has neither a toolbar nor pagination. The
 Task 6 rows of `shipments-list.test.tsx` still pass.
 
-- [ ] **Step 3: Implement `SelectField`, `ShipmentsToolbar`, `Pagination`, and render the two in `ShipmentsList`**
+- [x] **Step 3: Implement `SelectField`, `ShipmentsToolbar`, `Pagination`, and render the two in `ShipmentsList`**
 
-- [ ] **Step 4: Run tests, typecheck, lint, build**
+- [x] **Step 4: Run tests, typecheck, lint, build**
 
 ```bash
 npm run test -w apps/web && npm run typecheck -w apps/web && npm run lint && npm run build -w apps/web
@@ -1796,7 +1796,7 @@ npm run test -w apps/web && npm run typecheck -w apps/web && npm run lint && npm
 
 Expected: all exit `0`; the route list still shows `○ /shipments`.
 
-- [ ] **Step 5: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
+- [x] **Step 5: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
 
 ```bash
 git add apps/web/src/components/ui/select-field.tsx apps/web/src/components/shipments/shipments-toolbar.tsx apps/web/src/components/shipments/pagination.tsx apps/web/src/components/shipments/shipments-list.tsx apps/web/tests/components/ui/select-field.test.tsx apps/web/tests/components/shipments docs/plan.md

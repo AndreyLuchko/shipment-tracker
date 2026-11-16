@@ -187,4 +187,95 @@ describe('ShipmentsList', () => {
     expect(screen.getByRole('link', { name: 'ST-2026-000002' })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Try again' })).not.toBeInTheDocument();
   });
+
+  describe('filters and pagination', () => {
+    beforeEach(() => signIn(USER));
+
+    it('loads the chosen status', async () => {
+      const { calls } = mockFetch(LIST([SHIPMENT, EXCEPTION_SHIPMENT]), LIST([EXCEPTION_SHIPMENT]));
+      renderList();
+      await vi.waitFor(() => expect(bodyRows()).toHaveLength(2));
+
+      await userEvent.setup().selectOptions(screen.getByLabelText('Status'), 'EXCEPTION');
+
+      await vi.waitFor(() => expect(calls[1]?.url).toBe('/api/v1/shipments?status=EXCEPTION&page=1'));
+      await vi.waitFor(() => expect(bodyRows()).toHaveLength(1));
+    });
+
+    it('sends one request for the settled search text, not one per key', async () => {
+      const { calls } = mockFetch(LIST([SHIPMENT, EXCEPTION_SHIPMENT]), LIST([EXCEPTION_SHIPMENT]));
+      renderList();
+      await vi.waitFor(() => expect(bodyRows()).toHaveLength(2));
+
+      await userEvent.setup().type(screen.getByLabelText('Search'), 'kyiv');
+
+      await vi.waitFor(() => expect(calls[1]?.url).toBe('/api/v1/shipments?search=kyiv&page=1'));
+      await vi.waitFor(() => expect(bodyRows()).toHaveLength(1));
+      await act(() => new Promise<void>((resolve) => setTimeout(resolve, 50)));
+      expect(calls).toHaveLength(2);
+    });
+
+    it('keeps the previous rows while the next page loads', async () => {
+      navigate('/shipments?page=2');
+      const next = deferred<Response>();
+      const { calls } = mockFetch(LIST([SHIPMENT], { page: 2, total: 45 }), next.promise);
+      renderList();
+
+      await userEvent.setup().click(await screen.findByRole('button', { name: 'Next' }));
+
+      await vi.waitFor(() => expect(calls[1]?.url).toBe('/api/v1/shipments?page=3'));
+      expect(screen.getByRole('link', { name: 'ST-2026-000002' })).toBeInTheDocument();
+      expect(screen.getByRole('table')).toHaveAttribute('aria-busy', 'true');
+      expect(screen.queryByRole('status', { name: 'Loading shipments' })).not.toBeInTheDocument();
+
+      next.resolve(LIST([EXCEPTION_SHIPMENT], { page: 3, total: 45 }));
+
+      expect(await screen.findByRole('link', { name: 'ST-2026-000003' })).toBeInTheDocument();
+      expect(screen.getByRole('table')).not.toHaveAttribute('aria-busy');
+      expect(screen.getByText('Page 3 of 3')).toBeInTheDocument();
+    });
+
+    it('shows the count and the toolbar with the table', async () => {
+      mockFetch(LIST([SHIPMENT]));
+      renderList();
+
+      expect(await screen.findByText('1 shipment')).toBeInTheDocument();
+      expect(screen.getByLabelText('Search')).toBeInTheDocument();
+      expect(screen.getByLabelText('Status')).toBeInTheDocument();
+    });
+
+    it('shows the toolbar but no count or pagination when the list is empty', async () => {
+      mockFetch(LIST([]));
+      renderList();
+
+      await screen.findByText('No shipments yet.');
+      expect(screen.getByLabelText('Search')).toBeInTheDocument();
+      expect(screen.getByLabelText('Status')).toBeInTheDocument();
+      expect(screen.queryByText(/\bshipments?$/)).not.toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: 'Previous' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: 'Next' })).not.toBeInTheDocument();
+    });
+
+    it('resets the toolbar and reloads when the filters are cleared', async () => {
+      navigate('/shipments?status=DELIVERED');
+      const { calls } = mockFetch(LIST([]), LIST([SHIPMENT]));
+      renderList();
+      await screen.findByText('No shipments match your filters.');
+
+      act(() => navigate('/shipments'));
+
+      expect(screen.getByLabelText('Status')).toHaveValue('');
+      await vi.waitFor(() => expect(bodyRows()).toHaveLength(1));
+      expect(calls[1]?.url).toBe('/api/v1/shipments?page=1');
+    });
+
+    it('shows the toolbar above the error, so the filter that caused it can be changed', async () => {
+      mockFetch(DOWN());
+      renderList();
+
+      const alert = await screen.findByRole('alert');
+      const toolbarSelect = screen.getByLabelText('Status');
+      expect(toolbarSelect.compareDocumentPosition(alert) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    });
+  });
 });
