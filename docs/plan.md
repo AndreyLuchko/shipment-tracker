@@ -71,6 +71,22 @@ Detailed per-milestone plans live in `docs/superpowers/plans/`.
   - [x] Task 14 — `proxy.ts`: optimistic redirect for anonymous visitors
   - [x] Task 15 — M5 wrap-up, smoke test through the proxy, sign-off
 - [ ] M6 — frontend: dashboard list + detail timeline + create/manual-update forms
+      → plan: `docs/superpowers/plans/2026-11-15-m6-frontend-dashboard.md`
+  - [ ] Task 1 — record M6 dashboard decisions in the spec
+  - [ ] Task 2 — web tooling: TanStack Query, `QueryProvider` in the dashboard layout, `renderWithQuery`
+  - [ ] Task 3 — shipments API functions, query hooks, shipment fixtures
+  - [ ] Task 4 — status labels and `StatusBadge`, date and relative-time formatting, state primitives
+  - [ ] Task 5 — list state in the URL: params parsing and building, `useDebouncedValue`, stateful navigation mock
+  - [ ] Task 6 — `/shipments` list I: table, skeleton, empty and error states, role-specific column and button
+  - [ ] Task 7 — `/shipments/[id]` I: detail page — info card, loading / not-found / error states
+  - [ ] Task 8 — `/shipments/[id]` II: movement timeline with Motion (day minimum: list + detail with timeline end to end)
+  - [ ] Task 9 — `/shipments` list II: status filter, debounced search, pagination
+  - [ ] Task 10 — shared contract: human-readable validation messages on the shipment schemas
+  - [ ] Task 11 — manual status update form (legal next statuses only, `422` / `400` handling)
+  - [ ] Task 12 — `/shipments/new` I: dispatcher-only guard and the client picker
+  - [ ] Task 13 — `/shipments/new` II: creation form (React Hook Form + shared schema), redirect to the detail
+  - [ ] Task 14 — `?next=` return URL: proxy, `AuthGuard`, `GuestOnly`, `safeNextPath`
+  - [ ] Task 15 — M6 wrap-up, smoke test through `:3000`, sign-off
 - [ ] M7 — polish (empty states, badges), README, architecture diagram, deploy
 
 Detailed plans for M1-M7 are written milestone-by-milestone, once the preceding milestone lands, rather than
