@@ -2202,7 +2202,7 @@ git commit -m "feat: add the dispatcher-only new shipment page and the client pi
 Visual reference: form `mt-6 max-w-xl space-y-4 rounded-xl border border-slate-200 bg-white p-6`; the button
 row `flex items-center gap-4`; `Cancel` `text-sm font-medium text-slate-600 hover:underline`.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 `new-shipment-form.test.tsx` — signed in as `DISPATCHER`, with the CSRF cookie; the first reply of every
 `mockFetch` is `CLIENT_LIST` unless the row says otherwise; `renderForm()` =
@@ -2236,7 +2236,7 @@ row `flex items-center gap-4`; `Cancel` `text-sm font-medium text-slate-600 hove
 | signed in as `DISPATCHER`; `mockFetch(CLIENT_LIST)`; `renderWithQuery(<NewShipmentPage />)` | the heading `New shipment`; the combobox `Client`; the button `Create shipment` |
 | signed in as `USER`; `mockFetch()` | no heading, no form; `routerMock.replace` called with `'/shipments'`; `calls.length === 0` |
 
-- [ ] **Step 2: Run to verify they fail**
+- [x] **Step 2: Run to verify they fail**
 
 ```bash
 npm run test -w apps/web -- tests/components/shipments/new-shipment-form.test.tsx tests/app/new-shipment-page.test.tsx
@@ -2244,9 +2244,9 @@ npm run test -w apps/web -- tests/components/shipments/new-shipment-form.test.ts
 
 Expected: FAIL — `@/components/shipments/new-shipment-form` cannot be resolved and the page has no form.
 
-- [ ] **Step 3: Implement `NewShipmentForm` and render it on the page**
+- [x] **Step 3: Implement `NewShipmentForm` and render it on the page**
 
-- [ ] **Step 4: Run tests, typecheck, lint, build**
+- [x] **Step 4: Run tests, typecheck, lint, build**
 
 ```bash
 npm run test -w apps/web && npm run typecheck -w apps/web && npm run lint && npm run build -w apps/web
@@ -2255,7 +2255,7 @@ npm run test -w apps/web && npm run typecheck -w apps/web && npm run lint && npm
 Expected: all exit `0`; the route list is `/`, `/_not-found`, `/login`, `/register`, `/shipments`,
 `/shipments/[id]`, `/shipments/new`.
 
-- [ ] **Step 5: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
+- [x] **Step 5: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
 
 ```bash
 git add apps/web/src/components/shipments/new-shipment-form.tsx "apps/web/src/app/(dashboard)/shipments/new/page.tsx" apps/web/tests/components/shipments/new-shipment-form.test.tsx apps/web/tests/app/new-shipment-page.test.tsx docs/plan.md
