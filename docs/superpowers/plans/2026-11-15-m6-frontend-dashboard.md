@@ -1427,7 +1427,7 @@ Visual reference: back link `text-sm font-medium text-indigo-600 hover:underline
 `text-xs font-semibold uppercase tracking-wide text-slate-500`; definitions `mt-1 text-sm text-slate-900`;
 the email `text-slate-600`.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 `shipment-info-card.test.tsx` — `definition(term)` = the `<dd>` that follows the `<dt>` with that text:
 
@@ -1460,7 +1460,7 @@ the email `text-slate-600`.
 | signed in as `USER`; `mockFetch(DETAIL(SHIPMENT_DETAIL))`; `renderWithQuery(await ShipmentPage({ params: Promise.resolve({ id: 'shp1' }) }))` | the heading `ST-2026-000002`; `calls[0].url === '/api/v1/shipments/shp1'` |
 | `metadata` | `metadata.title === 'Shipment — Shipment Tracker'` |
 
-- [ ] **Step 2: Run to verify they fail**
+- [x] **Step 2: Run to verify they fail**
 
 ```bash
 npm run test -w apps/web -- tests/components/shipments/shipment-info-card.test.tsx tests/components/shipments/shipment-detail.test.tsx tests/app/shipment-page.test.tsx
@@ -1468,9 +1468,9 @@ npm run test -w apps/web -- tests/components/shipments/shipment-info-card.test.t
 
 Expected: FAIL — none of the three modules exists.
 
-- [ ] **Step 3: Implement `ShipmentInfoCard`, `ShipmentDetailView` and the page**
+- [x] **Step 3: Implement `ShipmentInfoCard`, `ShipmentDetailView` and the page**
 
-- [ ] **Step 4: Run tests, typecheck, lint, build, and typecheck again**
+- [x] **Step 4: Run tests, typecheck, lint, build, and typecheck again**
 
 ```bash
 npm run test -w apps/web && npm run typecheck -w apps/web && npm run lint && npm run build -w apps/web
@@ -1480,7 +1480,7 @@ npm run typecheck -w apps/web
 Expected: all exit `0`; the route list gains `ƒ /shipments/[id]` (C31). The second typecheck runs with the
 `.next/types` the build generated — the page's props must satisfy Next's own route validator too.
 
-- [ ] **Step 5: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
+- [x] **Step 5: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
 
 ```bash
 git add apps/web/src/components/shipments/shipment-info-card.tsx apps/web/src/components/shipments/shipment-detail.tsx "apps/web/src/app/(dashboard)/shipments/[id]" apps/web/tests/components/shipments/shipment-info-card.test.tsx apps/web/tests/components/shipments/shipment-detail.test.tsx apps/web/tests/app/shipment-page.test.tsx docs/plan.md
