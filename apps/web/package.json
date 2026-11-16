@@ -12,6 +12,7 @@
   "dependencies": {
     "@hookform/resolvers": "^7.0.6",
     "@shipment-tracker/shared": "^0.1.0",
+    "@tanstack/react-query": "^5.107.1",
     "next": "^16.2.11",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",

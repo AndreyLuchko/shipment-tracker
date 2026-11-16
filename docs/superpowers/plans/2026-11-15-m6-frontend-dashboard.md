@@ -546,7 +546,7 @@ git commit -m "docs: record M6 dashboard decisions in spec"
     `renderWithQuery` returns `Object.assign(render(ui, { wrapper }), { queryClient })` — spreading the
     render result into a new object does not typecheck.
 
-- [ ] **Step 1: Record the starting state**
+- [x] **Step 1: Record the starting state**
 
 ```bash
 npm run test -w apps/web 2>&1 | tail -5
@@ -555,7 +555,7 @@ git status --short
 
 Expected: `Test Files  26 passed (26)`, `Tests  245 passed (245)`; no output from the second command.
 
-- [ ] **Step 2: Install the package**
+- [x] **Step 2: Install the package**
 
 ```bash
 npm install --save @tanstack/react-query@^5.107.1 -w apps/web
@@ -567,9 +567,9 @@ Expected: `@tanstack/react-query@5.107.1` with `@tanstack/query-core@5.107.1` un
 a single `react@19.2.8` (every other entry `deduped`); the diff lists exactly `apps/web/package.json` and
 `package-lock.json`. The `EBADENGINE` warning about `@prisma/streams-local` is pre-existing; ignore it.
 
-- [ ] **Step 3: Write the test helper `apps/web/tests/helpers/query.tsx`** (it imports `@/lib/query-client`, which does not exist until Step 6)
+- [x] **Step 3: Write the test helper `apps/web/tests/helpers/query.tsx`** (it imports `@/lib/query-client`, which does not exist until Step 6)
 
-- [ ] **Step 4: Write the failing tests**
+- [x] **Step 4: Write the failing tests**
 
 `apps/web/tests/lib/query-client.test.ts` (first line `// @vitest-environment node`):
 
@@ -600,7 +600,7 @@ this file too):
 |---|---|
 | signed in as `USER`; `mockFetch(OK(USER))`; `render(<DashboardLayout><Probe /></DashboardLayout>)` | `name:Demo Client` — a query works under the layout without any provider of the test's own |
 
-- [ ] **Step 5: Run to verify they fail**
+- [x] **Step 5: Run to verify they fail**
 
 ```bash
 npm run test -w apps/web -- tests/lib/query-client.test.ts tests/components/providers tests/app/dashboard-layout.test.tsx
@@ -609,11 +609,11 @@ npm run test -w apps/web -- tests/lib/query-client.test.ts tests/components/prov
 Expected: FAIL — `@/lib/query-client` and `@/components/providers/query-provider` cannot be resolved, and the
 new layout row throws `No QueryClient set, use QueryClientProvider to set one`. The three old layout rows pass.
 
-- [ ] **Step 6: Implement `createQueryClient`, `QueryProvider`, and put the provider into `app/(dashboard)/layout.tsx`**
+- [x] **Step 6: Implement `createQueryClient`, `QueryProvider`, and put the provider into `app/(dashboard)/layout.tsx`**
 
 The layout stays a Server Component: it only renders the client component around its children.
 
-- [ ] **Step 7: Run tests, typecheck, lint, build**
+- [x] **Step 7: Run tests, typecheck, lint, build**
 
 ```bash
 npm run test -w apps/web && npm run typecheck -w apps/web && npm run lint && npm run build -w apps/web
@@ -622,7 +622,7 @@ npm run test -w apps/web && npm run typecheck -w apps/web && npm run lint && npm
 Expected: all exit `0`; the build's route list is unchanged (`/`, `/_not-found`, `/login`, `/register`,
 `/shipments`).
 
-- [ ] **Step 8: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
+- [x] **Step 8: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
 
 ```bash
 git add apps/web/package.json package-lock.json apps/web/src/lib/query-client.ts apps/web/src/components/providers "apps/web/src/app/(dashboard)/layout.tsx" apps/web/tests/helpers/query.tsx apps/web/tests/lib/query-client.test.ts apps/web/tests/components/providers apps/web/tests/app/dashboard-layout.test.tsx docs/plan.md
