@@ -360,7 +360,7 @@ Inputs the spec implies but does not spell out; each is pinned by a test in the 
 - Consumes: the Decisions table above.
 - Produces: a spec that agrees with this plan — later tasks cite §8 "Dashboard decisions".
 
-- [ ] **Step 1: §4 — replace the State row of the table with three rows**
+- [x] **Step 1: §4 — replace the State row of the table with three rows**
 
 Old: ``| State | **Zustand** | Minimal client state (auth/session, UI filters) |``
 
@@ -372,7 +372,7 @@ New:
 | Animation | **Motion** (`motion/react`) | The movement timeline only; honours `prefers-reduced-motion` |
 ```
 
-- [ ] **Step 2: §8 — the "Optimistic-free" bullet of "UX details worth the effort"**
+- [x] **Step 2: §8 — the "Optimistic-free" bullet of "UX details worth the effort"**
 
 Old (two lines): ``- Optimistic-free MVP: simple refetch after mutations, and on navigation/mount — no live push for``
 followed by ``  webhook-driven updates in MVP (keep it honest and simple)``
@@ -384,7 +384,7 @@ New:
   no live push for webhook-driven updates in MVP (keep it honest and simple)
 ```
 
-- [ ] **Step 3: §8 — two bullets of the "Frontend decisions (M5 …)" block that M6 supersedes**
+- [x] **Step 3: §8 — two bullets of the "Frontend decisions (M5 …)" block that M6 supersedes**
 
 Old (two lines): ``- **After signing in** the user lands on `/shipments`; `/` redirects there. There is no "return to the page I``
 followed by ``  came from" yet.``
@@ -406,7 +406,7 @@ New:
   Motion.
 ```
 
-- [ ] **Step 4: §8 — append this block at the end of the section, after the "Frontend decisions (M5 …)" list and before the `---` line**
+- [x] **Step 4: §8 — append this block at the end of the section, after the "Frontend decisions (M5 …)" list and before the `---` line**
 
 ```markdown
 **Dashboard decisions (M6 human checkpoint, 2026-11-15):**
@@ -442,7 +442,7 @@ New:
   updates. The seed still creates two shipments — a richer demo seed is M7.
 ```
 
-- [ ] **Step 5: §10, item 3 — append one sentence**
+- [x] **Step 5: §10, item 3 — append one sentence**
 
 Old (the item's last two lines): ``   browser e2e. The end-to-end path (browser → rewrite → API) is a smoke checklist at the end of each``
 followed by ``   frontend milestone.``
@@ -455,7 +455,7 @@ New:
    replaced by a small stateful fake; the test time zone is pinned to UTC.
 ```
 
-- [ ] **Step 6: §12, item 7 — name M6**
+- [x] **Step 6: §12, item 7 — name M6**
 
 Old (three lines): ``7. **Extra-weight human checkpoints:** beyond the per-task reviews above, treat M2 (auth decisions), M4``
 followed by ``   (webhook contract), M5 (frontend architecture), and pre-deploy as points requiring an explicit, more``
@@ -469,7 +469,7 @@ New:
    requiring an explicit, more thorough sign-off before moving on.
 ```
 
-- [ ] **Step 7: Verify the edit**
+- [x] **Step 7: Verify the edit**
 
 ```bash
 grep -c 'Dashboard decisions (M6 human checkpoint, 2026-11-15)' shipment-tracker-spec.md
@@ -484,7 +484,7 @@ Expected: `1`; `3` or more; no output from the third, fourth and fifth commands;
 `shipment-tracker-spec.md` (and `docs/plan.md` once ticked). Do **not** run `prettier --write` on the spec:
 the file does not pass `prettier --check` today, and reformatting it is out of scope.
 
-- [ ] **Step 8: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
+- [x] **Step 8: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
 
 ```bash
 git add shipment-tracker-spec.md docs/plan.md

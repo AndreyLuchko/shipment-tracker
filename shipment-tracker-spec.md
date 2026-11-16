@@ -97,7 +97,9 @@ shipment-tracker/
 | Validation | **Zod** (shared package) | One schema → API validation + frontend forms + shared types (`z.infer`) |
 | Auth | **JWT in HttpOnly cookies** + CSRF token | Secure-by-default: no tokens in localStorage; double-submit CSRF pattern |
 | Frontend | **Next.js (App Router)** + **TypeScript** | Layouts and route groups of the App Router; pages are Server Component shells and data is fetched in the browser through the same-origin API proxy (Section 8, Frontend decisions) — matches modern hiring expectations |
-| State | **Zustand** | Minimal client state (auth/session, UI filters) |
+| State | **Zustand** | Minimal client state: the session (`status`, `user`) and nothing else |
+| Server state | **TanStack Query** | One cache for everything fetched from the API: loading and error states, refetch on mount and on window focus, invalidation after mutations. List filters live in the URL, not in a store |
+| Animation | **Motion** (`motion/react`) | The movement timeline only; honours `prefers-reduced-motion` |
 | Forms | **React Hook Form + Zod resolver** | Reuses shared Zod schemas end-to-end |
 | Styling | **Tailwind CSS** | Fast, consistent; wrap long `className` at printWidth 120 |
 | Testing | **Vitest** (+ `fastify.inject` for API, React Testing Library for UI) | One test runner across the monorepo |
@@ -359,8 +361,8 @@ Routes:
 UX details worth the effort:
 - Status badge colors per status; `EXCEPTION` visually loud
 - Timeline shows relative time + location + source (webhook/manual)
-- Optimistic-free MVP: simple refetch after mutations, and on navigation/mount — no live push for
-  webhook-driven updates in MVP (keep it honest and simple)
+- Optimistic-free MVP: simple refetch after mutations, on navigation/mount and when the tab regains focus —
+  no live push for webhook-driven updates in MVP (keep it honest and simple)
 - Empty states and loading skeletons — small things recruiters notice
 
 **Frontend decisions (M5 human checkpoint, 2026-11-13):**
@@ -385,11 +387,43 @@ UX details worth the effort:
   `Retry-After`; a `5xx`, a non-JSON answer or a network failure → "Service is unavailable. Please try again."
 - **Demo access:** `/login` offers "Demo dispatcher" and "Demo client" buttons that sign in with the seeded
   accounts in one click. `/register` lets the visitor pick the role (demo only).
-- **After signing in** the user lands on `/shipments`; `/` redirects there. There is no "return to the page I
-  came from" yet.
+- **After signing in** the user lands on `/shipments`; `/` redirects there. The return to the page the
+  visitor came from arrives with M6 (dashboard decisions below).
 - **Styling:** Tailwind CSS 4 (CSS-first, no config file), light theme, English UI.
-- **Dependencies:** Zustand, React Hook Form, `@hookform/resolvers`, Tailwind. Framer Motion is added by the
-  milestone that first animates something (M6).
+- **Dependencies:** Zustand, React Hook Form, `@hookform/resolvers`, Tailwind. M6 adds TanStack Query and
+  Motion.
+
+**Dashboard decisions (M6 human checkpoint, 2026-11-15):**
+- **Server state:** TanStack Query on top of the one API client. A `QueryClient` lives as long as the
+  session: its provider is rendered inside the client guard, so signing out drops every cached response.
+  Queries are not retried; they refetch on mount and when the tab regains focus — still no live push and no
+  polling. Mutations are optimistic-free: the detail cache is replaced by the shipment the API returns and
+  the lists are invalidated. A refetch that fails keeps the last good data on screen.
+- **List state in the URL:** `/shipments?status=…&search=…&page=…` — only non-default values are written; an
+  invalid value falls back to its default. Search is debounced by 300 ms and replaces the history entry;
+  changing the status or the page pushes one. Changing a filter returns to page 1.
+- **Detail:** info card + chronological timeline (oldest first, the last entry is the current status) with
+  relative times (`Intl.RelativeTimeFormat`, no date library). A shipment the API answers `404` for —
+  missing or someone else's — is one "Shipment not found" screen.
+- **Manual status update** (dispatcher): `status`, `location`, `note`; the time of the event is the
+  server's. The select lists all seven statuses and enables only `allowedNextStatuses`.
+  `422 INVALID_STATUS_TRANSITION` (the shipment moved meanwhile) is shown above the button and the detail is
+  refetched.
+- **New shipment** (dispatcher): the shared `createShipmentSchema`; the client is picked from
+  `GET /users?role=CLIENT`; after `201` the dispatcher lands on the new shipment's page. A client who opens
+  `/shipments/new` is sent back to `/shipments`.
+- **Validation messages** of the create-shipment and manual-event schemas live in `packages/shared`, like
+  the auth ones.
+- **Role-dependent UI** (client column, "New shipment", the status form) reads the role from the session
+  store; the API remains the only authorization.
+- **Return after login:** the proxy and the client guard send an anonymous visitor to
+  `/login?next=<path and query>`; after signing in the user lands there. Only a path under `/shipments` on
+  the same origin is accepted — anything else means `/shipments`.
+- **Animation:** Motion animates the timeline only (entries appear one after another, a new entry slides
+  in); `prefers-reduced-motion` is honoured.
+- **Status badges:** one soft colour per status; `EXCEPTION` is the only solid one (red, with an icon).
+- **Not in the dashboard:** editing a shipment (`PATCH` has no UI), back-dated events, sorting, live
+  updates. The seed still creates two shipments — a richer demo seed is M7.
 
 ---
 
@@ -462,7 +496,8 @@ Test runner: **Vitest** everywhere.
    status badge logic). The API client, the session store, the auth forms and the route guards are covered
    the same way, with `@testing-library/user-event` for interaction and a stubbed `fetch` — no MSW and no
    browser e2e. The end-to-end path (browser → rewrite → API) is a smoke checklist at the end of each
-   frontend milestone.
+   frontend milestone. Components that fetch are rendered inside a fresh `QueryClient`; `next/navigation` is
+   replaced by a small stateful fake; the test time zone is pinned to UTC.
 4. Target: meaningful coverage of domain logic, not a vanity percentage. State machine and access control must
    be at 100%.
 
@@ -530,7 +565,7 @@ How this project should be built:
    pulled from this spec) that a fresh session can resume it cold by reading the plan + this spec, without
    access to prior chat history.
 7. **Extra-weight human checkpoints:** beyond the per-task reviews above, treat M2 (auth decisions), M4
-   (webhook contract), M5 (frontend architecture), and pre-deploy as points requiring an explicit, more
-   thorough sign-off before moving on.
+   (webhook contract), M5 (frontend architecture), M6 (dashboard decisions), and pre-deploy as points
+   requiring an explicit, more thorough sign-off before moving on.
 8. **Code style constraints:** TypeScript strict mode; no `any`; shared Zod schemas as the single source of truth;
    Tailwind `className` wrapped at `printWidth: 120`; clean, maintainable, no duplicated fields.

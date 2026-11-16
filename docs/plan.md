@@ -72,7 +72,7 @@ Detailed per-milestone plans live in `docs/superpowers/plans/`.
   - [x] Task 15 — M5 wrap-up, smoke test through the proxy, sign-off
 - [ ] M6 — frontend: dashboard list + detail timeline + create/manual-update forms
       → plan: `docs/superpowers/plans/2026-11-15-m6-frontend-dashboard.md`
-  - [ ] Task 1 — record M6 dashboard decisions in the spec
+  - [x] Task 1 — record M6 dashboard decisions in the spec
   - [ ] Task 2 — web tooling: TanStack Query, `QueryProvider` in the dashboard layout, `renderWithQuery`
   - [ ] Task 3 — shipments API functions, query hooks, shipment fixtures
   - [ ] Task 4 — status labels and `StatusBadge`, date and relative-time formatting, state primitives
