@@ -66,7 +66,11 @@ export function ShipmentsTable({
                 <StatusBadge status={shipment.status} />
               </td>
               <td className="whitespace-nowrap px-4 py-3 text-slate-600">
-                <time dateTime={shipment.updatedAt} title={formatDateTime(shipment.updatedAt)}>
+                <time
+                  dateTime={shipment.updatedAt}
+                  title={formatDateTime(shipment.updatedAt)}
+                  className="cursor-help underline decoration-dotted underline-offset-2"
+                >
                   {formatRelativeTime(shipment.updatedAt)}
                 </time>
               </td>

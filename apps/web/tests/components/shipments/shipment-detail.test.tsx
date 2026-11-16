@@ -7,7 +7,7 @@ import { ShipmentDetailView } from '@/components/shipments/shipment-detail';
 import { useAuthStore } from '@/stores/auth';
 
 import { deferred, errorResponse, jsonResponse, mockFetch, textResponse } from '../../helpers/fetch';
-import { DELIVERED_DETAIL, NOW, SHIPMENT_DETAIL, USER } from '../../helpers/fixtures';
+import { DELIVERED_DETAIL, NOW, SHIPMENT_AFTER_EVENT, SHIPMENT_DETAIL, USER } from '../../helpers/fixtures';
 import { renderWithQuery } from '../../helpers/query';
 
 const DETAIL = (shipment: ShipmentDetail) => jsonResponse(200, { shipment });
@@ -21,6 +21,15 @@ const SERVICE = 'Service is unavailable. Please try again.';
 const renderDetail = (id = 'shp1') => renderWithQuery(<ShipmentDetailView id={id} />);
 const backLink = () => screen.getByRole('link', { name: 'Back to shipments' });
 const noFurtherRequest = () => new Promise((resolve) => setTimeout(resolve, 50));
+const timelineEntries = () => within(screen.getByRole('list', { name: 'Movement timeline' })).getAllByRole('listitem');
+const refreshButton = () => screen.getByRole('button', { name: 'Refresh' });
+
+/** The badge next to the level-1 heading — the timeline repeats status labels. */
+function headingBadge(): HTMLElement {
+  const badge = screen.getByRole('heading', { level: 1 }).nextElementSibling;
+  if (!(badge instanceof HTMLElement)) throw new Error('No badge next to the heading');
+  return badge;
+}
 
 describe('ShipmentDetailView', () => {
   beforeEach(() => {
@@ -40,7 +49,7 @@ describe('ShipmentDetailView', () => {
     reply.resolve(DETAIL(SHIPMENT_DETAIL));
 
     expect(await screen.findByRole('heading', { level: 1, name: 'ST-2026-000002' })).toBeInTheDocument();
-    expect(screen.getByText('In transit')).toBeInTheDocument();
+    expect(headingBadge()).toHaveTextContent('In transit');
     expect(screen.getByText('Route', { selector: 'dt' })).toBeInTheDocument();
     expect(screen.queryByRole('status', { name: 'Loading shipment' })).not.toBeInTheDocument();
     expect(calls[0]?.url).toBe('/api/v1/shipments/shp1');
@@ -51,7 +60,7 @@ describe('ShipmentDetailView', () => {
     renderDetail('shp3');
 
     expect(await screen.findByRole('heading', { level: 1, name: 'ST-2026-000001' })).toBeInTheDocument();
-    expect(screen.getByText('Delivered')).toBeInTheDocument();
+    expect(headingBadge()).toHaveTextContent('Delivered');
   });
 
   it('shows "Shipment not found" on a 404', async () => {
@@ -137,5 +146,62 @@ describe('ShipmentDetailView', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent('Could not refresh. Showing the last loaded data.');
     expect(screen.getByRole('heading', { level: 1, name: 'ST-2026-000002' })).toBeInTheDocument();
     expect(screen.getByText('Route', { selector: 'dt' })).toBeInTheDocument();
+  });
+
+  it('shows the timeline with a "Refresh" button', async () => {
+    mockFetch(DETAIL(SHIPMENT_DETAIL));
+    renderDetail();
+
+    expect(await screen.findByRole('heading', { level: 2, name: 'Timeline' })).toBeInTheDocument();
+    expect(timelineEntries()).toHaveLength(3);
+    expect(refreshButton()).toHaveAttribute('type', 'button');
+  });
+
+  it('loads the shipment again on "Refresh"', async () => {
+    const { calls } = mockFetch(DETAIL(SHIPMENT_DETAIL), DETAIL(SHIPMENT_AFTER_EVENT));
+    renderDetail();
+    await screen.findByRole('list', { name: 'Movement timeline' });
+
+    await userEvent.setup().click(refreshButton());
+
+    await vi.waitFor(() => expect(timelineEntries()).toHaveLength(4));
+    expect(headingBadge()).toHaveTextContent('At warehouse');
+    expect(calls).toHaveLength(2);
+    for (const call of calls) {
+      expect(call.url).toBe('/api/v1/shipments/shp1');
+      expect(call.method).toBe('GET');
+    }
+  });
+
+  it('disables "Refresh" while the shipment reloads', async () => {
+    const second = deferred<Response>();
+    const { calls } = mockFetch(DETAIL(SHIPMENT_DETAIL), second.promise);
+    renderDetail();
+    await screen.findByRole('list', { name: 'Movement timeline' });
+    const user = userEvent.setup();
+
+    await user.click(refreshButton());
+
+    await vi.waitFor(() => expect(refreshButton()).toBeDisabled());
+    expect(refreshButton()).toHaveAttribute('aria-busy', 'true');
+    expect(timelineEntries()).toHaveLength(3);
+    await user.click(refreshButton());
+    expect(calls).toHaveLength(2);
+
+    second.resolve(DETAIL(SHIPMENT_AFTER_EVENT));
+
+    await vi.waitFor(() => expect(timelineEntries()).toHaveLength(4));
+  });
+
+  it('keeps the timeline when "Refresh" fails', async () => {
+    mockFetch(DETAIL(SHIPMENT_DETAIL), DOWN());
+    renderDetail();
+    await screen.findByRole('list', { name: 'Movement timeline' });
+
+    await userEvent.setup().click(refreshButton());
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('Could not refresh. Showing the last loaded data.');
+    expect(timelineEntries()).toHaveLength(3);
+    await vi.waitFor(() => expect(refreshButton()).toBeEnabled());
   });
 });

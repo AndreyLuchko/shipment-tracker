@@ -4,7 +4,9 @@ import Link from 'next/link';
 import type { ReactNode } from 'react';
 
 import { ShipmentInfoCard } from '@/components/shipments/shipment-info-card';
+import { ShipmentTimeline } from '@/components/shipments/shipment-timeline';
 import { StatusBadge } from '@/components/shipments/status-badge';
+import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
 import { ErrorState, StaleDataNotice } from '@/components/ui/error-state';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -12,7 +14,7 @@ import { ApiError } from '@/lib/api/client';
 import { SHIPMENTS_PATH } from '@/lib/shipments/list-params';
 import { useShipmentQuery } from '@/lib/shipments/queries';
 
-/** The whole detail screen of one shipment. Tasks 8 and 11 add the timeline and the status form to it. */
+/** The whole detail screen of one shipment. Task 11 adds the status form to it. */
 export function ShipmentDetailView({ id }: { id: string }): ReactNode {
   const detail = useShipmentQuery(id);
 
@@ -31,6 +33,17 @@ export function ShipmentDetailView({ id }: { id: string }): ReactNode {
           <StatusBadge status={shipment.status} />
         </div>
         <ShipmentInfoCard shipment={shipment} />
+        <section aria-labelledby="timeline-heading">
+          <div className="mt-8 flex items-center justify-between">
+            <h2 id="timeline-heading" className="text-lg font-semibold text-slate-900">
+              Timeline
+            </h2>
+            <Button variant="secondary" loading={detail.isFetching} onClick={() => void detail.refetch()}>
+              Refresh
+            </Button>
+          </div>
+          <ShipmentTimeline events={shipment.events} />
+        </section>
       </>
     );
   } else if (detail.isPending) {

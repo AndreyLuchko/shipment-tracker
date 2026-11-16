@@ -1538,7 +1538,7 @@ current entry `bg-indigo-600`; first line `flex flex-wrap items-center gap-x-3 g
 `text-xs text-slate-500`; location `mt-1 text-sm text-slate-900`; note `mt-1 text-sm text-slate-600`; section
 header `mt-8 flex items-center justify-between`; `h2` `text-lg font-semibold text-slate-900`.
 
-- [ ] **Step 1: Install the package**
+- [x] **Step 1: Install the package**
 
 ```bash
 npm install --save motion@^14.14.0 -w apps/web
@@ -1550,7 +1550,7 @@ Expected: `motion@14.14.0` under `@shipment-tracker/web`, with `framer-motion@14
 is its current name and depends on it); a single `react@19.2.8`; the diff lists exactly
 `apps/web/package.json` and `package-lock.json`.
 
-- [ ] **Step 2: Write the failing tests**
+- [x] **Step 2: Write the failing tests**
 
 `shipment-timeline.test.tsx` (at `NOW`; `entries()` = `getAllByRole('listitem')`; assert with
 `toBeInTheDocument` / `toHaveTextContent`, never `toBeVisible` — an entry starts at `opacity: 0`):
@@ -1574,7 +1574,7 @@ is its current name and depends on it); a single `react@19.2.8`; the diff lists 
 | `const second = deferred<Response>(); mockFetch(DETAIL(SHIPMENT_DETAIL), second.promise)`; click `Refresh` | while pending: `Refresh` is disabled with `aria-busy="true"`, the three entries stay, a second click leaves `calls.length === 2`; after `second.resolve(DETAIL(SHIPMENT_AFTER_EVENT))`: four entries |
 | `mockFetch(DETAIL(SHIPMENT_DETAIL), DOWN)`; click `Refresh` | the alert `Could not refresh. Showing the last loaded data.`; the three entries stay; `Refresh` is enabled again |
 
-- [ ] **Step 3: Run to verify they fail**
+- [x] **Step 3: Run to verify they fail**
 
 ```bash
 npm run test -w apps/web -- tests/components/shipments/shipment-timeline.test.tsx tests/components/shipments/shipment-detail.test.tsx
@@ -1583,9 +1583,9 @@ npm run test -w apps/web -- tests/components/shipments/shipment-timeline.test.ts
 Expected: FAIL — `@/components/shipments/shipment-timeline` cannot be resolved and the detail has no
 `Timeline` heading. The Task 7 rows of `shipment-detail.test.tsx` still pass.
 
-- [ ] **Step 4: Implement `ShipmentTimeline` and add the timeline section to `ShipmentDetailView`**
+- [x] **Step 4: Implement `ShipmentTimeline` and add the timeline section to `ShipmentDetailView`**
 
-- [ ] **Step 5: Run tests, typecheck, lint, build**
+- [x] **Step 5: Run tests, typecheck, lint, build**
 
 ```bash
 npm run test -w apps/web && npm run typecheck -w apps/web && npm run lint && npm run build -w apps/web
@@ -1615,7 +1615,7 @@ Terminal 1: `npm run dev -w apps/api`. Terminal 2: `npm run dev -w apps/web`. Th
 (Safari rejects `Secure` cookies on `http://localhost`: use `COOKIE_SECURE=false npm run dev -w apps/api`
 there.)
 
-- [ ] **Step 7: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
+- [x] **Step 7: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
 
 ```bash
 git add apps/web/package.json package-lock.json apps/web/src/components/shipments/shipment-timeline.tsx apps/web/src/components/shipments/shipment-detail.tsx apps/web/tests/components/shipments/shipment-timeline.test.tsx apps/web/tests/components/shipments/shipment-detail.test.tsx docs/plan.md
