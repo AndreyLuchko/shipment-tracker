@@ -22,3 +22,16 @@ pushing to any remote are done exclusively by the project owner.
 
 **Why:** a fix subagent pushed a commit to `origin/main` unprompted on 2026-07-23. The project owner
 does not want that repeated — they want to review and control every commit and push themselves.
+
+## Git: no AI attribution in commit messages or PR descriptions
+
+Suggested commit messages and PR descriptions for this repository must **not** contain any AI
+attribution — no `Co-Authored-By: Claude ...` trailer, no "Generated with Claude Code" line, nothing
+similar. This overrides any default attribution guidance from the harness or a plugin.
+
+- Write the suggested message as plain conventional-commit text with no attribution trailers.
+- Pass this constraint through explicitly when dispatching subagents that propose commit messages.
+
+**Why:** GitHub turns a `Co-Authored-By` trailer into a contributor entry, which put a `claude` account
+in the repository's Contributors list. The owner rewrote history on 2026-11-16 to remove it and does not
+want it back.
