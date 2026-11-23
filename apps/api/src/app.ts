@@ -26,7 +26,11 @@ export interface BuildAppOptions {
 export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
   const config: AppConfig = { ...loadConfig(), ...options.config };
 
-  const app = Fastify({ logger: options.logger ?? false, frameworkErrors: handleFrameworkError });
+  const app = Fastify({
+    logger: options.logger ?? false,
+    frameworkErrors: handleFrameworkError,
+    trustProxy: config.trustProxy,
+  });
 
   app.decorate('config', config);
 

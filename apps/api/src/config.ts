@@ -3,6 +3,8 @@ export interface AppConfig {
   jwtSecret: string;
   /** Whether auth cookies carry the `Secure` attribute. Only `COOKIE_SECURE=false` turns it off. */
   cookieSecure: boolean;
+  /** Whether the client IP comes from `X-Forwarded-For`. Only `TRUST_PROXY=true` turns it on. */
+  trustProxy: boolean;
   /** Per-IP limit applied separately to `POST /auth/login` and `POST /auth/register`. */
   authRateLimit: { max: number; timeWindowMs: number };
   /** HMAC-SHA256 key of `X-Carrier-Signature`. At least 32 characters. */
@@ -23,6 +25,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
   return {
     jwtSecret,
     cookieSecure: parseCookieSecure(env['COOKIE_SECURE']),
+    trustProxy: parseTrustProxy(env['TRUST_PROXY']),
     authRateLimit: { ...AUTH_RATE_LIMIT },
     webhookSecret,
     webhookRateLimit: { ...WEBHOOK_RATE_LIMIT },
@@ -49,4 +52,14 @@ function parseCookieSecure(value: string | undefined): boolean {
     return false;
   }
   throw new Error(`COOKIE_SECURE must be "true" or "false", got "${value}"`);
+}
+
+function parseTrustProxy(value: string | undefined): boolean {
+  if (value === undefined || value === 'false') {
+    return false;
+  }
+  if (value === 'true') {
+    return true;
+  }
+  throw new Error(`TRUST_PROXY must be "true" or "false", got "${value}"`);
 }

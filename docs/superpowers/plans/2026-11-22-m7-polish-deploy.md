@@ -533,7 +533,7 @@ Railway, a Dockerfile or "no browser e2e".
   Only `TRUST_PROXY=true` turns it on."), read by `buildApp` as `Fastify({ logger, frameworkErrors, trustProxy:
   config.trustProxy })`. Task 5 sets `TRUST_PROXY=true` in `render.yaml`.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 `apps/api/tests/config.test.ts` — extend the first test's expected object with `trustProxy: false` and add:
 
@@ -558,12 +558,12 @@ instance) with `authRateLimit: { max: 2, timeWindowMs: 60_000 }` and a test rout
 | `trustProxy: false`: visitor A twice, then visitor B | `401`, `401`, then B gets `429` — one bucket for everyone |
 | `trustProxy: true`: the webhook limiter (`webhookRateLimit: { max: 1, … }`); unsigned `POST /api/v1/webhooks/carrier` with `content-type: application/json` and body `{}`, from A twice, then from B | A: `401` (`INVALID_SIGNATURE`), `429`; B: `401` |
 
-- [ ] **Step 2: Run them and see them fail**
+- [x] **Step 2: Run them and see them fail**
 
 Run: `npm run test -w apps/api -- tests/config.test.ts tests/modules/auth/trust-proxy.test.ts`
 Expected: FAIL — `trustProxy` is missing from the config, and `request.ip` is the socket address.
 
-- [ ] **Step 3: Implement**
+- [x] **Step 3: Implement**
 
 - `config.ts`: add the field and a `parseTrustProxy(value: string | undefined): boolean` next to
   `parseCookieSecure`: unset → `false`, `'true'` / `'false'` → the boolean, anything else throws the message
@@ -577,7 +577,7 @@ Expected: FAIL — `trustProxy` is missing from the config, and `request.ip` is 
 # TRUST_PROXY=false
 ```
 
-- [ ] **Step 4: Run the API suite, then the full gate**
+- [x] **Step 4: Run the API suite, then the full gate**
 
 ```bash
 npm run test -w apps/api

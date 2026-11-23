@@ -12,6 +12,7 @@ describe('loadConfig', () => {
     expect(loadConfig(ENV)).toEqual({
       jwtSecret: SECRET,
       cookieSecure: true,
+      trustProxy: false,
       authRateLimit: { max: 5, timeWindowMs: 60_000 },
       webhookSecret: WEBHOOK,
       webhookRateLimit: { max: 120, timeWindowMs: 60_000 },
@@ -36,6 +37,24 @@ describe('loadConfig', () => {
 
   it('rejects any other COOKIE_SECURE value', () => {
     expect(() => loadConfig({ ...ENV, COOKIE_SECURE: '0' })).toThrow(/COOKIE_SECURE/);
+  });
+
+  it('leaves trustProxy off when TRUST_PROXY is unset', () => {
+    expect(loadConfig(ENV).trustProxy).toBe(false);
+  });
+
+  it("turns trustProxy on for TRUST_PROXY='true'", () => {
+    expect(loadConfig({ ...ENV, TRUST_PROXY: 'true' }).trustProxy).toBe(true);
+  });
+
+  it("keeps trustProxy off for TRUST_PROXY='false'", () => {
+    expect(loadConfig({ ...ENV, TRUST_PROXY: 'false' }).trustProxy).toBe(false);
+  });
+
+  it.each(['yes', ''])('rejects TRUST_PROXY=%j', (value) => {
+    expect(() => loadConfig({ ...ENV, TRUST_PROXY: value })).toThrow(
+      `TRUST_PROXY must be "true" or "false", got "${value}"`,
+    );
   });
 
   it('requires JWT_SECRET', () => {
