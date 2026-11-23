@@ -820,7 +820,7 @@ git commit -m "feat: idempotent demo seed and a guarded demo reset"
 - Consumes: Task 2's `TRUST_PROXY`, Task 4's CLIs, M5's `API_ORIGIN`, the existing `/health`.
 - Produces: the Blueprint Task 7 applies; the runbook Tasks 7, 8 and 21 follow.
 
-- [ ] **Step 1: Write `render.yaml`** (repo root) exactly:
+- [x] **Step 1: Write `render.yaml`** (repo root) exactly:
 
 ```yaml
 # Render Blueprint of the API (spec §11, Deploy decisions). Apply it once from the Render dashboard:
@@ -859,7 +859,7 @@ services:
         value: info
 ```
 
-- [ ] **Step 2: Write `docs/deploy.md`** with these sections (English, for the owner and future readers):
+- [x] **Step 2: Write `docs/deploy.md`** with these sections (English, for the owner and future readers):
   1. **Topology** — the Mermaid diagram that Task 20 reuses:
 
      ```mermaid
@@ -903,7 +903,7 @@ services:
      - Vercel cannot resolve `@shipment-tracker/shared` → the Root Directory must be `apps/web`, with
        "Include files outside of the Root Directory" left on.
 
-- [ ] **Step 3: Rehearse Render's build and start commands locally** (a scratch copy without `.git`,
+- [x] **Step 3: Rehearse Render's build and start commands locally** (a scratch copy without `.git`,
   `node_modules` or any `.env`; a throwaway database):
 
 ```bash
@@ -931,10 +931,10 @@ Expected:
 
 All of this was verified while planning.
 
-- [ ] **Step 4: The gate** — `npm run lint && npm run typecheck && npm run test && npm run build`; expected
+- [x] **Step 4: The gate** — `npm run lint && npm run typecheck && npm run test && npm run build`; expected
   `0`. `git status --short` lists exactly `render.yaml`, `docs/deploy.md`, `docs/plan.md`.
 
-- [ ] **Step 5: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
+- [x] **Step 5: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
 
 ```bash
 git add render.yaml docs/deploy.md docs/plan.md
