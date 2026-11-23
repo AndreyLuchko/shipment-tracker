@@ -637,7 +637,7 @@ export function buildDemoShipments(now: Date): DemoShipment[];
   event carries a reason in `note`, e.g. `Recipient not available`, `Customs hold: missing invoice`,
   `Damaged packaging reported at the hub`.
 
-- [ ] **Step 1: Write the failing test** `apps/api/tests/prisma/demo-data.test.ts` (no database; `DEMO` and
+- [x] **Step 1: Write the failing test** `apps/api/tests/prisma/demo-data.test.ts` (no database; `DEMO` and
   `SEED_NOW` as in the test vocabulary):
 
 | Case | Expected |
@@ -660,15 +660,15 @@ export function buildDemoShipments(now: Date): DemoShipment[];
 | shared limits | every shipment passes `createShipmentSchema.safeParse({ clientId: 'x', origin, destination, description, weightKg: weightKg ?? undefined })`; every event passes `createShipmentEventSchema.safeParse({ status, location, note })` |
 | pure and relative | `buildDemoShipments(SEED_NOW)` deep-equals `DEMO`; with `now` one hour later every `occurredAt` is exactly one hour later |
 
-- [ ] **Step 2: Run it and see it fail** — `npm run test -w apps/api -- tests/prisma/demo-data.test.ts`; expected
+- [x] **Step 2: Run it and see it fail** — `npm run test -w apps/api -- tests/prisma/demo-data.test.ts`; expected
   FAIL (module not found).
 
-- [ ] **Step 3: Implement `apps/api/prisma/demo-data.ts`** — the data plus a private `at(now, hoursAgo)` helper.
+- [x] **Step 3: Implement `apps/api/prisma/demo-data.ts`** — the data plus a private `at(now, hoursAgo)` helper.
 
-- [ ] **Step 4: Run it and the gate** — the test passes; `npm run test -w apps/api`, `npm run lint`,
+- [x] **Step 4: Run it and the gate** — the test passes; `npm run test -w apps/api`, `npm run lint`,
   `npm run typecheck` exit `0`.
 
-- [ ] **Step 5: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
+- [x] **Step 5: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
 
 ```bash
 git add apps/api/prisma/demo-data.ts apps/api/tests/prisma/demo-data.test.ts \

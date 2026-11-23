@@ -91,7 +91,7 @@ Detailed per-milestone plans live in `docs/superpowers/plans/`.
       → plan: `docs/superpowers/plans/2026-11-22-m7-polish-deploy.md`
   - [x] Task 1 — record M7 polish and deploy decisions in the spec
   - [x] Task 2 — `TRUST_PROXY` → Fastify `trustProxy` (per-visitor rate limiting behind the proxy)
-  - [ ] Task 3 — demo data I: the pure demo data set (`prisma/demo-data.ts`)
+  - [x] Task 3 — demo data I: the pure demo data set (`prisma/demo-data.ts`)
   - [ ] Task 4 — demo data II: idempotent seed and a guarded demo reset (`db:demo-reset`)
   - [ ] Task 5 — deploy configuration: `render.yaml`, `docs/deploy.md`, local rehearsal of Render's commands
   - [ ] Task 6 — pre-deploy checkpoint: thorough owner sign-off (spec §12.7)

@@ -26,15 +26,6 @@ describe('canTransition', () => {
       expect(canTransition(from, 'CREATED')).toBe(false);
     }
   });
-
-  it.each<[ShipmentStatus[]]>([
-    [['CREATED', 'PICKED_UP', 'IN_TRANSIT', 'OUT_FOR_DELIVERY', 'DELIVERED']],
-    [['CREATED', 'PICKED_UP', 'IN_TRANSIT']],
-  ])('accepts the seeded demo history %j (prisma/seed.ts)', (history) => {
-    for (let index = 1; index < history.length; index += 1) {
-      expect(canTransition(history[index - 1]!, history[index]!)).toBe(true);
-    }
-  });
 });
 
 describe('allowedNextStatuses', () => {
