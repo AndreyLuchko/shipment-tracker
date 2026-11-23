@@ -89,7 +89,7 @@ Detailed per-milestone plans live in `docs/superpowers/plans/`.
   - [x] Task 15 — M6 wrap-up, smoke test through `:3000`, sign-off
 - [ ] M7 — polish (empty states, badges), README, architecture diagram, deploy
       → plan: `docs/superpowers/plans/2026-11-22-m7-polish-deploy.md`
-  - [ ] Task 1 — record M7 polish and deploy decisions in the spec
+  - [x] Task 1 — record M7 polish and deploy decisions in the spec
   - [ ] Task 2 — `TRUST_PROXY` → Fastify `trustProxy` (per-visitor rate limiting behind the proxy)
   - [ ] Task 3 — demo data I: the pure demo data set (`prisma/demo-data.ts`)
   - [ ] Task 4 — demo data II: idempotent seed and a guarded demo reset (`db:demo-reset`)

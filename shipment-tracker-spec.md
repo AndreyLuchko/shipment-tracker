@@ -39,7 +39,7 @@ clean API design, event-driven updates, auth done right, tests, CI, and a live d
 - Auth: JWT in HttpOnly cookies + CSRF protection
 - Dashboard UI: shipment list (filter/search), detail view with movement timeline
 - Vitest test suite + GitHub Actions CI
-- Deployed live demo (API on Render/Railway, frontend on Vercel)
+- Deployed live demo (API on Render, database on Neon, frontend on Vercel)
 - README with screenshots, architecture diagram, and "why I built this"
 
 ### Non-Goals (MVP)
@@ -66,6 +66,7 @@ shipment-tracker/
 │   │   ├── prisma/
 │   │   │   ├── schema.prisma
 │   │   │   └── seed.ts       # demo data: users, shipments, history
+│   │   │                     # (+ demo-data.ts, seed-demo.ts, demo-reset.ts — M7)
 │   │   ├── scripts/          # simulate-carrier.ts — carrier simulator CLI
 │   │   └── tests/            # integration tests (fastify.inject)
 │   └── web/                  # Next.js App Router frontend
@@ -75,10 +76,13 @@ shipment-tracker/
 │       │   ├── lib/          # api client (fetch, credentials: 'include'), form helpers
 │       │   ├── stores/       # zustand
 │       │   └── proxy.ts      # Next.js 16 Proxy (formerly Middleware): optimistic redirect to /login
-│       └── tests/
+│       ├── tests/
+│       └── e2e/                  # Playwright smoke test + README screenshots (M7)
 ├── packages/
 │   └── shared/               # shared TypeScript types + Zod schemas (single source of truth)
 ├── .github/workflows/ci.yml
+├── render.yaml               # Render Blueprint of the API (M7)
+├── docs/                     # plan tracker, milestone plans, deploy runbook, screenshots
 ├── docker-compose.yml        # local PostgreSQL
 ├── package.json              # npm workspaces
 └── README.md
@@ -102,9 +106,9 @@ shipment-tracker/
 | Animation | **Motion** (`motion/react`) | The movement timeline only; honours `prefers-reduced-motion` |
 | Forms | **React Hook Form + Zod resolver** | Reuses shared Zod schemas end-to-end |
 | Styling | **Tailwind CSS** | Fast, consistent; wrap long `className` at printWidth 120 |
-| Testing | **Vitest** (+ `fastify.inject` for API, React Testing Library for UI) | One test runner across the monorepo |
+| Testing | **Vitest** (+ `fastify.inject` for API, React Testing Library for UI) + one **Playwright** smoke test | One test runner across the monorepo; the browser smoke test runs locally and against the live demo |
 | CI | **GitHub Actions** | Lint → typecheck → test → build on every PR |
-| Deploy | API: **Render/Railway** · DB: **Neon** (or Railway PG) · Frontend: **Vercel** | Free tiers, live demo link in README |
+| Deploy | API: **Render** (Free, native Node from `render.yaml`) · DB: **Neon** (Free) · Frontend: **Vercel** | Free tiers, live demo link in README |
 
 ---
 
@@ -216,7 +220,7 @@ Base URL: `/api/v1`. All responses JSON. Errors: `{ error: { code, message, deta
 | Method | Path | Access | Notes |
 |---|---|---|---|
 | POST | `/shipments` | DISPATCHER | body `{ clientId, origin, destination, description, weightKg? }`; creates shipment + initial `CREATED` event (`source: SYSTEM`); `201` `{ shipment }` |
-| GET | `/shipments` | authed | dispatcher: all; client: own only. Query: `status` (one status), `search` (matches `trackingNumber`, `origin`, `destination`, `description`), `page`. `200` `{ items, page, pageSize, total, totalPages }` |
+| GET | `/shipments` | authed | dispatcher: all; client: own only. Query: `status` (one status), `search` (matches `trackingNumber`, `origin`, `destination`, `description`), `page`, `sort` (`newest` — the default, `oldest`, `updated`, `stale`). `200` `{ items, page, pageSize, total, totalPages }` |
 | GET | `/shipments/:id` | authed (owner or dispatcher) | `200` `{ shipment }` with ordered `events[]` and `allowedNextStatuses[]`; someone else's shipment ⇒ `404` |
 | PATCH | `/shipments/:id` | DISPATCHER | editable fields only (`description`, `weightKg`); any other key ⇒ `400`; `200` `{ shipment }` |
 | POST | `/shipments/:id/events` | DISPATCHER | body `{ status, location?, note?, occurredAt? }`; manual status update (source=MANUAL), state machine enforced; `201` `{ shipment }`, exact duplicate ⇒ `200` |
@@ -278,7 +282,7 @@ The full contract is under "Webhook decisions" below.
   read a cookie set by another site, and Vercel and Render hostnames are different sites. The API therefore
   registers no CORS plugin.
 - **Rate limits:** `POST /auth/login` and `POST /auth/register` — 5 requests per minute per IP each ⇒ `429
-  RATE_LIMITED` with `Retry-After`. `/auth/me` and `/auth/logout` are not limited.
+  RATE_LIMITED` with `Retry-After`. `/auth/me` and `/auth/logout` are not limited. Behind the hosting proxy the per-IP key is the visitor's address only with `TRUST_PROXY=true` (Section 11, Deploy decisions).
 - **Credentials:** email is trimmed and lowercased; password is 8–128 characters and never trimmed. Login
   answers `401 INVALID_CREDENTIALS` identically for an unknown email and a wrong password. A taken email on
   register ⇒ `409 EMAIL_TAKEN`.
@@ -300,9 +304,13 @@ The full contract is under "Webhook decisions" below.
 - **Edit:** `PATCH` accepts `description` and `weightKg` (`null` clears the weight) and nothing else — any
   other key, or an empty body, ⇒ `400 VALIDATION_ERROR`. There is no delete endpoint.
 - **List:** `page` is 1-based; the page size is fixed at 20. Response
-  `{ items, page, pageSize, total, totalPages }`, newest first; a page past the end is `200` with empty
+  `{ items, page, pageSize, total, totalPages }`, newest first unless `sort` says otherwise; a page past the end is `200` with empty
   `items`. `status` takes exactly one status. `search` is a case-insensitive substring match; `%`, `_` and
   `\` are matched literally.
+- **Sort (M7):** `sort=newest` (the default: `createdAt` descending), `oldest` (`createdAt` ascending),
+  `updated` (`updatedAt` descending — the latest movement first) or `stale` (`updatedAt` ascending — the longest
+  without movement first); ties are broken by `id` in the same direction. Any other value ⇒ `400
+  VALIDATION_ERROR` on `sort`.
 - **Shipment shape:** `{ id, trackingNumber, client: { id, name, email }, origin, destination, description,
   weightKg, status, carrier, createdAt, updatedAt }`; the detail shape adds `events[]` (oldest first) and
   `allowedNextStatuses[]` — the statuses the state machine accepts next, computed on the server so the
@@ -422,8 +430,25 @@ UX details worth the effort:
 - **Animation:** Motion animates the timeline only (entries appear one after another, a new entry slides
   in); `prefers-reduced-motion` is honoured.
 - **Status badges:** one soft colour per status; `EXCEPTION` is the only solid one (red, with an icon).
-- **Not in the dashboard:** editing a shipment (`PATCH` has no UI), back-dated events, sorting, live
-  updates. The seed still creates two shipments — a richer demo seed is M7.
+- **Not in the dashboard:** back-dated events, live updates. Editing, sorting and the richer demo seed arrived
+  with M7 (polish decisions below).
+
+**Polish decisions (M7 human checkpoint, 2026-11-22):**
+- **Sorting:** a "Sort" select — Newest first, Oldest first, Recently updated, Least recently updated. The URL
+  carries `sort` only when it is not `newest`; changing it returns to page 1; "Clear filters" keeps it.
+- **Editing:** the dispatcher edits `description` and `weightKg` on the detail page ("Edit details"). Only
+  changed fields are sent; an emptied weight clears it (`null`); the messages come from the shared
+  `updateShipmentSchema`.
+- **Dark theme:** follows the operating system (`prefers-color-scheme`); no toggle, nothing stored. Neutral
+  colours are semantic tokens in `globals.css`; status colours keep their hue with dark variants; every text
+  pair keeps a contrast of at least 4.5:1.
+- **Cold start:** the session probe, login and the dashboard's `GET`s retry once, 5 s later, when the API
+  answered nothing, `502`/`503`/`504` or a success body that is not the expected JSON; register, logout and every
+  shipment mutation never retry. A request pending for 3 s shows "Waking up the demo server…". A probe that still
+  fails resolves to anonymous (M5).
+- **Link previews:** a favicon (`app/icon.svg`) and an Open Graph image (`app/opengraph-image.tsx`, `next/og`).
+- **Empty states and copy:** the dispatcher's empty list offers "New shipment"; `/login` says the demo accounts
+  are shared and reset from time to time.
 
 ---
 
@@ -494,8 +519,8 @@ Test runner: **Vitest** everywhere.
    carrier simulator's scenarios run through the real app.
 3. **Frontend:** React Testing Library for critical components (shipment form validation, timeline rendering,
    status badge logic). The API client, the session store, the auth forms and the route guards are covered
-   the same way, with `@testing-library/user-event` for interaction and a stubbed `fetch` — no MSW and no
-   browser e2e. The end-to-end path (browser → rewrite → API) is a smoke checklist at the end of each
+   the same way, with `@testing-library/user-event` for interaction and a stubbed `fetch` — no MSW.
+   One Playwright smoke test (`apps/web/e2e`) drives demo login → list → detail in Chromium against a running stack, locally or against the live demo (`E2E_BASE_URL`); it is not part of CI. The end-to-end path (browser → rewrite → API) is a smoke checklist at the end of each
    frontend milestone. Components that fetch are rendered inside a fresh `QueryClient`; `next/navigation` is
    replaced by a small stateful fake; the test time zone is pinned to UTC.
 4. Target: meaningful coverage of domain logic, not a vanity percentage. State machine and access control must
@@ -505,9 +530,9 @@ Test runner: **Vitest** everywhere.
 
 ## 11. CI/CD & Deployment
 
-**Division of labor:** Claude Code prepares everything deploy needs — Dockerfile(s), `render.yaml`/Railway
-config, env var checklist, `prisma migrate deploy` wiring, and a step-by-step README section. Creating
-accounts on Render/Railway/Neon/Vercel, connecting the repo, and entering secrets is done by the human
+**Division of labor:** Claude Code prepares everything deploy needs — the `render.yaml` Blueprint, the env var checklist, the `prisma migrate deploy` wiring, the runbook
+(`docs/deploy.md`) and a step-by-step README section. Creating
+accounts on Render/Neon/Vercel, connecting the repo, and entering secrets is done by the human
 (andrii) outside of Claude Code.
 
 **GitHub Actions** (`.github/workflows/ci.yml`), on push/PR:
@@ -517,11 +542,11 @@ accounts on Render/Railway/Neon/Vercel, connecting the repo, and entering secret
 4. Build `api` and `web`
 
 **Deployment:**
-- **API** → Render or Railway (Dockerfile or Node build), env vars: `DATABASE_URL`, `JWT_SECRET` (≥ 32
+- **API** → Render (native Node build from `render.yaml`), env vars: `DATABASE_URL`, `JWT_SECRET` (≥ 32
   characters), `WEBHOOK_SECRET` (≥ 32 characters). No CORS: the browser reaches the API same-origin through Next.js rewrites
   (Section 7, Auth decisions). Behind that proxy the API must take the client IP from `X-Forwarded-For`
-  (Fastify `trustProxy`, wired in M7) — otherwise every visitor shares one rate-limit bucket.
-- **PostgreSQL** → Neon (free tier) or Railway Postgres; `prisma migrate deploy` on release
+  (Fastify `trustProxy`, `TRUST_PROXY=true`) — otherwise every visitor shares one rate-limit bucket.
+- **PostgreSQL** → Neon (free tier); `prisma migrate deploy` in the API's build
 - **Frontend** → Vercel; proxies `/api/v1/*` to the API via Next.js rewrites. The target is the server-only
   env var `API_ORIGIN` — the API's origin without a path, e.g. `https://<api-host>` — read when the frontend
   is built: unset ⇒ `http://localhost:3001`, except on Vercel (`VERCEL=1`), where the build fails without it.
@@ -530,8 +555,35 @@ accounts on Render/Railway/Neon/Vercel, connecting the repo, and entering secret
 - README must include: live demo link, screenshots/GIF, architecture diagram (Mermaid), "Why I built this"
   (ex-logistics founder story), roadmap
 
+**Deploy decisions (M7 human checkpoint, 2026-11-22):**
+- **API:** a Render Free web service, native Node runtime from the `render.yaml` Blueprint, region Frankfurt,
+  Node from `.nvmrc`. Build: `npm ci --include=dev && npm run db:migrate:deploy -w apps/api` — Render Free has
+  no pre-deploy command, so migrations run in the build, and a failing migration fails the build while the
+  previous deploy keeps serving. Start: `npm run start -w apps/api` (`tsx`; the API has no compile step). Health
+  check `/health`. Deploys on every commit to `main` that touches the API's paths (`buildFilter`).
+- **API env:** `DATABASE_URL` (Neon's direct connection string plus `connect_timeout=15`), `JWT_SECRET` and
+  `WEBHOOK_SECRET` generated by Render (256-bit), `TRUST_PROXY=true`, `LOG_LEVEL=info`. `COOKIE_SECURE` is never
+  set in production.
+- **`TRUST_PROXY`:** unset or `false` ⇒ Fastify ignores `X-Forwarded-For`; `true` ⇒ the client IP is the
+  leftmost `X-Forwarded-For` entry, which Vercel sets to the visitor's address; any other value ⇒ the API does
+  not start. Whoever calls the Render URL directly can choose that entry — accepted for a demo whose passwords
+  are public.
+- **Database:** Neon Free, Postgres 16, Frankfurt.
+- **Frontend:** Vercel, Root Directory `apps/web`, `API_ORIGIN=https://<api-host>` for Production and Preview,
+  set before the first build. No custom domain.
+- **Cold start:** the API sleeps after 15 minutes without traffic, and the first request then takes up to about
+  a minute. There is no keep-alive pinger; the app explains the wait (Section 8, Polish decisions).
+- **Demo data:** `npm run db:seed -w apps/api` is idempotent — it never deletes and never duplicates — and the
+  owner runs it from a laptop with the production `DATABASE_URL`; it prints the target host first.
+  `npm run db:demo-reset -w apps/api -- --confirm <database host>` deletes every user, shipment and event and
+  recreates the demo set; it refuses unless the host matches. Demo times are relative to the seeding time. No
+  scheduled reset.
+- **Simulator against production:** owner only, `WEBHOOK_SECRET` only in the shell, `--url https://<api-host>`
+  (a carrier calls the API directly, not through Vercel).
+- **Runbook:** `docs/deploy.md`; the README's Deploy section summarizes it.
+
 **Roadmap section for README:** Nova Poshta adapter (polling) → Telegram notifications on `EXCEPTION`/`DELIVERED` →
-SLA alerts ("stuck > 48h") → organizations/multi-tenancy → analytics (avg time between statuses).
+SLA alerts ("stuck > 48h") → organizations/multi-tenancy → analytics (avg time between statuses). Engineering follow-ups: the Playwright smoke test in CI, a PR-review Action, a shared secret between Vercel and the API.
 
 ---
 

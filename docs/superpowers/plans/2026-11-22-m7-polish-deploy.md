@@ -387,29 +387,29 @@ brackets.
 Each step names the old text (unique in the spec) and gives the new text. Do **not** run `prettier --write` on
 the spec: the file does not pass `prettier --check` today, and reformatting it is out of scope.
 
-- [ ] **Step 1: §2 Goals.** Old: ``- Deployed live demo (API on Render/Railway, frontend on Vercel)``. New:
+- [x] **Step 1: §2 Goals.** Old: ``- Deployed live demo (API on Render/Railway, frontend on Vercel)``. New:
   ``- Deployed live demo (API on Render, database on Neon, frontend on Vercel)``
 
-- [ ] **Step 2: §3 tree — three additions.** After the line ``│   │   │   └── seed.ts       # demo data: users, shipments, history``
+- [x] **Step 2: §3 tree — three additions.** After the line ``│   │   │   └── seed.ts       # demo data: users, shipments, history``
   insert ``│   │   │                     # (+ demo-data.ts, seed-demo.ts, demo-reset.ts — M7)``. Replace the web
   line ``│       └── tests/`` with ``│       ├── tests/`` followed by ``│       └── e2e/                  # Playwright smoke test + README screenshots (M7)``.
   After ``├── .github/workflows/ci.yml`` insert ``├── render.yaml               # Render Blueprint of the API (M7)`` and
   ``├── docs/                     # plan tracker, milestone plans, deploy runbook, screenshots``.
 
-- [ ] **Step 3: §4 — the Testing and Deploy rows.** New rows:
+- [x] **Step 3: §4 — the Testing and Deploy rows.** New rows:
 
 ```markdown
 | Testing | **Vitest** (+ `fastify.inject` for API, React Testing Library for UI) + one **Playwright** smoke test | One test runner across the monorepo; the browser smoke test runs locally and against the live demo |
 | Deploy | API: **Render** (Free, native Node from `render.yaml`) · DB: **Neon** (Free) · Frontend: **Vercel** | Free tiers, live demo link in README |
 ```
 
-- [ ] **Step 4: §7 Shipments table — the `GET /shipments` row.** Replace ``Query: `status` (one status), `search` (matches `trackingNumber`, `origin`, `destination`, `description`), `page`.``
+- [x] **Step 4: §7 Shipments table — the `GET /shipments` row.** Replace ``Query: `status` (one status), `search` (matches `trackingNumber`, `origin`, `destination`, `description`), `page`.``
   with ``Query: `status` (one status), `search` (matches `trackingNumber`, `origin`, `destination`, `description`), `page`, `sort` (`newest` — the default, `oldest`, `updated`, `stale`).``
 
-- [ ] **Step 5: §7 Auth decisions — the Rate limits bullet.** Append to its last sentence (``… `/auth/me` and `/auth/logout` are not limited.``):
+- [x] **Step 5: §7 Auth decisions — the Rate limits bullet.** Append to its last sentence (``… `/auth/me` and `/auth/logout` are not limited.``):
   `` Behind the hosting proxy the per-IP key is the visitor's address only with `TRUST_PROXY=true` (Section 11, Deploy decisions).``
 
-- [ ] **Step 6: §7 Shipment decisions — the List bullet and a new Sort bullet.** In the List bullet replace
+- [x] **Step 6: §7 Shipment decisions — the List bullet and a new Sort bullet.** In the List bullet replace
   ``newest first;`` with ``newest first unless `sort` says otherwise;``. Insert after the List bullet:
 
 ```markdown
@@ -419,7 +419,7 @@ the spec: the file does not pass `prettier --check` today, and reformatting it i
   VALIDATION_ERROR` on `sort`.
 ```
 
-- [ ] **Step 7: §8 — the M6 "Not in the dashboard" bullet and the M7 block.** Replace the bullet (two lines,
+- [x] **Step 7: §8 — the M6 "Not in the dashboard" bullet and the M7 block.** Replace the bullet (two lines,
   starting ``- **Not in the dashboard:** editing a shipment``) with:
 
 ```markdown
@@ -448,11 +448,11 @@ Then append after it, before the `---` line:
   are shared and reset from time to time.
 ```
 
-- [ ] **Step 8: §10 item 3.** Replace ``— no MSW and no`` + next line ``   browser e2e.`` with
+- [x] **Step 8: §10 item 3.** Replace ``— no MSW and no`` + next line ``   browser e2e.`` with
   ``— no MSW.`` + ``   One Playwright smoke test (`apps/web/e2e`) drives demo login → list → detail in Chromium against a running stack, locally or against the live demo (`E2E_BASE_URL`); it is not part of CI.``
   (keep the sentence about the smoke checklist that follows).
 
-- [ ] **Step 9: §11 — division of labor, the API and PostgreSQL bullets, the decisions block, the roadmap.**
+- [x] **Step 9: §11 — division of labor, the API and PostgreSQL bullets, the decisions block, the roadmap.**
   - In "Division of labor" replace ``Dockerfile(s), `render.yaml`/Railway`` + ``config, env var checklist, `prisma migrate deploy` wiring, and a step-by-step README section``
     with ``the `render.yaml` Blueprint, the env var checklist, the `prisma migrate deploy` wiring, the runbook`` + ``(`docs/deploy.md`) and a step-by-step README section``;
     in the next sentence replace ``Render/Railway/Neon/Vercel`` with ``Render/Neon/Vercel``.
@@ -493,7 +493,7 @@ Then append after it, before the `---` line:
 
   - Append to the roadmap paragraph: `` Engineering follow-ups: the Playwright smoke test in CI, a PR-review Action, a shared secret between Vercel and the API.``
 
-- [ ] **Step 10: Verify the edit**
+- [x] **Step 10: Verify the edit**
 
 ```bash
 grep -c 'Deploy decisions (M7 human checkpoint, 2026-11-22)' shipment-tracker-spec.md
@@ -506,7 +506,7 @@ git diff --stat
 Expected: `1`, `1`, `3` or more; no output from the fourth command; the diff lists only `shipment-tracker-spec.md`
 (and `docs/plan.md` once ticked).
 
-- [ ] **Step 11: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
+- [x] **Step 11: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
 
 ```bash
 git add shipment-tracker-spec.md docs/plan.md
