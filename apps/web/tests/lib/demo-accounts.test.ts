@@ -7,7 +7,7 @@ import { describe, expect, it } from 'vitest';
 
 import { DEMO_ACCOUNTS } from '@/lib/demo-accounts';
 
-const SEED = readFileSync(fileURLToPath(new URL('../../../api/prisma/seed.ts', import.meta.url)), 'utf8');
+const SEED = readFileSync(fileURLToPath(new URL('../../../api/prisma/seed-demo.ts', import.meta.url)), 'utf8');
 
 describe('DEMO_ACCOUNTS', () => {
   it('lists the seeded dispatcher and client, in that order', () => {

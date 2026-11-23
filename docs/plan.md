@@ -92,7 +92,7 @@ Detailed per-milestone plans live in `docs/superpowers/plans/`.
   - [x] Task 1 — record M7 polish and deploy decisions in the spec
   - [x] Task 2 — `TRUST_PROXY` → Fastify `trustProxy` (per-visitor rate limiting behind the proxy)
   - [x] Task 3 — demo data I: the pure demo data set (`prisma/demo-data.ts`)
-  - [ ] Task 4 — demo data II: idempotent seed and a guarded demo reset (`db:demo-reset`)
+  - [x] Task 4 — demo data II: idempotent seed and a guarded demo reset (`db:demo-reset`)
   - [ ] Task 5 — deploy configuration: `render.yaml`, `docs/deploy.md`, local rehearsal of Render's commands
   - [ ] Task 6 — pre-deploy checkpoint: thorough owner sign-off (spec §12.7)
   - [ ] Task 7 — (owner) first deploy: Neon, Render, seed, Vercel, live smoke test, measurements

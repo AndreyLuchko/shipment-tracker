@@ -66,7 +66,7 @@ describe('POST /api/v1/auth/login', () => {
     expect(claims.csrf).toBe(csrf!.value);
   });
 
-  it('logs in a user created the way prisma/seed.ts creates one', async () => {
+  it('logs in a user created the way prisma/seed-demo.ts creates one', async () => {
     await app.prisma.user.create({
       data: {
         email: 'seeded@demo.dev',

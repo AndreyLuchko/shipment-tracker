@@ -728,7 +728,7 @@ export function parseResetArgs(argv: string[], databaseUrl: string | undefined):
       users, <shipments> shipments, <events> events.`
   - Exit codes: `0` success, `1` failure, `2` usage error (as the simulator CLI).
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 `apps/api/tests/prisma/demo-reset-args.test.ts` (pure):
 
@@ -757,10 +757,10 @@ export function parseResetArgs(argv: string[], databaseUrl: string | undefined):
 | keeps visitor data | a shipment created through `POST /api/v1/shipments` before the second seed still exists after it; its tracking number matches `/^ST-\d{4}-\d{6}$/` and is none of the 30 seeded ones |
 | reset | after (a registered user, a created shipment, an event on `ST-2026-000030`), `resetDemoData(app.prisma, SEED_NOW)` → the fresh summary with `created: 30`; the registered user and the created shipment are gone; `ST-2026-000030` has one event again |
 
-- [ ] **Step 2: Run them and see them fail** — `npm run test -w apps/api -- tests/prisma`; expected FAIL
+- [x] **Step 2: Run them and see them fail** — `npm run test -w apps/api -- tests/prisma`; expected FAIL
   (modules not found).
 
-- [ ] **Step 3: Implement** `seed-demo.ts`, `demo-reset-args.ts` (with `node:util` `parseArgs`, option
+- [x] **Step 3: Implement** `seed-demo.ts`, `demo-reset-args.ts` (with `node:util` `parseArgs`, option
   `confirm: { type: 'string' }`, `strict: true`), and the two CLIs. The CLIs:
   - `import 'dotenv/config'` first — a `DATABASE_URL` already in the shell wins, because dotenv never overrides;
   - create the client like today's seed (`PrismaPg` adapter);
@@ -769,7 +769,7 @@ export function parseResetArgs(argv: string[], databaseUrl: string | undefined):
 
   `seed.ts` keeps working through `prisma db seed` (`prisma.config.ts` is unchanged).
 
-- [ ] **Step 4: Run the suites and the CLIs locally**
+- [x] **Step 4: Run the suites and the CLIs locally**
 
 ```bash
 npm run test -w apps/api && npm run test -w apps/web -- tests/lib/demo-accounts.test.ts
@@ -793,7 +793,7 @@ Expected:
 
 (Resetting the local development database is intended here; it holds only demo and smoke data.)
 
-- [ ] **Step 5: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
+- [x] **Step 5: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
 
 ```bash
 git add apps/api/prisma apps/api/package.json apps/api/tests/prisma apps/api/tests/modules/auth/login.test.ts \
