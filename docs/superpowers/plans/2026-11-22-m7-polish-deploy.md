@@ -955,7 +955,7 @@ locally with the expected output.
 - Consumes: Tasks 1–5, committed and pushed **by the owner**; CI on GitHub.
 - Produces: the owner's explicit "approved" — the precondition of Task 7. Without it nothing is deployed.
 
-- [ ] **Step 1: Full local verification**
+- [x] **Step 1: Full local verification**
 
 ```bash
 git status --short
@@ -970,9 +970,9 @@ Expected:
 - the diff prints nothing — no schema change;
 - the `grep` prints nothing.
 
-- [ ] **Step 2: (owner)** GitHub → Actions: the CI run of the pushed `main` is green.
+- [x] **Step 2: (owner)** GitHub → Actions: the CI run of the pushed `main` is green.
 
-- [ ] **Step 3: Report this checklist with the evidence of each line and wait for an explicit "approved"**
+- [x] **Step 3: Report this checklist with the evidence of each line and wait for an explicit "approved"**
 
 Security:
 - Cookies are `Secure` in production: `COOKIE_SECURE` is not in `render.yaml` and is never set (spec §7).
