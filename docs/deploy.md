@@ -140,6 +140,11 @@ Expected:
 
 ### 6.1 Live smoke test through the rewrite
 
+In zsh (the macOS default), run `setopt interactivecomments` **on its own first**, before pasting the block.
+Otherwise the trailing `# 1`, `# 2`, … are passed to the commands as arguments (`000` codes, `awk: can't open
+file #`). Putting the `setopt` inside the pasted block does not help: zsh parses the whole paste before running
+it.
+
 ```bash
 B=https://<web-host>; API=$B/api/v1; DIRECT=https://<api-host>
 DJAR="$TMPDIR/st-m7-dispatcher.txt"; CJAR="$TMPDIR/st-m7-client.txt"; rm -f "$DJAR" "$CJAR"
@@ -154,11 +159,11 @@ curl -s -c "$DJAR" -H "$JSON" -d '{"email":"dispatcher@demo.dev","password":"dis
 curl -s -c "$CJAR" -H "$JSON" -d '{"email":"client@demo.dev","password":"client123"}' $API/auth/login | field '.user.role'           # 5
 awk '$6 == "access_token" || $6 == "csrf_token" { print $1, $2, $3, $4, $6 }' "$DJAR"         # 6
 DCSRF=$(awk '$6 == "csrf_token" { print $7 }' "$DJAR")
-curl -s -b "$DJAR" "$API/shipments?page=1" | field '[.total, .totalPages].join()'             # 7
+curl -s -b "$DJAR" "$API/shipments?page=1" | node -pe "const d = JSON.parse(require('fs').readFileSync(0, 'utf8')); [d.total, d.totalPages].join()"   # 7
 curl -s -b "$CJAR" "$API/shipments?page=1" | field '.total'                                   # 8
 curl -s -b "$DJAR" "$API/shipments?status=EXCEPTION&page=1" | field '.total'                  # 9
 ID1=$(curl -s -b "$DJAR" "$API/shipments?search=ST-2026-000001&page=1" | field '.items[0].id')
-curl -s -b "$DJAR" "$API/shipments/$ID1" | field '[.shipment.status, .shipment.events.length].join()'  # 10
+curl -s -b "$DJAR" "$API/shipments/$ID1" | node -pe "const d = JSON.parse(require('fs').readFileSync(0, 'utf8')).shipment; [d.status, d.events.length].join()"  # 10
 curl -s -o /dev/null -w '%{http_code}\n' -b "$DJAR" -H "$JSON" -d '{}' $API/shipments          # 11
 ID30=$(curl -s -b "$DJAR" "$API/shipments?search=ST-2026-000030&page=1" | field '.items[0].id')
 curl -s -o /dev/null -w '%{http_code}\n' -b "$DJAR" -H "$JSON" -H "x-csrf-token: $DCSRF" \

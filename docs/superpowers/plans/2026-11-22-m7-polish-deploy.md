@@ -1022,7 +1022,22 @@ dashboards, a password manager, or a shell variable — never into the repo, a f
 - Produces: `<web-host>`, `<api-host>`, the Step 7 IP result and the Step 9 cold-start numbers, reported to the
   agent for Task 8.
 
-- [ ] **Step 1: (owner) Neon**
+**Progress (2026-11-24, paused after Step 7):**
+- Hosts: `<web-host>` = `shipment-tracker-sooty.vercel.app`, `<api-host>` = `shipment-tracker-api-l8o5.onrender.com`.
+- Steps 1–6 passed. Step 6's lines 7 and 10 were broken in this plan (jq-style `field` expressions); fixed
+  here and in `docs/deploy.md`, then re-run: `30,2`, `DELIVERED,12`. Line 12 added a `PICKED_UP` event to
+  `ST-2026-000030` (Step 11 resets it).
+- Step 7: `401 401 401 401 401 429`, then `429`; the phone on mobile data logged in within the same minute.
+  **Open:** the `remoteAddress` comparison — Render's log viewer showed no entries after 18:21 (GMT+2), not even
+  for direct requests, so the IP was not checked via logs. Pending the owner's decision: accept on the behavioural
+  evidence and re-check in Task 21.
+- Deviations for Step 12: the first `/health` after deploy did not answer within 120 s (later instant); the seed
+  prints `pg`'s `SECURITY WARNING` about `sslmode=require` (consider `sslmode=verify-full` in Task 21); zsh needs
+  `setopt interactivecomments` before pasting blocks with `# n` comments; a URL with a line break breaks
+  `read -rs` — `export VAR="$(pbpaste | tr -d '\r\n ')"` (typed before copying the secret) works.
+- Next: Step 8 (simulator; secret via the `pbpaste` trick), then Steps 9–12.
+
+- [x] **Step 1: (owner) Neon**
   1. neon.com → sign up → **Create project**. Name `shipment-tracker`, Postgres **16**, region **AWS Europe
      Central 1 (Frankfurt)**. Expected: a project with branch `production`, database `neondb`, role
      `neondb_owner`.
@@ -1031,7 +1046,7 @@ dashboards, a password manager, or a shell variable — never into the repo, a f
   3. Append `&connect_timeout=15` and keep the result in a password manager as *Neon URL*. Note its host,
      `ep-<name>-<id>.eu-central-1.aws.neon.tech` — it is the reset's `--confirm` value.
 
-- [ ] **Step 2: (owner) Render**
+- [x] **Step 2: (owner) Render**
   1. render.com → sign up with GitHub → grant access to the `shipment-tracker` repository only.
   2. **New → Blueprint** → the repository, branch `main`. Expected: Render shows one web service,
      `shipment-tracker-api` (Free, Frankfurt), and asks for `DATABASE_URL`.
@@ -1055,7 +1070,7 @@ dashboards, a password manager, or a shell variable — never into the repo, a f
 
      The build log must be the same as in item 3.
 
-- [ ] **Step 3: (owner) Seed production from the laptop**
+- [x] **Step 3: (owner) Seed production from the laptop**
 
 ```bash
 read -rs DATABASE_URL && export DATABASE_URL      # paste the Neon URL; nothing is echoed or stored in history
@@ -1071,7 +1086,7 @@ Expected:
 
 Running it again prints `(0 new)`.
 
-- [ ] **Step 4: (owner) Vercel**
+- [x] **Step 4: (owner) Vercel**
   1. vercel.com → sign up with GitHub → **Add New… → Project** → import `shipment-tracker`.
   2. **Root Directory** `apps/web`; Framework *Next.js* (detected); install and build commands left as they are;
      **Environment Variables**: `API_ORIGIN` = `https://<api-host>` (no path, no trailing slash) for
@@ -1086,9 +1101,12 @@ Running it again prints `(0 new)`.
      the origin of the API, e.g. https://api.example.com`.
   4. **Settings → Build and Deployment → Node.js Version** → `22.x`; if it changed, **Redeploy**.
 
-- [ ] **Step 5: (owner) Report the two hosts to the agent** — `<web-host>` and `<api-host>` (public URLs only).
+- [x] **Step 5: (owner) Report the two hosts to the agent** — `<web-host>` and `<api-host>` (public URLs only).
 
-- [ ] **Step 6: (owner) Live smoke test through the rewrite**
+- [x] **Step 6: (owner) Live smoke test through the rewrite**
+
+In zsh, run `setopt interactivecomments` on its own first (see `docs/deploy.md` 6.1); inside the pasted block it
+comes too late.
 
 ```bash
 B=https://<web-host>; API=$B/api/v1; DIRECT=https://<api-host>
@@ -1104,11 +1122,11 @@ curl -s -c "$DJAR" -H "$JSON" -d '{"email":"dispatcher@demo.dev","password":"dis
 curl -s -c "$CJAR" -H "$JSON" -d '{"email":"client@demo.dev","password":"client123"}' $API/auth/login | field '.user.role'           # 5
 awk '$6 == "access_token" || $6 == "csrf_token" { print $1, $2, $3, $4, $6 }' "$DJAR"         # 6
 DCSRF=$(awk '$6 == "csrf_token" { print $7 }' "$DJAR")
-curl -s -b "$DJAR" "$API/shipments?page=1" | field '[.total, .totalPages].join()'             # 7
+curl -s -b "$DJAR" "$API/shipments?page=1" | node -pe "const d = JSON.parse(require('fs').readFileSync(0, 'utf8')); [d.total, d.totalPages].join()"   # 7
 curl -s -b "$CJAR" "$API/shipments?page=1" | field '.total'                                   # 8
 curl -s -b "$DJAR" "$API/shipments?status=EXCEPTION&page=1" | field '.total'                  # 9
 ID1=$(curl -s -b "$DJAR" "$API/shipments?search=ST-2026-000001&page=1" | field '.items[0].id')
-curl -s -b "$DJAR" "$API/shipments/$ID1" | field '[.shipment.status, .shipment.events.length].join()'  # 10
+curl -s -b "$DJAR" "$API/shipments/$ID1" | node -pe "const d = JSON.parse(require('fs').readFileSync(0, 'utf8')).shipment; [d.status, d.events.length].join()"  # 10
 curl -s -o /dev/null -w '%{http_code}\n' -b "$DJAR" -H "$JSON" -d '{}' $API/shipments          # 11
 ID30=$(curl -s -b "$DJAR" "$API/shipments?search=ST-2026-000030&page=1" | field '.items[0].id')
 curl -s -o /dev/null -w '%{http_code}\n' -b "$DJAR" -H "$JSON" -H "x-csrf-token: $DCSRF" \
