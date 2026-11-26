@@ -1518,7 +1518,7 @@ export function WakingUpNotice(props: { active: boolean }): ReactNode;
   `npm run lint && npm run typecheck && npm run build`; exit `0`. The existing tests are unaffected: none waits
   3 s.
 
-- [ ] **Step 5: Local check in the browser** — start the API with `COOKIE_SECURE=false npm run dev -w apps/api`
+- [x] **Step 5: Local check in the browser** — start the API with `COOKIE_SECURE=false npm run dev -w apps/api`
   and the web app. Stop the API, click **Demo dispatcher**, and the notice appears after 3 s; then "Service is
   unavailable. Please try again." follows the failed retry. Start the API again, click again, and you are signed
   in.
