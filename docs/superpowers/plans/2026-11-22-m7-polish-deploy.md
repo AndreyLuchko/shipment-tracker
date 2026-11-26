@@ -1657,7 +1657,7 @@ export function siteUrl(env: Record<string, string | undefined>): string;
 
   `icon.svg` is a 32×32 rounded square in `#4f46e5` (indigo-600) with a white parcel or truck glyph.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 | Test | Expected |
 |---|---|
@@ -1666,9 +1666,9 @@ export function siteUrl(env: Record<string, string | undefined>): string;
 | root `metadata` | `title` `'Shipment Tracker'`; `metadataBase` an `URL`; `openGraph` and `twitter` as above |
 | `opengraph-image` exports | `alt`, `size` and `contentType` as above |
 
-- [ ] **Step 2: Run them and see them fail**; **Step 3: implement**; **Step 4: run them and see them pass.**
+- [x] **Step 2: Run them and see them fail**; **Step 3: implement**; **Step 4: run them and see them pass.**
 
-- [ ] **Step 5: Build and check the served files**
+- [x] **Step 5: Build and check the served files**
 
 ```bash
 npm run build -w apps/web 2>&1 | grep -E 'icon.svg|opengraph-image|metadataBase'
