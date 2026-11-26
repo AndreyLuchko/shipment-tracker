@@ -1,7 +1,15 @@
 import { authResponseSchema } from '@shipment-tracker/shared';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { ApiError, apiRequest, NetworkError, readCookie, setSessionExpiredHandler } from '@/lib/api/client';
+import {
+  ApiError,
+  apiRequest,
+  isServiceUnavailable,
+  NetworkError,
+  readCookie,
+  setSessionExpiredHandler,
+} from '@/lib/api/client';
+import { waitBeforeRetry } from '@/lib/api/retry-delay';
 
 import { emptyResponse, errorResponse, jsonResponse, mockFetch, setCookie, textResponse } from '../../helpers/fetch';
 import { USER } from '../../helpers/fixtures';
@@ -13,6 +21,9 @@ const INVALID = () => errorResponse(401, 'INVALID_CREDENTIALS', 'Invalid email o
 const LIMITED = () =>
   errorResponse(429, 'RATE_LIMITED', 'Too many requests, please try again later', { headers: { 'retry-after': '37' } });
 const DOWN = () => textResponse(500, 'Internal Server Error');
+const BAD_GATEWAY = () => textResponse(502, 'Bad Gateway');
+const GATEWAY_TIMEOUT = () => textResponse(504, 'Gateway Timeout');
+const LOADING_PAGE = () => textResponse(200, '<!doctype html><title>Waking up</title>');
 const OFFLINE = () => new TypeError('Failed to fetch');
 
 const UNEXPECTED = 'Unexpected response from the server';
@@ -352,5 +363,133 @@ describe('readCookie', () => {
     setCookie('csrf_token', 'x');
 
     expect(readCookie('csrf')).toBeUndefined();
+  });
+});
+
+/** The error `apiRequest` rejects with when the one reply is `reply`. */
+async function errorFor(reply: Response): Promise<unknown> {
+  mockFetch(reply);
+  return rejection(call());
+}
+
+describe('isServiceUnavailable', () => {
+  it('is true for a NetworkError', () => {
+    expect(isServiceUnavailable(new NetworkError(new TypeError('Failed to fetch')))).toBe(true);
+  });
+
+  it.each([
+    ['502', BAD_GATEWAY],
+    ['503', () => textResponse(503, '')],
+    ['504', GATEWAY_TIMEOUT],
+  ])('is true for a %s', async (_name, reply) => {
+    expect(isServiceUnavailable(await errorFor(reply()))).toBe(true);
+  });
+
+  it('is true for an unexpected 2xx body (a loading page)', async () => {
+    const error = await errorFor(LOADING_PAGE());
+
+    expect(error).toMatchObject({ status: 200, unexpected: true });
+    expect(isServiceUnavailable(error)).toBe(true);
+  });
+
+  it.each([
+    ['a non-JSON 500', DOWN],
+    ['the API own 500', () => errorResponse(500, 'INTERNAL_ERROR', 'Internal server error')],
+    ['a 401', UNAUTH],
+    ['a 429', LIMITED],
+    ['a 422 envelope', () => errorResponse(422, 'VALIDATION_ERROR', 'Invalid input')],
+  ])('is false for %s', async (_name, reply) => {
+    expect(isServiceUnavailable(await errorFor(reply()))).toBe(false);
+  });
+
+  it.each([
+    ['an Error', new Error('x')],
+    ['a string', 'x'],
+    ['undefined', undefined],
+  ])('is false for %s', (_name, value) => {
+    expect(isServiceUnavailable(value)).toBe(false);
+  });
+});
+
+describe('apiRequest — retryWhenUnavailable', () => {
+  const retrying = () => apiRequest('/auth/me', { schema: authResponseSchema, retryWhenUnavailable: true });
+  const delay = vi.mocked(waitBeforeRetry);
+
+  it.each([
+    ['the network is offline', OFFLINE],
+    ['a 502', BAD_GATEWAY],
+    ['a loading page', LOADING_PAGE],
+  ])('sends the request again after %s', async (_name, first) => {
+    const { calls } = mockFetch(first(), OK(USER));
+
+    await expect(retrying()).resolves.toEqual({ user: USER });
+    expect(calls).toHaveLength(2);
+    expect(delay).toHaveBeenCalledTimes(1);
+  });
+
+  it('retries once only', async () => {
+    const { calls } = mockFetch(GATEWAY_TIMEOUT(), GATEWAY_TIMEOUT());
+
+    const error = await apiErrorOf(retrying());
+
+    expect(error.status).toBe(504);
+    expect(calls).toHaveLength(2);
+    expect(delay).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not retry the API own 500', async () => {
+    const { calls } = mockFetch(DOWN());
+
+    await apiErrorOf(retrying());
+
+    expect(calls).toHaveLength(1);
+    expect(delay).not.toHaveBeenCalled();
+  });
+
+  it('does not retry a 401 and fires the session-expired handler once', async () => {
+    const handler = vi.fn();
+    setSessionExpiredHandler(handler);
+    const { calls } = mockFetch(UNAUTH());
+
+    const error = await apiErrorOf(retrying());
+
+    expect(error.code).toBe('UNAUTHORIZED');
+    expect(calls).toHaveLength(1);
+    expect(delay).not.toHaveBeenCalled();
+    expect(handler).toHaveBeenCalledTimes(1);
+  });
+
+  it('repeats the method, URL and body, and reads the CSRF cookie again', async () => {
+    setCookie('csrf_token', 'tok_-1');
+    // The cookie changes while the retry waits (e.g. the API sets a fresh one as it wakes up).
+    delay.mockImplementationOnce(() => {
+      setCookie('csrf_token', 'tok_-2');
+      return Promise.resolve();
+    });
+    const { calls } = mockFetch(OFFLINE(), OK(USER));
+
+    await apiRequest('/auth/login', {
+      method: 'POST',
+      body: { a: 1 },
+      schema: authResponseSchema,
+      retryWhenUnavailable: true,
+    });
+
+    expect(calls).toHaveLength(2);
+    expect(calls[1]?.method).toBe('POST');
+    expect(calls[1]?.url).toBe('/api/v1/auth/login');
+    expect(calls[1]?.url).toBe(calls[0]?.url);
+    expect(calls[0]?.body).toBe('{"a":1}');
+    expect(calls[1]?.body).toBe('{"a":1}');
+    expect(calls[0]?.headers.get('x-csrf-token')).toBe('tok_-1');
+    expect(calls[1]?.headers.get('x-csrf-token')).toBe('tok_-2');
+  });
+
+  it('does not retry without the option', async () => {
+    const { calls } = mockFetch(OFFLINE());
+
+    expect(await rejection(call())).toBeInstanceOf(NetworkError);
+    expect(calls).toHaveLength(1);
+    expect(delay).not.toHaveBeenCalled();
   });
 });

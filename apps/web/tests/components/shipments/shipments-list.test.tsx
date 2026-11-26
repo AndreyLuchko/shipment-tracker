@@ -136,7 +136,8 @@ describe('ShipmentsList', () => {
     ['the network is offline', OFFLINE],
   ])('shows an error with "Try again" when %s', async (_name, reply) => {
     signIn();
-    mockFetch(reply());
+    // An unavailable reply is retried once, so it is answered twice.
+    mockFetch(reply(), reply());
     renderList();
 
     const alert = await screen.findByRole('alert');

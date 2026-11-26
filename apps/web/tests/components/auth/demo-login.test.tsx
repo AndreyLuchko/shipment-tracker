@@ -114,7 +114,8 @@ describe('DemoLogin', () => {
     ['the API is down', (): Response | Error => textResponse(500, 'Internal Server Error')],
     ['the network is offline', (): Response | Error => new TypeError('Failed to fetch')],
   ])('shows the generic message when %s', async (_, reply) => {
-    mockFetch(reply());
+    // An unavailable reply is retried once, so it is answered twice.
+    mockFetch(reply(), reply());
     const click = renderDemo();
 
     await click('Demo client');

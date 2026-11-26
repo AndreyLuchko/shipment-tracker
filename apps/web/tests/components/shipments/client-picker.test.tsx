@@ -69,7 +69,8 @@ describe('ClientPicker', () => {
     ['a server error', DOWN],
     ['a network error', OFFLINE],
   ])('shows an error state on %s', async (_label, reply) => {
-    mockFetch(reply());
+    // An unavailable reply is retried once, so it is answered twice.
+    mockFetch(reply(), reply());
 
     renderPicker();
 

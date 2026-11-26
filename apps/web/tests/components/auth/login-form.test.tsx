@@ -184,7 +184,8 @@ describe('LoginForm', () => {
     ['the network is offline', (): Response | Error => new TypeError('Failed to fetch')],
     ['a 2xx body breaks the contract', (): Response | Error => jsonResponse(200, { nope: true })],
   ])('shows one readable message when %s', async (_case, reply) => {
-    mockFetch(reply());
+    // An unavailable reply is retried once, so it is answered twice.
+    mockFetch(reply(), reply());
     const user = renderForm();
 
     await fill(user, 'client@demo.dev', 'client123');

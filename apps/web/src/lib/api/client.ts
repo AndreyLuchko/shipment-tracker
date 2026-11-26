@@ -7,6 +7,8 @@ import {
 } from '@shipment-tracker/shared';
 import type { ZodType } from 'zod';
 
+import { waitBeforeRetry } from '@/lib/api/retry-delay';
+
 export const API_BASE_PATH = '/api/v1';
 export const UNEXPECTED_RESPONSE_MESSAGE = 'Unexpected response from the server';
 
@@ -18,6 +20,7 @@ export interface ApiErrorInit {
   message: string;
   details?: ErrorDetail[];
   retryAfterSeconds?: number;
+  unexpected?: boolean;
 }
 
 /** The API answered, but not with the success the caller asked for. */
@@ -28,12 +31,15 @@ export class ApiError extends Error {
   readonly details?: ErrorDetail[];
   /** Whole seconds from the `Retry-After` header; present only on a 429 that carries one. */
   readonly retryAfterSeconds?: number;
+  /** `true` when the body was not the expected JSON (an HTML page, an empty body, the wrong shape). */
+  readonly unexpected: boolean;
 
   constructor(init: ApiErrorInit) {
     super(init.message);
     this.name = 'ApiError';
     this.status = init.status;
     this.code = init.code;
+    this.unexpected = init.unexpected ?? false;
     if (init.details !== undefined) this.details = init.details;
     if (init.retryAfterSeconds !== undefined) this.retryAfterSeconds = init.retryAfterSeconds;
   }
@@ -57,6 +63,16 @@ export interface ApiRequestOptions<T> {
   schema?: ZodType<T>;
   /** `true` for the request that asks whether a session exists: its 401 does not fire the session-expired handler. */
   sessionProbe?: boolean;
+  /** Safe requests only: when the first attempt is `isServiceUnavailable`, wait `waitBeforeRetry()` and send it once more. */
+  retryWhenUnavailable?: boolean;
+}
+
+/** NetworkError; ApiError 502 / 503 / 504; or an `unexpected` ApiError with a 2xx status (e.g. an HTML loading page). */
+export function isServiceUnavailable(error: unknown): boolean {
+  if (error instanceof NetworkError) return true;
+  if (!(error instanceof ApiError)) return false;
+  if (error.status === 502 || error.status === 503 || error.status === 504) return true;
+  return error.unexpected && error.status >= 200 && error.status < 300;
 }
 
 let sessionExpiredHandler: (() => void) | null = null;
@@ -85,6 +101,18 @@ export function readCookie(name: string): string | undefined {
 
 /** `path` starts with '/' and is relative to `API_BASE_PATH`, e.g. '/auth/me'. */
 export async function apiRequest<T = void>(path: string, options: ApiRequestOptions<T> = {}): Promise<T> {
+  if (options.retryWhenUnavailable !== true) return sendOnce(path, options);
+  try {
+    return await sendOnce(path, options);
+  } catch (error) {
+    if (!isServiceUnavailable(error)) throw error;
+  }
+  await waitBeforeRetry();
+  return sendOnce(path, options);
+}
+
+/** One attempt. An unavailable answer never carries an auth code, so the session-expired handler sees only final answers. */
+async function sendOnce<T>(path: string, options: ApiRequestOptions<T>): Promise<T> {
   const method = options.method ?? 'GET';
   const headers = new Headers({ accept: 'application/json' });
   const init: RequestInit = { method, credentials: 'include', headers };
@@ -140,7 +168,7 @@ async function readJson(response: Response): Promise<unknown> {
 }
 
 function unexpectedResponse(status: number): ApiError {
-  return new ApiError({ status, code: 'INTERNAL_ERROR', message: UNEXPECTED_RESPONSE_MESSAGE });
+  return new ApiError({ status, code: 'INTERNAL_ERROR', message: UNEXPECTED_RESPONSE_MESSAGE, unexpected: true });
 }
 
 function retryAfterSeconds(response: Response): number | undefined {

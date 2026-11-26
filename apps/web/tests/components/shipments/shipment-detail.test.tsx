@@ -102,7 +102,8 @@ describe('ShipmentDetailView', () => {
     ['the API is down', DOWN],
     ['the network is offline', OFFLINE],
   ])('shows an error with "Try again" when %s', async (_name, reply) => {
-    mockFetch(reply());
+    // An unavailable reply is retried once, so it is answered twice.
+    mockFetch(reply(), reply());
     renderDetail();
 
     const alert = await screen.findByRole('alert');

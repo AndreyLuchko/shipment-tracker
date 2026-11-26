@@ -10,7 +10,12 @@ import { apiRequest, readCookie } from '@/lib/api/client';
 
 /** POST /auth/login → the signed-in user. The API sets both session cookies. */
 export async function login(input: LoginInput): Promise<PublicUser> {
-  const { user } = await apiRequest('/auth/login', { method: 'POST', body: input, schema: authResponseSchema });
+  const { user } = await apiRequest('/auth/login', {
+    method: 'POST',
+    body: input,
+    schema: authResponseSchema,
+    retryWhenUnavailable: true,
+  });
   return user;
 }
 
@@ -27,7 +32,11 @@ export function logout(): Promise<void> {
 
 /** GET /auth/me as a session probe: its 401 does not fire the session-expired handler. */
 export async function fetchCurrentUser(): Promise<PublicUser> {
-  const { user } = await apiRequest('/auth/me', { schema: authResponseSchema, sessionProbe: true });
+  const { user } = await apiRequest('/auth/me', {
+    schema: authResponseSchema,
+    sessionProbe: true,
+    retryWhenUnavailable: true,
+  });
   return user;
 }
 

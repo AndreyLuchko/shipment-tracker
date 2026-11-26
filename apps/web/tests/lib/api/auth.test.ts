@@ -1,13 +1,15 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { fetchCurrentUser, hasSessionHint, login, logout, register } from '@/lib/api/auth';
-import { ApiError, setSessionExpiredHandler } from '@/lib/api/client';
+import { ApiError, NetworkError, setSessionExpiredHandler } from '@/lib/api/client';
+import { waitBeforeRetry } from '@/lib/api/retry-delay';
 
 import { emptyResponse, errorResponse, jsonResponse, mockFetch, setCookie } from '../../helpers/fetch';
 import { DISPATCHER, USER } from '../../helpers/fixtures';
 
 const OK = (user: unknown) => jsonResponse(200, { user });
 const UNAUTH = () => errorResponse(401, 'UNAUTHORIZED', 'Authentication required');
+const OFFLINE = () => new TypeError('Failed to fetch');
 const INVALID = () => errorResponse(401, 'INVALID_CREDENTIALS', 'Invalid email or password');
 
 afterEach(() => setSessionExpiredHandler(null));
@@ -93,5 +95,32 @@ describe('hasSessionHint', () => {
   it('is false when only a cookie with a similar name is set', () => {
     setCookie('xcsrf_token', '1');
     expect(hasSessionHint()).toBe(false);
+  });
+});
+
+describe('the one retry', () => {
+  const input = { email: 'client@demo.dev', password: 'client123' };
+  const register_ = { email: 'd@example.com', password: 'password123', name: 'Dana', role: 'DISPATCHER' as const };
+
+  it.each([
+    ['login', () => login(input)],
+    ['fetchCurrentUser', () => fetchCurrentUser()],
+  ])('%s is sent again after OFFLINE', async (_name, run) => {
+    const { calls } = mockFetch(OFFLINE(), OK(USER));
+
+    await expect(run()).resolves.toEqual(USER);
+    expect(calls).toHaveLength(2);
+    expect(waitBeforeRetry).toHaveBeenCalledTimes(1);
+  });
+
+  it.each([
+    ['register', () => register(register_)],
+    ['logout', () => logout()],
+  ])('%s is not sent again after OFFLINE', async (_name, run) => {
+    const { calls } = mockFetch(OFFLINE());
+
+    await expect(run()).rejects.toBeInstanceOf(NetworkError);
+    expect(calls).toHaveLength(1);
+    expect(waitBeforeRetry).not.toHaveBeenCalled();
   });
 });

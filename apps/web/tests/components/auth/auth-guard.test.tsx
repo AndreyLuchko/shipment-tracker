@@ -68,7 +68,8 @@ describe('AuthGuard', () => {
     ['the network is offline', OFFLINE],
   ])('sends the visitor to /login when %s', async (_label, reply) => {
     withCsrfCookie();
-    mockFetch(reply());
+    // An unavailable reply is retried once, so it is answered twice.
+    mockFetch(reply(), reply());
 
     renderGuard();
 

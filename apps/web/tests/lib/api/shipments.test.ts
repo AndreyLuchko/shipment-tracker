@@ -2,7 +2,8 @@ import type { CreateShipmentInput, ShipmentDetail, ShipmentSummary } from '@ship
 import { describe, expect, it } from 'vitest';
 
 import { addShipmentEvent, createShipment, fetchShipment, fetchShipments } from '@/lib/api/shipments';
-import { ApiError } from '@/lib/api/client';
+import { ApiError, NetworkError } from '@/lib/api/client';
+import { waitBeforeRetry } from '@/lib/api/retry-delay';
 
 import { errorResponse, jsonResponse, mockFetch, setCookie } from '../../helpers/fetch';
 import { EXCEPTION_SHIPMENT, listPage, SHIPMENT, SHIPMENT_AFTER_EVENT, SHIPMENT_DETAIL } from '../../helpers/fixtures';
@@ -14,6 +15,8 @@ const CREATED = (shipment: ShipmentDetail) => jsonResponse(201, { shipment });
 const NOT_FOUND = () => errorResponse(404, 'NOT_FOUND', 'Shipment not found');
 const ILLEGAL = () =>
   errorResponse(422, 'INVALID_STATUS_TRANSITION', 'Cannot transition from OUT_FOR_DELIVERY to AT_WAREHOUSE');
+
+const OFFLINE = () => new TypeError('Failed to fetch');
 
 const rejection = (promise: Promise<unknown>) => promise.catch((e: unknown) => e);
 
@@ -42,7 +45,8 @@ describe('fetchShipments', () => {
   });
 
   it('rejects a body that does not match the schema', async () => {
-    mockFetch(jsonResponse(200, { items: [{ id: 1 }] }));
+    // A 2xx body that is not the contract looks like a loading page, so the safe request is sent twice.
+    mockFetch(jsonResponse(200, { items: [{ id: 1 }] }), jsonResponse(200, { items: [{ id: 1 }] }));
 
     const error = await rejection(fetchShipments({ page: 1 }));
     expect(error).toBeInstanceOf(ApiError);
@@ -130,5 +134,29 @@ describe('addShipmentEvent', () => {
       code: 'INVALID_STATUS_TRANSITION',
       message: 'Cannot transition from OUT_FOR_DELIVERY to AT_WAREHOUSE',
     });
+  });
+});
+
+describe('the one retry', () => {
+  it.each([
+    ['fetchShipments', () => fetchShipments({ page: 1 }), LIST([SHIPMENT]), listPage([SHIPMENT])],
+    ['fetchShipment', () => fetchShipment('shp1'), DETAIL(SHIPMENT_DETAIL), SHIPMENT_DETAIL],
+  ])('%s is sent again after OFFLINE', async (_name, run, reply, expected) => {
+    const { calls } = mockFetch(OFFLINE(), reply);
+
+    await expect(run()).resolves.toEqual(expected);
+    expect(calls).toHaveLength(2);
+    expect(waitBeforeRetry).toHaveBeenCalledTimes(1);
+  });
+
+  it.each([
+    ['createShipment', () => createShipment({} as CreateShipmentInput)],
+    ['addShipmentEvent', () => addShipmentEvent('shp1', { status: 'AT_WAREHOUSE', location: 'Kharkiv hub' })],
+  ])('%s is not sent again after OFFLINE', async (_name, run) => {
+    const { calls } = mockFetch(OFFLINE());
+
+    await expect(run()).rejects.toBeInstanceOf(NetworkError);
+    expect(calls).toHaveLength(1);
+    expect(waitBeforeRetry).not.toHaveBeenCalled();
   });
 });

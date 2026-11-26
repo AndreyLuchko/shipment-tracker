@@ -16,12 +16,18 @@ export function fetchShipments(query: ListShipmentsQuery): Promise<ShipmentListR
   if (query.status !== undefined) params.append('status', query.status);
   if (query.search !== undefined) params.append('search', query.search);
   params.append('page', String(query.page));
-  return apiRequest(`/shipments?${params.toString()}`, { schema: shipmentListResponseSchema });
+  return apiRequest(`/shipments?${params.toString()}`, {
+    schema: shipmentListResponseSchema,
+    retryWhenUnavailable: true,
+  });
 }
 
 /** GET /shipments/:id — `id` is sent as one encoded path segment. */
 export async function fetchShipment(id: string): Promise<ShipmentDetail> {
-  const { shipment } = await apiRequest(shipmentPath(id), { schema: shipmentResponseSchema });
+  const { shipment } = await apiRequest(shipmentPath(id), {
+    schema: shipmentResponseSchema,
+    retryWhenUnavailable: true,
+  });
   return shipment;
 }
 

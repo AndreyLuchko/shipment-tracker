@@ -2,6 +2,7 @@ import '@testing-library/jest-dom/vitest';
 import { cleanup } from '@testing-library/react';
 import { afterEach, vi } from 'vitest';
 
+import { waitBeforeRetry } from '@/lib/api/retry-delay';
 import { useAuthStore } from '@/stores/auth';
 
 import { clearCookies } from './helpers/fetch';
@@ -25,9 +26,16 @@ vi.mock('next/navigation', async () => {
   };
 });
 
+// The one retry of a safe request pauses 5 s in production; tests do not wait for it.
+vi.mock('@/lib/api/retry-delay', () => ({
+  UNAVAILABLE_RETRY_DELAY_MS: 5_000,
+  waitBeforeRetry: vi.fn(() => Promise.resolve()),
+}));
+
 // Vitest `globals` is off, so React Testing Library's automatic cleanup does not run.
 afterEach(() => {
   cleanup();
+  vi.mocked(waitBeforeRetry).mockClear();
   vi.useRealTimers();
   vi.unstubAllGlobals();
   vi.unstubAllEnvs();

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { ApiError, apiRequest } from '@/lib/api/client';
+import { waitBeforeRetry } from '@/lib/api/retry-delay';
 import { useAuthStore } from '@/stores/auth';
 
 import {
@@ -19,6 +20,7 @@ const UNAUTH = () => errorResponse(401, 'UNAUTHORIZED', 'Authentication required
 const BAD_CSRF = () => errorResponse(403, 'CSRF_TOKEN_INVALID', 'CSRF token missing or invalid');
 const INVALID = () => errorResponse(401, 'INVALID_CREDENTIALS', 'Invalid email or password');
 const TAKEN = () => errorResponse(409, 'EMAIL_TAKEN', 'Email is already registered');
+const BAD_GATEWAY = () => textResponse(502, 'Bad Gateway');
 const DOWN = () => textResponse(500, 'Internal Server Error');
 const OFFLINE = () => new TypeError('Failed to fetch');
 
@@ -81,15 +83,17 @@ describe('bootstrap', () => {
   });
 
   it.each([
-    ['the API is down', DOWN],
-    ['the network is offline', OFFLINE],
-    ['the body breaks the contract', () => jsonResponse(200, { nope: true })],
-  ])('resolves and settles anonymous when %s', async (_name, reply) => {
+    ['the API is down', DOWN, 1],
+    ['the network is offline', OFFLINE, 2],
+    ['the body breaks the contract', () => jsonResponse(200, { nope: true }), 2],
+  ])('resolves and settles anonymous when %s', async (_name, reply, expectedCalls) => {
     setCookie('csrf_token', 'tok_-1');
-    mockFetch(reply());
+    // An unavailable reply is retried once, so it is answered twice; the API's own 500 is not retried.
+    const { calls } = mockFetch(reply(), reply());
 
     await expect(store().bootstrap()).resolves.toBeUndefined();
     expect(store().status).toBe('anonymous');
+    expect(calls).toHaveLength(expectedCalls);
   });
 
   it('sends one request for two concurrent calls', async () => {
@@ -140,7 +144,36 @@ describe('bootstrap', () => {
   });
 });
 
+describe('bootstrap — the one retry', () => {
+  it('settles anonymous after two OFFLINE replies', async () => {
+    setCookie('csrf_token', 'tok_-1');
+    const { calls } = mockFetch(OFFLINE(), OFFLINE());
+
+    await store().bootstrap();
+    expect(store().status).toBe('anonymous');
+    expect(calls).toHaveLength(2);
+    expect(waitBeforeRetry).toHaveBeenCalledTimes(1);
+  });
+
+  it('is authenticated after a 502 and then a 200', async () => {
+    setCookie('csrf_token', 'tok_-1');
+    const { calls } = mockFetch(BAD_GATEWAY(), OK(USER));
+
+    await store().bootstrap();
+    expect(store().status).toBe('authenticated');
+    expect(calls).toHaveLength(2);
+  });
+});
+
 describe('login and register', () => {
+  it('login signs the user in after a 502 and then a 200', async () => {
+    const { calls } = mockFetch(BAD_GATEWAY(), OK(USER));
+
+    await store().login(CLIENT_LOGIN);
+    expect(store().status).toBe('authenticated');
+    expect(calls).toHaveLength(2);
+  });
+
   it('login signs the user in', async () => {
     mockFetch(OK(USER));
 

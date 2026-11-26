@@ -1302,7 +1302,7 @@ npm run lint && npm run typecheck && npm run test && npm run build
 
 Expected: `0` for both files; no output from the second command; the gate exits `0`.
 
-- [ ] **Step 4: (owner) After pushing, open the README on GitHub** → the live link → **Demo dispatcher** → the
+- [x] **Step 4: (owner) After pushing, open the README on GitHub** → the live link → **Demo dispatcher** → the
   list. That is the day minimum.
 
 - [x] **Step 5: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
@@ -1356,13 +1356,13 @@ export function waitBeforeRetry(): Promise<void>;
   `fetchClients`, and by nothing else. The session-expired handler is evaluated only on the final answer. The
   retry is a fresh `fetch` with the same method, URL, body and headers; the CSRF header is read again.
 
-- [ ] **Step 1: Read `docs/deploy.md` §7** and write the measured cold start as a comment above
+- [x] **Step 1: Read `docs/deploy.md` §7** and write the measured cold start as a comment above
   `UNAVAILABLE_RETRY_DELAY_MS`, e.g. `// Measured 2026-11-2x through Vercel after 16 min idle: 401 in 48 s.`
   The constants stay 5 000 ms here and 3 000 ms in Task 10. If the measurement shows a pattern where one retry
   5 s later cannot help, say so in the report and ask the owner (D3 fixed one retry). An example is a `503` HTML
   page for the whole minute, answered within a second.
 
-- [ ] **Step 2: Write the failing tests**
+- [x] **Step 2: Write the failing tests**
 
 `tests/lib/api/client.test.ts` — `isServiceUnavailable`:
 
@@ -1405,10 +1405,10 @@ not undo the setup's mock, take the real module from
 - with `BAD_GATEWAY`, then `200` → `authenticated`;
 - `login()` with `BAD_GATEWAY`, then `200` → `authenticated`.
 
-- [ ] **Step 3: Run them and see them fail** — `npm run test -w apps/web -- tests/lib/api tests/stores`;
+- [x] **Step 3: Run them and see them fail** — `npm run test -w apps/web -- tests/lib/api tests/stores`;
   expected FAIL (`isServiceUnavailable`, the module and the option are missing).
 
-- [ ] **Step 4: Implement**
+- [x] **Step 4: Implement**
   - `retry-delay.ts` resolves through `setTimeout(resolve, UNAVAILABLE_RETRY_DELAY_MS)`.
   - In `client.ts`, the single-attempt body of `apiRequest` moves into a private `sendOnce`.
     `apiRequest` = `sendOnce`, and on a caught `isServiceUnavailable` error with the option set →
@@ -1419,7 +1419,7 @@ not undo the setup's mock, take the real module from
     waitBeforeRetry: vi.fn(() => Promise.resolve()) }))`, and `vi.mocked(waitBeforeRetry).mockClear()` in its
     `afterEach`.
 
-- [ ] **Step 5: Run the whole web suite and update the tests that now meet a retry**
+- [x] **Step 5: Run the whole web suite and update the tests that now meet a retry**
 
 ```bash
 npm run test -w apps/web
@@ -1435,7 +1435,7 @@ Expected candidates:
 `register-form`, `app-header`, `status-update-form` and `new-shipment-form` mutations are not retried and stay
 unchanged; the new-shipment form's client picker is a retried `GET`. Expected afterwards: every web test passes.
 
-- [ ] **Step 6: The gate** — `npm run lint && npm run typecheck && npm run test && npm run build`; exit `0`.
+- [x] **Step 6: The gate** — `npm run lint && npm run typecheck && npm run test && npm run build`; exit `0`.
 
 - [ ] **Step 7: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
 
