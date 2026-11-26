@@ -364,16 +364,26 @@ describe('createShipmentEventSchema', () => {
 });
 
 describe('listShipmentsQuerySchema', () => {
-  it('defaults page to 1', () => {
+  it('defaults page to 1 and sort to newest', () => {
     const result = listShipmentsQuerySchema.safeParse({});
     expect(result.success).toBe(true);
-    expect(result.data).toEqual({ page: 1 });
+    expect(result.data).toEqual({ page: 1, sort: 'newest' });
+  });
+
+  it.each(['newest', 'oldest', 'updated', 'stale'])('parses sort %s as given', (sort) => {
+    expect(listShipmentsQuerySchema.parse({ sort })).toEqual({ page: 1, sort });
+  });
+
+  it.each(['price', 'NEWEST', ''])('rejects sort %j', (sort) => {
+    const result = listShipmentsQuerySchema.safeParse({ sort });
+    expect(result.success).toBe(false);
+    expect(issuePaths(result)).toContainEqual(['sort']);
   });
 
   it('coerces page and trims search', () => {
     const result = listShipmentsQuerySchema.safeParse({ page: '3', status: 'IN_TRANSIT', search: ' kyiv ' });
     expect(result.success).toBe(true);
-    expect(result.data).toEqual({ page: 3, status: 'IN_TRANSIT', search: 'kyiv' });
+    expect(result.data).toEqual({ page: 3, status: 'IN_TRANSIT', search: 'kyiv', sort: 'newest' });
   });
 
   it('parses a blank search to undefined', () => {
@@ -407,7 +417,7 @@ describe('listShipmentsQuerySchema', () => {
   it('strips unknown keys', () => {
     const result = listShipmentsQuerySchema.safeParse({ foo: 'bar' });
     expect(result.success).toBe(true);
-    expect(result.data).toEqual({ page: 1 });
+    expect(result.data).toEqual({ page: 1, sort: 'newest' });
   });
 });
 

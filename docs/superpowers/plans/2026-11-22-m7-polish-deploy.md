@@ -1739,7 +1739,7 @@ export const DEFAULT_SHIPMENT_SORT: ShipmentSort = 'newest';
   - `withListChange` keeps `sort` unless `change` names it, and still resets the page;
   - `fetchShipments` sends `status`, `search`, `sort` (only when not `newest`), `page`.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 | Where | Case | Expected |
 |---|---|---|
@@ -1757,10 +1757,10 @@ export const DEFAULT_SHIPMENT_SORT: ShipmentSort = 'newest';
 | web | `fetchShipments({ page: 1, sort: 'updated' })` | `GET /api/v1/shipments?sort=updated&page=1` |
 | web | `fetchShipments({ page: 1, sort: 'newest' })` | `GET /api/v1/shipments?page=1` (unchanged) |
 
-- [ ] **Step 2: Run them and see them fail**; **Step 3: implement**; add `sort: 'newest'` wherever TypeScript
+- [x] **Step 2: Run them and see them fail**; **Step 3: implement**; add `sort: 'newest'` wherever TypeScript
   reports a `ListShipmentsQuery` literal missing it.
 
-- [ ] **Step 4: The gate** — `npm run lint && npm run typecheck && npm run test && npm run build`; exit `0`. The
+- [x] **Step 4: The gate** — `npm run lint && npm run typecheck && npm run test && npm run build`; exit `0`. The
   existing API list tests pass unchanged: no `sort` means `newest`.
 
 - [ ] **Step 5: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**

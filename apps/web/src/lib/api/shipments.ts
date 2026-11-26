@@ -1,4 +1,5 @@
 import {
+  DEFAULT_SHIPMENT_SORT,
   type CreateShipmentEventInput,
   type CreateShipmentInput,
   type ListShipmentsQuery,
@@ -10,11 +11,12 @@ import {
 
 import { apiRequest } from '@/lib/api/client';
 
-/** GET /shipments — `page` is always sent; `status` and `search` only when defined. */
+/** GET /shipments — `page` is always sent; `status` and `search` only when defined, `sort` only when not the default. */
 export function fetchShipments(query: ListShipmentsQuery): Promise<ShipmentListResponse> {
   const params = new URLSearchParams();
   if (query.status !== undefined) params.append('status', query.status);
   if (query.search !== undefined) params.append('search', query.search);
+  if (query.sort !== DEFAULT_SHIPMENT_SORT) params.append('sort', query.sort);
   params.append('page', String(query.page));
   return apiRequest(`/shipments?${params.toString()}`, {
     schema: shipmentListResponseSchema,

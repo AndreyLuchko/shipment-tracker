@@ -6,6 +6,7 @@ import {
   type Role,
   type ShipmentDetail,
   type ShipmentListResponse,
+  type ShipmentSort,
   type UpdateShipmentInput,
 } from '@shipment-tracker/shared';
 import { AppError, validationError } from '../../lib/errors.js';
@@ -56,8 +57,16 @@ function searchFilter(search: string | undefined): Prisma.ShipmentWhereInput {
   };
 }
 
+/** `id` breaks ties so a page boundary never repeats or skips a row. */
+const SHIPMENT_ORDER: Record<ShipmentSort, Prisma.ShipmentOrderByWithRelationInput[]> = {
+  newest: [{ createdAt: 'desc' }, { id: 'desc' }],
+  oldest: [{ createdAt: 'asc' }, { id: 'asc' }],
+  updated: [{ updatedAt: 'desc' }, { id: 'desc' }],
+  stale: [{ updatedAt: 'asc' }, { id: 'asc' }],
+};
+
 /**
- * One page of the caller's shipments, newest first (C3). Page and count share one `where`, so `total` never
+ * One page of the caller's shipments in the requested order, newest first by default (C3). Page and count share one `where`, so `total` never
  * counts a shipment the caller cannot see.
  */
 export async function listShipments(
@@ -72,7 +81,7 @@ export async function listShipments(
     prisma.shipment.findMany({
       where,
       include: shipmentSummaryInclude,
-      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+      orderBy: SHIPMENT_ORDER[query.sort],
       skip: (query.page - 1) * SHIPMENTS_PAGE_SIZE,
       take: SHIPMENTS_PAGE_SIZE,
     }),

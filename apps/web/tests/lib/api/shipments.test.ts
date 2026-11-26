@@ -24,7 +24,9 @@ describe('fetchShipments', () => {
   it('requests the first page and resolves the parsed list', async () => {
     const { calls } = mockFetch(LIST([SHIPMENT, EXCEPTION_SHIPMENT]));
 
-    await expect(fetchShipments({ page: 1 })).resolves.toEqual(listPage([SHIPMENT, EXCEPTION_SHIPMENT]));
+    await expect(fetchShipments({ page: 1, sort: 'newest' })).resolves.toEqual(
+      listPage([SHIPMENT, EXCEPTION_SHIPMENT]),
+    );
     expect(calls).toHaveLength(1);
     expect(calls[0]?.method).toBe('GET');
     expect(calls[0]?.url).toBe('/api/v1/shipments?page=1');
@@ -33,22 +35,31 @@ describe('fetchShipments', () => {
   it('sends status, search and page in that order, form-encoded', async () => {
     const { calls } = mockFetch(LIST([]));
 
-    await fetchShipments({ status: 'EXCEPTION', search: 'kyiv hub & co', page: 2 });
+    await fetchShipments({ status: 'EXCEPTION', search: 'kyiv hub & co', page: 2, sort: 'newest' });
     expect(calls[0]?.url).toBe('/api/v1/shipments?status=EXCEPTION&search=kyiv+hub+%26+co&page=2');
   });
 
   it('leaves out undefined status and search', async () => {
     const { calls } = mockFetch(LIST([]));
 
-    await fetchShipments({ status: undefined, search: undefined, page: 3 });
+    await fetchShipments({ status: undefined, search: undefined, page: 3, sort: 'newest' });
     expect(calls[0]?.url).toBe('/api/v1/shipments?page=3');
+  });
+
+  it('sends sort between search and page unless it is newest', async () => {
+    const { calls } = mockFetch(LIST([]), LIST([]));
+
+    await fetchShipments({ page: 1, sort: 'updated' });
+    await fetchShipments({ page: 1, sort: 'newest' });
+    expect(calls[0]?.url).toBe('/api/v1/shipments?sort=updated&page=1');
+    expect(calls[1]?.url).toBe('/api/v1/shipments?page=1');
   });
 
   it('rejects a body that does not match the schema', async () => {
     // A 2xx body that is not the contract looks like a loading page, so the safe request is sent twice.
     mockFetch(jsonResponse(200, { items: [{ id: 1 }] }), jsonResponse(200, { items: [{ id: 1 }] }));
 
-    const error = await rejection(fetchShipments({ page: 1 }));
+    const error = await rejection(fetchShipments({ page: 1, sort: 'newest' }));
     expect(error).toBeInstanceOf(ApiError);
     expect((error as ApiError).code).toBe('INTERNAL_ERROR');
   });
@@ -139,7 +150,7 @@ describe('addShipmentEvent', () => {
 
 describe('the one retry', () => {
   it.each([
-    ['fetchShipments', () => fetchShipments({ page: 1 }), LIST([SHIPMENT]), listPage([SHIPMENT])],
+    ['fetchShipments', () => fetchShipments({ page: 1, sort: 'newest' }), LIST([SHIPMENT]), listPage([SHIPMENT])],
     ['fetchShipment', () => fetchShipment('shp1'), DETAIL(SHIPMENT_DETAIL), SHIPMENT_DETAIL],
   ])('%s is sent again after OFFLINE', async (_name, run, reply, expected) => {
     const { calls } = mockFetch(OFFLINE(), reply);

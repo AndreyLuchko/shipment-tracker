@@ -114,10 +114,19 @@ export const createShipmentEventSchema = z.object({
 });
 export type CreateShipmentEventInput = z.infer<typeof createShipmentEventSchema>;
 
+/** List orders: by creation (`newest`, `oldest`) or by last movement (`updated`, `stale` = least recently moved). */
+export const SHIPMENT_SORTS = ['newest', 'oldest', 'updated', 'stale'] as const;
+
+export const shipmentSortSchema = z.enum(SHIPMENT_SORTS);
+export type ShipmentSort = z.infer<typeof shipmentSortSchema>;
+
+export const DEFAULT_SHIPMENT_SORT: ShipmentSort = 'newest';
+
 /** Query string of `GET /shipments`. Values arrive as strings, hence the coercion of `page`. */
 export const listShipmentsQuerySchema = z.object({
   status: shipmentStatusSchema.optional(),
   search: optionalCleanText(100),
   page: z.coerce.number().int().min(1).max(SHIPMENTS_MAX_PAGE).default(1),
+  sort: shipmentSortSchema.default(DEFAULT_SHIPMENT_SORT),
 });
 export type ListShipmentsQuery = z.infer<typeof listShipmentsQuerySchema>;

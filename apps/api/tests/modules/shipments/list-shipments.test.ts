@@ -329,4 +329,64 @@ describe('GET /api/v1/shipments', () => {
       expect(response.json().total).toBe(0);
     });
   });
+  describe('sorting', () => {
+    /** Created S1 → S4 one minute apart; last moved, most recent first: S1, S3, S4, S2 (S1 was created first). */
+    const SORT_FIXTURES = [
+      { trackingNumber: 'ST-TEST-S1', status: 'IN_TRANSIT', created: 0, updated: 4 },
+      { trackingNumber: 'ST-TEST-S2', status: 'IN_TRANSIT', created: 1, updated: 1 },
+      { trackingNumber: 'ST-TEST-S3', status: 'CREATED', created: 2, updated: 3 },
+      { trackingNumber: 'ST-TEST-S4', status: 'IN_TRANSIT', created: 3, updated: 2 },
+    ] as const;
+
+    beforeEach(async () => {
+      const base = Date.now() - 10 * MINUTE_MS;
+      for (const fixture of SORT_FIXTURES) {
+        await createTestShipment(app.prisma, clientA.user.id, {
+          trackingNumber: fixture.trackingNumber,
+          status: fixture.status,
+          createdAt: new Date(base + fixture.created * MINUTE_MS),
+          updatedAt: new Date(base + fixture.updated * MINUTE_MS),
+        });
+      }
+      await createTestShipment(app.prisma, clientB.user.id, { trackingNumber: 'ST-TEST-OTHER' });
+    });
+
+    it.each([
+      ['newest', ['ST-TEST-S4', 'ST-TEST-S3', 'ST-TEST-S2', 'ST-TEST-S1']],
+      ['oldest', ['ST-TEST-S1', 'ST-TEST-S2', 'ST-TEST-S3', 'ST-TEST-S4']],
+      ['updated', ['ST-TEST-S1', 'ST-TEST-S3', 'ST-TEST-S4', 'ST-TEST-S2']],
+      ['stale', ['ST-TEST-S2', 'ST-TEST-S4', 'ST-TEST-S3', 'ST-TEST-S1']],
+    ])('orders a dispatcher list by sort=%s', async (sort, expected) => {
+      const response = await list(dispatcher, `sort=${sort}&search=ST-TEST-S`);
+      expect(response.statusCode).toBe(200);
+      expect(ids(response)).toEqual(expected);
+    });
+
+    it('orders by newest when sort is absent', async () => {
+      expect(ids(await list(dispatcher, 'search=ST-TEST-S'))).toEqual([
+        'ST-TEST-S4',
+        'ST-TEST-S3',
+        'ST-TEST-S2',
+        'ST-TEST-S1',
+      ]);
+    });
+
+    it('combines sort with a status filter and a page', async () => {
+      const response = await list(dispatcher, 'sort=stale&status=IN_TRANSIT&page=1');
+      expect(ids(response)).toEqual(['ST-TEST-S2', 'ST-TEST-S4', 'ST-TEST-S1']);
+    });
+
+    it('shows a client only its own shipments, in the requested order', async () => {
+      expect(ids(await list(clientA, 'sort=updated'))).toEqual([
+        'ST-TEST-S1',
+        'ST-TEST-S3',
+        'ST-TEST-S4',
+        'ST-TEST-S2',
+      ]);
+    });
+
+    it.each(['price', 'NEWEST', '', 'stale&sort=oldest'])('rejects sort=%s', async (sort) => {
+      expectValidationError(await list(dispatcher, `sort=${sort}`), 'sort');
+    });
+  });
 });

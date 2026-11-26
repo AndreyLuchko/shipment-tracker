@@ -54,7 +54,7 @@ function setup() {
 describe('cache keys', () => {
   it('are the documented arrays', () => {
     expect(shipmentKeys.lists()).toEqual(['shipments', 'list']);
-    expect(shipmentKeys.list({ page: 1 })).toEqual(['shipments', 'list', { page: 1 }]);
+    expect(shipmentKeys.list({ page: 1, sort: 'newest' })).toEqual(['shipments', 'list', { page: 1, sort: 'newest' }]);
     expect(shipmentKeys.detail('shp1')).toEqual(['shipments', 'detail', 'shp1']);
     expect(clientKeys.all).toEqual(['users', 'clients']);
   });
@@ -65,7 +65,7 @@ describe('useShipmentsQuery', () => {
     const { wrapper } = setup();
     const { calls } = mockFetch(LIST([SHIPMENT]));
 
-    const { result } = renderHook(() => useShipmentsQuery({ page: 1 }), { wrapper });
+    const { result } = renderHook(() => useShipmentsQuery({ page: 1, sort: 'newest' }), { wrapper });
     await waitFor(() => expect(result.current.data).toEqual(listPage([SHIPMENT])));
     expect(calls).toHaveLength(1);
   });
@@ -75,7 +75,7 @@ describe('useShipmentsQuery', () => {
     const second = deferred<Response>();
     mockFetch(LIST([SHIPMENT], { total: 21 }), second.promise);
 
-    const { result, rerender } = renderHook(({ page }) => useShipmentsQuery({ page }), {
+    const { result, rerender } = renderHook(({ page }) => useShipmentsQuery({ page, sort: 'newest' }), {
       wrapper,
       initialProps: { page: 1 },
     });
@@ -126,7 +126,7 @@ describe('useClientsQuery', () => {
 describe('useCreateShipment', () => {
   it('writes the new detail and invalidates every list', async () => {
     const { queryClient, wrapper, state } = setup();
-    queryClient.setQueryData<ShipmentListResponse>(shipmentKeys.list({ page: 1 }), listPage([]));
+    queryClient.setQueryData<ShipmentListResponse>(shipmentKeys.list({ page: 1, sort: 'newest' }), listPage([]));
     mockFetch(CREATED(SHIPMENT_DETAIL));
 
     const { result } = renderHook(() => useCreateShipment(), { wrapper });
@@ -137,12 +137,12 @@ describe('useCreateShipment', () => {
 
     expect(created).toEqual(SHIPMENT_DETAIL);
     expect(queryClient.getQueryData(shipmentKeys.detail('shp1'))).toEqual(SHIPMENT_DETAIL);
-    expect(state(shipmentKeys.list({ page: 1 }))?.isInvalidated).toBe(true);
+    expect(state(shipmentKeys.list({ page: 1, sort: 'newest' }))?.isInvalidated).toBe(true);
   });
 
   it('writes nothing and invalidates nothing when the request fails', async () => {
     const { queryClient, wrapper, state } = setup();
-    queryClient.setQueryData<ShipmentListResponse>(shipmentKeys.list({ page: 1 }), listPage([]));
+    queryClient.setQueryData<ShipmentListResponse>(shipmentKeys.list({ page: 1, sort: 'newest' }), listPage([]));
     mockFetch(FORBIDDEN());
 
     const { result } = renderHook(() => useCreateShipment(), { wrapper });
@@ -154,7 +154,7 @@ describe('useCreateShipment', () => {
     expect(error).toBeInstanceOf(ApiError);
     expect((error as ApiError).code).toBe('FORBIDDEN');
     expect(state(shipmentKeys.detail('shp1'))).toBeUndefined();
-    expect(state(shipmentKeys.list({ page: 1 }))?.isInvalidated).toBe(false);
+    expect(state(shipmentKeys.list({ page: 1, sort: 'newest' }))?.isInvalidated).toBe(false);
   });
 });
 
@@ -162,7 +162,10 @@ describe('useAddShipmentEvent', () => {
   function seeded() {
     const context = setup();
     context.queryClient.setQueryData<ShipmentDetail>(shipmentKeys.detail('shp1'), SHIPMENT_DETAIL);
-    context.queryClient.setQueryData<ShipmentListResponse>(shipmentKeys.list({ page: 1 }), listPage([SHIPMENT]));
+    context.queryClient.setQueryData<ShipmentListResponse>(
+      shipmentKeys.list({ page: 1, sort: 'newest' }),
+      listPage([SHIPMENT]),
+    );
     return context;
   }
 
@@ -182,7 +185,7 @@ describe('useAddShipmentEvent', () => {
     await expect(submit(wrapper)).resolves.toEqual(SHIPMENT_AFTER_EVENT);
     expect(queryClient.getQueryData(shipmentKeys.detail('shp1'))).toEqual(SHIPMENT_AFTER_EVENT);
     expect(state(shipmentKeys.detail('shp1'))?.isInvalidated).toBe(false);
-    expect(state(shipmentKeys.list({ page: 1 }))?.isInvalidated).toBe(true);
+    expect(state(shipmentKeys.list({ page: 1, sort: 'newest' }))?.isInvalidated).toBe(true);
     expect(calls).toHaveLength(1);
   });
 

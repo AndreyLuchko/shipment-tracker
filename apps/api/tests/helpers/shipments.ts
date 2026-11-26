@@ -25,6 +25,8 @@ export interface TestShipmentOptions {
   carrier?: string;
   /** Defaults to the database default (now). */
   createdAt?: Date;
+  /** Defaults to the database default (now); set at create time, where Prisma's `@updatedAt` keeps a given value. */
+  updatedAt?: Date;
   /** Replaces the default events; the caller keeps them consistent with `status`. */
   events?: TestEventInput[];
 }
@@ -64,6 +66,7 @@ export async function createTestShipment(
       status,
       ...(options.carrier !== undefined ? { carrier: options.carrier } : {}),
       ...(options.createdAt !== undefined ? { createdAt: options.createdAt } : {}),
+      ...(options.updatedAt !== undefined ? { updatedAt: options.updatedAt } : {}),
       events: {
         create: events.map((event) => ({
           status: event.status,

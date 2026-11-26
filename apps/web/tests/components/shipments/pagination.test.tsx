@@ -8,7 +8,7 @@ import { routerMock } from '../../helpers/router';
 
 describe('Pagination', () => {
   it('shows the count, the page and two enabled buttons in the middle of the list', () => {
-    render(<Pagination query={{ page: 2 }} total={45} totalPages={3} />);
+    render(<Pagination query={{ page: 2, sort: 'newest' }} total={45} totalPages={3} />);
 
     expect(screen.getByText('45 shipments')).toBeInTheDocument();
     expect(screen.getByText('Page 2 of 3')).toBeInTheDocument();
@@ -21,7 +21,7 @@ describe('Pagination', () => {
   });
 
   it('goes to the next page', async () => {
-    render(<Pagination query={{ page: 2 }} total={45} totalPages={3} />);
+    render(<Pagination query={{ page: 2, sort: 'newest' }} total={45} totalPages={3} />);
 
     await userEvent.setup().click(screen.getByRole('button', { name: 'Next' }));
 
@@ -29,7 +29,7 @@ describe('Pagination', () => {
   });
 
   it('goes to the previous page', async () => {
-    render(<Pagination query={{ page: 2 }} total={45} totalPages={3} />);
+    render(<Pagination query={{ page: 2, sort: 'newest' }} total={45} totalPages={3} />);
 
     await userEvent.setup().click(screen.getByRole('button', { name: 'Previous' }));
 
@@ -37,7 +37,9 @@ describe('Pagination', () => {
   });
 
   it('keeps the filters when it changes the page', async () => {
-    render(<Pagination query={{ status: 'EXCEPTION', search: 'kyiv', page: 2 }} total={45} totalPages={3} />);
+    render(
+      <Pagination query={{ status: 'EXCEPTION', search: 'kyiv', page: 2, sort: 'newest' }} total={45} totalPages={3} />,
+    );
 
     await userEvent.setup().click(screen.getByRole('button', { name: 'Next' }));
 
@@ -45,21 +47,21 @@ describe('Pagination', () => {
   });
 
   it('disables "Previous" on the first page', () => {
-    render(<Pagination query={{ page: 1 }} total={45} totalPages={3} />);
+    render(<Pagination query={{ page: 1, sort: 'newest' }} total={45} totalPages={3} />);
 
     expect(screen.getByRole('button', { name: 'Previous' })).toBeDisabled();
     expect(screen.getByRole('button', { name: 'Next' })).toBeEnabled();
   });
 
   it('disables "Next" on the last page', () => {
-    render(<Pagination query={{ page: 3 }} total={45} totalPages={3} />);
+    render(<Pagination query={{ page: 3, sort: 'newest' }} total={45} totalPages={3} />);
 
     expect(screen.getByRole('button', { name: 'Next' })).toBeDisabled();
     expect(screen.getByRole('button', { name: 'Previous' })).toBeEnabled();
   });
 
   it('shows only the count of a single shipment', () => {
-    render(<Pagination query={{ page: 1 }} total={1} totalPages={1} />);
+    render(<Pagination query={{ page: 1, sort: 'newest' }} total={1} totalPages={1} />);
 
     expect(screen.getByText('1 shipment')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Previous' })).not.toBeInTheDocument();
@@ -68,7 +70,7 @@ describe('Pagination', () => {
   });
 
   it('shows no buttons when everything fits on one page', () => {
-    render(<Pagination query={{ page: 1 }} total={20} totalPages={1} />);
+    render(<Pagination query={{ page: 1, sort: 'newest' }} total={20} totalPages={1} />);
 
     expect(screen.getByText('20 shipments')).toBeInTheDocument();
     expect(screen.queryByRole('button')).not.toBeInTheDocument();
