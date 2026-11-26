@@ -1686,7 +1686,7 @@ Expected:
 - `content="http://localhost:3000/opengraph-image?…"`;
 - a `<link rel="icon" href="/icon.svg?…" type="image/svg+xml" …>`.
 
-- [ ] **Step 6: The gate**; **Step 7: (owner, after the push)** run
+- [x] **Step 6: The gate**; **Step 7: (owner, after the push)** run
   `curl -s https://<web-host>/login | grep -o '<meta property="og:image" content="[^"]*"'`. Expected:
   `https://<web-host>/opengraph-image?…`. Paste the link into a chat (e.g. Telegram) and the preview card shows
   the image.

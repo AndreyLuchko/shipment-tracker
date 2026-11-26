@@ -100,7 +100,7 @@ Detailed per-milestone plans live in `docs/superpowers/plans/`.
   - [x] Task 9 — cold start I: one retry for safe requests while the host wakes up
   - [x] Task 10 — cold start II: "Waking up the demo server…" notice
   - [x] Task 11 — Playwright smoke test of the demo path (local and live)
-  - [ ] Task 12 — favicon, Open Graph image, metadata
+  - [x] Task 12 — favicon, Open Graph image, metadata
   - [ ] Task 13 — sorting I: shared `sort`, the API's order, the web data layer
   - [ ] Task 14 — sorting II: the "Sort" control
   - [ ] Task 15 — edit details: the dispatcher's `PATCH` form
