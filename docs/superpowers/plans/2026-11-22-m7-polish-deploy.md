@@ -1551,7 +1551,7 @@ never earlier.
   table caption `Shipments`, the region `Shipment details`, the list `Movement timeline`, `Log out`).
 - Produces: `playwright.config.ts` with the `smoke` project (Task 19 adds `screenshots`).
 
-- [ ] **Step 1: Install**
+- [x] **Step 1: Install**
 
 ```bash
 npm install --save-dev @playwright/test@^1.65.1 -w apps/web
@@ -1566,7 +1566,7 @@ Expected:
 - Chromium Headless Shell is downloaded into `~/Library/Caches/ms-playwright`, or is already present;
 - the diff lists `apps/web/package.json` and `package-lock.json`.
 
-- [ ] **Step 2: Write `apps/web/playwright.config.ts`:**
+- [x] **Step 2: Write `apps/web/playwright.config.ts`:**
   - `testDir: './e2e'`, `workers: 1`, `retries: 0`, `reporter: 'list'`;
   - `timeout: 120_000` and `expect: { timeout: 15_000 }`;
   - `use: { baseURL: process.env['E2E_BASE_URL'] ?? 'http://localhost:3000', reducedMotion: 'reduce', trace:
@@ -1584,7 +1584,7 @@ Expected:
 
   Add `test-results` and `playwright-report` to the root `.gitignore`.
 
-- [ ] **Step 3: Run it locally**
+- [x] **Step 3: Run it locally**
 
 ```bash
 npm run db:demo-reset -w apps/api -- --confirm localhost
@@ -1602,14 +1602,14 @@ Expected:
 Verified while planning: Chromium accepts the `Secure` cookies on `http://localhost`, and the same flow passes
 against `next dev`.
 
-- [ ] **Step 4: The gate** — `npm run lint && npm run typecheck && npm run test && npm run build`; exit `0`. Vitest
+- [x] **Step 4: The gate** — `npm run lint && npm run typecheck && npm run test && npm run build`; exit `0`. Vitest
   still runs only `tests/**` (56 + the new files of Tasks 9–10), and `tsc` and ESLint cover `e2e/` and the config.
 
-- [ ] **Step 5: Document the live run** in `docs/deploy.md` §6:
+- [x] **Step 5: Document the live run** in `docs/deploy.md` §6:
   `E2E_BASE_URL=https://<web-host> npm run e2e -w apps/web` → `1 passed` (the first run after a quiet spell can
   take a minute).
 
-- [ ] **Step 6: (owner) Run it against the live demo** — the command of Step 5. Expected: `1 passed`.
+- [x] **Step 6: (owner) Run it against the live demo** — the command of Step 5. Expected: `1 passed`.
 
 - [ ] **Step 7: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
 

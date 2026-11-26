@@ -231,6 +231,16 @@ Report both. No fixed expectation:
   more than the retry;
 - an early `502`/`503`/`504` or `200 text/html` → both matter.
 
+### 6.3b Automated browser smoke test
+
+A read-only Playwright test (demo login, list, detail, log out) runs against the live site:
+
+```bash
+E2E_BASE_URL=https://shipment-tracker-sooty.vercel.app npm run e2e -w apps/web
+```
+
+Expected: `1 passed`. The first run after a quiet spell can take a minute while the API host wakes up.
+
 ### 6.4 Browser check on the live site
 
 Chrome or Firefox:
