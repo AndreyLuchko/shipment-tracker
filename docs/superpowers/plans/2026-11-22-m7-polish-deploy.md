@@ -1022,20 +1022,22 @@ dashboards, a password manager, or a shell variable — never into the repo, a f
 - Produces: `<web-host>`, `<api-host>`, the Step 7 IP result and the Step 9 cold-start numbers, reported to the
   agent for Task 8.
 
-**Progress (2026-11-24, paused after Step 7):**
+**Progress (2026-11-26, paused after Step 8):**
 - Hosts: `<web-host>` = `shipment-tracker-sooty.vercel.app`, `<api-host>` = `shipment-tracker-api-l8o5.onrender.com`.
 - Steps 1–6 passed. Step 6's lines 7 and 10 were broken in this plan (jq-style `field` expressions); fixed
   here and in `docs/deploy.md`, then re-run: `30,2`, `DELIVERED,12`. Line 12 added a `PICKED_UP` event to
   `ST-2026-000030` (Step 11 resets it).
 - Step 7: `401 401 401 401 401 429`, then `429`; the phone on mobile data logged in within the same minute.
-  **Open:** the `remoteAddress` comparison — Render's log viewer showed no entries after 18:21 (GMT+2), not even
-  for direct requests, so the IP was not checked via logs. Pending the owner's decision: accept on the behavioural
-  evidence and re-check in Task 21.
+  The `remoteAddress` comparison was not possible — Render's log viewer showed no entries after 18:21 (GMT+2),
+  not even for direct requests. **Decided (2026-11-26):** accepted on the behavioural evidence (spoofed
+  `x-forwarded-for` still `429`, the phone a separate bucket); re-check the logs in Task 21.
+- Step 8 (2026-11-26): laptop and server clocks equal (`14:58:14Z`); six steps `201 ok`, `exit=0`; events
+  `CREATED:SYSTEM,PICKED_UP:WEBHOOK,IN_TRANSIT:WEBHOOK,AT_WAREHOUSE:WEBHOOK,IN_TRANSIT:WEBHOOK,OUT_FOR_DELIVERY:WEBHOOK,DELIVERED:WEBHOOK`.
 - Deviations for Step 12: the first `/health` after deploy did not answer within 120 s (later instant); the seed
   prints `pg`'s `SECURITY WARNING` about `sslmode=require` (consider `sslmode=verify-full` in Task 21); zsh needs
   `setopt interactivecomments` before pasting blocks with `# n` comments; a URL with a line break breaks
   `read -rs` — `export VAR="$(pbpaste | tr -d '\r\n ')"` (typed before copying the secret) works.
-- Next: Step 8 (simulator; secret via the `pbpaste` trick), then Steps 9–12.
+- Next: Step 9 (cold start), then Steps 10–12.
 
 - [x] **Step 1: (owner) Neon**
   1. neon.com → sign up → **Create project**. Name `shipment-tracker`, Postgres **16**, region **AWS Europe
@@ -1148,7 +1150,7 @@ Expected, by number:
 11. `403` (the CSRF header is missing)
 12. `201`
 
-- [ ] **Step 7: (owner) Per-visitor rate limiting behind Vercel**
+- [x] **Step 7: (owner) Per-visitor rate limiting behind Vercel**
 
 ```bash
 sleep 61    # let the login counter of Steps 4–5 expire
@@ -1171,7 +1173,7 @@ Compare it with the address your router or any "what is my IP" page shows. Repor
 match*; for a mismatch, say which kind of address appears instead (e.g. `10.x`), without pasting logs that
 contain cookies.
 
-- [ ] **Step 8: (owner) A webhook from the simulator against production**
+- [x] **Step 8: (owner) A webhook from the simulator against production**
 
 ```bash
 date -u +%FT%TZ; curl -sI $DIRECT/health | grep -i '^date:'
