@@ -1022,7 +1022,7 @@ dashboards, a password manager, or a shell variable — never into the repo, a f
 - Produces: `<web-host>`, `<api-host>`, the Step 7 IP result and the Step 9 cold-start numbers, reported to the
   agent for Task 8.
 
-**Progress (2026-11-26, paused after Step 8):**
+**Progress (2026-11-26, done):**
 - Hosts: `<web-host>` = `shipment-tracker-sooty.vercel.app`, `<api-host>` = `shipment-tracker-api-l8o5.onrender.com`.
 - Steps 1–6 passed. Step 6's lines 7 and 10 were broken in this plan (jq-style `field` expressions); fixed
   here and in `docs/deploy.md`, then re-run: `30,2`, `DELIVERED,12`. Line 12 added a `PICKED_UP` event to
@@ -1037,7 +1037,18 @@ dashboards, a password manager, or a shell variable — never into the repo, a f
   prints `pg`'s `SECURITY WARNING` about `sslmode=require` (consider `sslmode=verify-full` in Task 21); zsh needs
   `setopt interactivecomments` before pasting blocks with `# n` comments; a URL with a line break breaks
   `read -rs` — `export VAR="$(pbpaste | tr -d '\r\n ')"` (typed before copying the secret) works.
-- Next: Step 9 (cold start), then Steps 10–12.
+- Step 9 (2026-11-26): after ≥ 16 min idle, `through Vercel: 401 64.69s application/json` — Vercel holds the
+  request until the API is up, so the notice (Task 10) matters more than the retry (Task 9). Browser after another
+  ≥ 16 min: **Demo dispatcher** → the list after ~38 s; meanwhile the login form with the demo buttons disabled and
+  no other feedback; no error. Owner's request: a visible wake-up notice and an animated spinner in the busy
+  button instead of its label.
+- Owner's decision on Step 9 (2026-11-26): Task 10 adds a spinner to the busy `Button` (it replaces the label;
+  the width and the accessible name stay) and shows the notice in red. Recorded in Task 10.
+- Step 10 (2026-11-26): every item as expected, on the laptop and the phone.
+- Step 11 (2026-11-26): reset as expected (the host taken from the reset's own refusal message, since `<…>` in a
+  pasted command is a zsh redirection). Step 12: reported in this chat; all results above.
+- Owner's decision (2026-11-26): public registration creates clients only → Task 16b. An admin who creates
+  dispatchers (general, or scoped to assigned clients) → M8, after M7.
 
 - [x] **Step 1: (owner) Neon**
   1. neon.com → sign up → **Create project**. Name `shipment-tracker`, Postgres **16**, region **AWS Europe
@@ -1190,7 +1201,7 @@ Expected:
 - Six steps answered as expected and `exit=0`.
 - `CREATED:SYSTEM,PICKED_UP:WEBHOOK,IN_TRANSIT:WEBHOOK,AT_WAREHOUSE:WEBHOOK,IN_TRANSIT:WEBHOOK,OUT_FOR_DELIVERY:WEBHOOK,DELIVERED:WEBHOOK`.
 
-- [ ] **Step 9: (owner) Measure the cold start** — leave the demo without traffic for **at least 16 minutes**
+- [x] **Step 9: (owner) Measure the cold start** — leave the demo without traffic for **at least 16 minutes**
   (close its tabs), then:
 
 ```bash
@@ -1208,7 +1219,7 @@ Report both. No fixed expectation; Task 9 reads them:
   more than the retry;
 - an early `502`/`503`/`504` or `200 text/html` → both matter.
 
-- [ ] **Step 10: (owner) Browser check on the live site** (Chrome or Firefox)
+- [x] **Step 10: (owner) Browser check on the live site** (Chrome or Firefox)
   1. A private window → `https://<web-host>` → `/login` → **Demo dispatcher** → `Page 1 of 2`, a solid red
      `Exception` badge in the list.
   2. Open `ST-2026-000001` → the long timeline; the entries appear one after another.
@@ -1219,7 +1230,7 @@ Report both. No fixed expectation; Task 9 reads them:
   5. Register a new client → `No shipments yet.`
   6. On a phone: the same login works (also Step 7's other network).
 
-- [ ] **Step 11: (owner) Reset the demo data** (it now holds the smoke test's changes)
+- [x] **Step 11: (owner) Reset the demo data** (it now holds the smoke test's changes)
 
 ```bash
 read -rs DATABASE_URL && export DATABASE_URL
@@ -1230,7 +1241,7 @@ unset DATABASE_URL
 Expected: `Resetting demo data on ep-…/neondb`, then `Reset demo data on ep-…/neondb: 5 users, 30 shipments, <n>
 events.` Step 6, line 7 prints `30,2` again.
 
-- [ ] **Step 12: (owner) Report to the agent:**
+- [x] **Step 12: (owner) Report to the agent:**
   - both hosts;
   - Step 7's IP result;
   - Step 9's numbers and observations;
@@ -1445,10 +1456,11 @@ git commit -m "feat: retry safe requests once while the API host wakes up"
 
 **Files:**
 - Create: `apps/web/src/lib/use-slow-flag.ts`, `apps/web/src/components/ui/waking-up-notice.tsx`
+- Modify: `apps/web/src/components/ui/button.tsx` (the spinner; owner's decision after Task 7 Step 9)
 - Modify: `apps/web/src/components/auth/auth-guard.tsx`, `login-form.tsx`, `demo-login.tsx`
 - Modify: `apps/web/src/components/shipments/shipments-list.tsx`, `shipment-detail.tsx`
 - Create: `apps/web/tests/lib/use-slow-flag.test.tsx`, `apps/web/tests/components/ui/waking-up-notice.test.tsx`
-- Modify: the tests of the five components above
+- Modify: the tests of the five components above, and `apps/web/tests/components/ui/button.test.tsx`
 - Modify: `docs/plan.md`
 
 **Interfaces:**
@@ -1470,13 +1482,21 @@ export function WakingUpNotice(props: { active: boolean }): ReactNode;
   - `ShipmentsList` and `ShipmentDetailView` render `<WakingUpNotice active />` as a sibling after their
     first-load skeleton, not inside its `role="status"` element.
 
-  Style: `text-sm text-slate-600` (Task 17 turns it into a token).
+  Style: `text-sm text-red-600` — red, at the owner's request after Task 7 Step 9 (Task 17 turns it into a token).
+
+  `Button` with `loading`: an animated spinner (an inline SVG with `animate-spin`, `aria-hidden="true"`, the
+  current text colour) is centred over the label, and the label turns `invisible` — so the button keeps its width
+  and its accessible name (`getByRole('button', { name: 'Demo dispatcher' })` still finds it). It applies to every
+  busy button (Log in, Register, the demo buttons, Create, Add update). Without `loading` there is no spinner.
+  Wrap the children in a `<span>` only while `loading`, so existing markup and tests are unchanged.
 
 - [ ] **Step 1: Write the failing tests** — every row below runs under fake timers ("At +N ms"), and clicks and
   typing use `fireEvent` (C16).
 
 | Test | Expected |
 |---|---|
+| `Button loading` with the label `Demo dispatcher` | an `svg` with `aria-hidden="true"` inside; the button's accessible name is still `Demo dispatcher`; `aria-busy="true"`, disabled |
+| `Button` without `loading` | no `svg` |
 | `useSlowFlag(true)` | `false` at +2 999, `true` at +3 000 |
 | `useSlowFlag` turned `false` after it was `true`, then `true` again | `false` at once; `true` again only 3 000 ms after it turned `true` |
 | `WakingUpNotice active` | nothing at +2 999; NOTICE (`role="status"`) at +3 000 |
@@ -1919,6 +1939,64 @@ git commit -m "feat: polish the empty list and the demo login note"
 
 **Done when:** the dispatcher's empty list leads to "New shipment", the login page is honest about shared demo
 data, and the review of the other states and the badges is reported.
+
+---
+
+### Task 16b: Registration creates clients only (owner's decision after Task 7, 2026-11-26)
+
+**Why:** `/register` let any visitor pick `DISPATCHER` (spec, "demo only"). On the live demo that adds nothing the
+**Demo dispatcher** button does not already give, but to a reviewer it reads as an access-control gap. The owner
+chose: public registration always creates a `CLIENT`; dispatchers exist only through the seed (the demo account)
+until M8 adds an admin who creates them. It runs before Task 19, so the README screenshot of `/register` shows no
+role choice.
+
+**Files:**
+- Modify: `packages/shared/src/schemas/auth.ts`, `packages/shared/tests/schemas/auth.test.ts`
+- Modify: `apps/api/src/modules/auth/auth.service.ts`, `apps/api/tests/modules/auth/register.test.ts`
+- Modify: `apps/api/tests/helpers/auth.ts` (a dispatcher session without the public route)
+- Modify: `apps/web/src/components/auth/register-form.tsx`, `apps/web/tests/components/auth/register-form.test.tsx`
+- Modify: any other test that builds a `RegisterInput` with `role` (`apps/web/tests/helpers/fixtures.ts`,
+  `apps/web/tests/stores/auth.test.ts`, `apps/web/tests/lib/api/auth.test.ts`) — only where the type now rejects it
+- Modify: `shipment-tracker-spec.md` (§5 the `/auth/register` row; §8 the `/register` bullet and the note at
+  "`/register` lets the visitor pick the role (demo only)"), `docs/plan.md`
+
+**Interfaces:**
+- `registerSchema` loses `role`: `{ email, password, name }`. `RegisterInput` follows. A `role` key in the body is
+  dropped like any other unknown key (no `400`), and the user is a `CLIENT`.
+- `registerUser` writes `role: 'CLIENT'`.
+- `registerTestUser(app, overrides?: Partial<RegisterInput> & { role?: Role })` keeps every existing call site:
+  for `role: 'DISPATCHER'` it registers, sets the role with `app.prisma.user.update`, then signs in through
+  `POST /api/v1/auth/login` and returns that session (the JWT carries the role, so the register session would be
+  stale). `CLIENT` stays one request.
+- `RegisterForm`: no "Account type" fieldset, no "Demo project: pick the role you want to try." hint, no
+  `ROLE_OPTIONS`; default values `{ name, email, password }`.
+
+- [ ] **Step 1: Write the failing tests**
+
+| Test | Expected |
+|---|---|
+| `registerSchema` with valid input + `role: 'DISPATCHER'` | success; `data` has no `role` key |
+| `POST /auth/register` with `role: 'DISPATCHER'` | `201`, `user.role === 'CLIENT'`; `GET /shipments` with that session lists only the client's own (none) |
+| `POST /auth/register` without `role` | `201`, `CLIENT` (unchanged) |
+| `registerTestUser(app, { role: 'DISPATCHER' })` | `user.role === 'DISPATCHER'`; `POST /shipments` with its session is not `403` |
+| `RegisterForm` | no group named `Account type`, no radio; submitting sends `{ name, email, password }` only |
+
+  Remove the old rows that expected a `DISPATCHER` from the public route (shared schema, API register test, form).
+
+- [ ] **Step 2: Run them and see them fail.**
+- [ ] **Step 3: Implement** the interfaces above; update the spec rows to "public; always creates a `CLIENT`;
+  dispatchers come from the seed (admin-created dispatchers: M8)".
+- [ ] **Step 4: The gate** — `npm run test` (all workspaces, the API's against the test database), then
+  `npm run lint && npm run typecheck && npm run build`; exit `0`.
+- [ ] **Step 5: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
+
+```bash
+git add packages/shared apps/api apps/web shipment-tracker-spec.md docs/plan.md
+git commit -m "feat: public registration creates clients only"
+```
+
+**Done when:** no public request can create a dispatcher, the register page has no role choice, and every test
+that needs a dispatcher still gets one.
 
 ---
 

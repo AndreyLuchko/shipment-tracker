@@ -583,7 +583,7 @@ accounts on Render/Neon/Vercel, connecting the repo, and entering secrets is don
 - **Runbook:** `docs/deploy.md`; the README's Deploy section summarizes it.
 
 **Roadmap section for README:** Nova Poshta adapter (polling) → Telegram notifications on `EXCEPTION`/`DELIVERED` →
-SLA alerts ("stuck > 48h") → organizations/multi-tenancy → analytics (avg time between statuses). Engineering follow-ups: the Playwright smoke test in CI, a PR-review Action, a shared secret between Vercel and the API.
+SLA alerts ("stuck > 48h") → an admin role that invites dispatchers, optionally scoped to assigned clients (M8) → organizations/multi-tenancy → analytics (avg time between statuses). Engineering follow-ups: the Playwright smoke test in CI, a PR-review Action, a shared secret between Vercel and the API.
 
 ---
 
