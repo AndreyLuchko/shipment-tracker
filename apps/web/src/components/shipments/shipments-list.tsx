@@ -11,6 +11,7 @@ import { buttonClassName } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
 import { ErrorState, StaleDataNotice } from '@/components/ui/error-state';
 import { Skeleton } from '@/components/ui/skeleton';
+import { WakingUpNotice } from '@/components/ui/waking-up-notice';
 import { buildListHref, SHIPMENTS_PATH, useListParams, withListChange } from '@/lib/shipments/list-params';
 import { useShipmentsQuery } from '@/lib/shipments/queries';
 import { useAuthStore } from '@/stores/auth';
@@ -41,11 +42,16 @@ export function ShipmentsList(): ReactNode {
     );
   } else if (list.isPending) {
     content = (
-      <div role="status" aria-label="Loading shipments" className="mt-6 space-y-3">
-        {Array.from({ length: SKELETON_ROWS }, (_, index) => (
-          <Skeleton key={index} className="h-10 w-full" />
-        ))}
-      </div>
+      <>
+        <div role="status" aria-label="Loading shipments" className="mt-6 space-y-3">
+          {Array.from({ length: SKELETON_ROWS }, (_, index) => (
+            <Skeleton key={index} className="h-10 w-full" />
+          ))}
+        </div>
+        <div className="mt-3">
+          <WakingUpNotice active />
+        </div>
+      </>
     );
   } else {
     content = (

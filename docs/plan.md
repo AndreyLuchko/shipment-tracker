@@ -98,7 +98,7 @@ Detailed per-milestone plans live in `docs/superpowers/plans/`.
   - [x] Task 7 — (owner) first deploy: Neon, Render, seed, Vercel, live smoke test, measurements
   - [x] Task 8 — README I: live demo link and demo credentials (day minimum: live link + demo login end to end)
   - [x] Task 9 — cold start I: one retry for safe requests while the host wakes up
-  - [ ] Task 10 — cold start II: "Waking up the demo server…" notice
+  - [x] Task 10 — cold start II: "Waking up the demo server…" notice
   - [ ] Task 11 — Playwright smoke test of the demo path (local and live)
   - [ ] Task 12 — favicon, Open Graph image, metadata
   - [ ] Task 13 — sorting I: shared `sort`, the API's order, the web data layer

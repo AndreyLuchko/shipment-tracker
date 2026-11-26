@@ -10,6 +10,9 @@ import { deferred, errorResponse, jsonResponse, mockFetch, textResponse } from '
 import { DISPATCHER, EXCEPTION_SHIPMENT, listPage, NOW, SHIPMENT, USER } from '../../helpers/fixtures';
 import { renderWithQuery } from '../../helpers/query';
 import { navigate } from '../../helpers/router';
+import { advance, fakeTimeouts } from '../../helpers/timers';
+
+const NOTICE = 'Waking up the demo server. The first request after a quiet spell can take up to a minute.';
 
 const LIST = (items: ShipmentSummary[], options?: { page?: number; total?: number }) =>
   jsonResponse(200, listPage(items, options));
@@ -45,6 +48,25 @@ describe('ShipmentsList', () => {
     expect(bodyRows()).toHaveLength(2);
     expect(screen.queryByRole('status', { name: 'Loading shipments' })).not.toBeInTheDocument();
     expect(calls[0]?.url).toBe('/api/v1/shipments?page=1');
+  });
+
+  it('explains a slow first load after 3 s, then shows the table without the notice', async () => {
+    fakeTimeouts();
+    signIn();
+    const reply = deferred<Response>();
+    mockFetch(reply.promise);
+    renderList();
+
+    expect(screen.getByRole('status', { name: 'Loading shipments' })).toBeInTheDocument();
+    expect(screen.queryByText(NOTICE)).not.toBeInTheDocument();
+    await advance(3_000);
+    expect(screen.getByText(NOTICE)).toBeInTheDocument();
+
+    reply.resolve(LIST([SHIPMENT]));
+    await advance(0);
+
+    expect(screen.getByRole('table')).toBeInTheDocument();
+    expect(screen.queryByText(NOTICE)).not.toBeInTheDocument();
   });
 
   it('shows a dispatcher the Client column and "New shipment"', async () => {

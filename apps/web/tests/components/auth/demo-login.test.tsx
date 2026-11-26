@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
@@ -8,6 +8,9 @@ import { useAuthStore } from '@/stores/auth';
 import { deferred, errorResponse, jsonResponse, mockFetch, textResponse } from '../../helpers/fetch';
 import { DISPATCHER, USER } from '../../helpers/fixtures';
 import { routerMock } from '../../helpers/router';
+import { advance, fakeTimeouts } from '../../helpers/timers';
+
+const NOTICE = 'Waking up the demo server. The first request after a quiet spell can take up to a minute.';
 
 const OK = (user: typeof USER): Response => jsonResponse(200, { user });
 const INVALID = (): Response => errorResponse(401, 'INVALID_CREDENTIALS', 'Invalid email or password');
@@ -121,6 +124,24 @@ describe('DemoLogin', () => {
     await click('Demo client');
 
     expect(await screen.findByRole('alert')).toHaveTextContent('Service is unavailable. Please try again.');
+  });
+
+  it('explains a slow sign-in after 3 s and drops the notice after the reply', async () => {
+    fakeTimeouts();
+    const reply = deferred<Response>();
+    mockFetch(reply.promise);
+    render(<DemoLogin />);
+
+    fireEvent.click(button('Demo client'));
+    await advance(2_999);
+    expect(screen.queryByText(NOTICE)).not.toBeInTheDocument();
+    await advance(1);
+    expect(screen.getByText(NOTICE)).toBeInTheDocument();
+
+    reply.resolve(OK(USER));
+    await advance(0);
+
+    expect(screen.queryByText(NOTICE)).not.toBeInTheDocument();
   });
 
   it('clears the alert on the next click', async () => {

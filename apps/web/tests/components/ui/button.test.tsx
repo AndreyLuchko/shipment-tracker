@@ -44,6 +44,23 @@ describe('Button', () => {
     expect(onClick).not.toHaveBeenCalled();
   });
 
+  it('shows an aria-hidden spinner over the label while loading and keeps the accessible name', () => {
+    render(<Button loading>Demo dispatcher</Button>);
+
+    const button = screen.getByRole('button', { name: 'Demo dispatcher' });
+    expect(button).toBeDisabled();
+    expect(button).toHaveAttribute('aria-busy', 'true');
+    const spinner = button.querySelector('svg');
+    expect(spinner).toHaveAttribute('aria-hidden', 'true');
+    expect(spinner).toHaveClass('animate-spin');
+  });
+
+  it('has no spinner without loading', () => {
+    render(<Button>Demo dispatcher</Button>);
+
+    expect(screen.getByRole('button', { name: 'Demo dispatcher' }).querySelector('svg')).toBeNull();
+  });
+
   it('is disabled without being busy when only disabled', () => {
     render(<Button disabled>Save</Button>);
 

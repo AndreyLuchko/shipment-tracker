@@ -1485,12 +1485,12 @@ export function WakingUpNotice(props: { active: boolean }): ReactNode;
   Style: `text-sm text-red-600` — red, at the owner's request after Task 7 Step 9 (Task 17 turns it into a token).
 
   `Button` with `loading`: an animated spinner (an inline SVG with `animate-spin`, `aria-hidden="true"`, the
-  current text colour) is centred over the label, and the label turns `invisible` — so the button keeps its width
+  current text colour) is centred over the label, and the label turns `opacity-0` (not `invisible`: visibility:hidden would drop the accessible name) — so the button keeps its width
   and its accessible name (`getByRole('button', { name: 'Demo dispatcher' })` still finds it). It applies to every
   busy button (Log in, Register, the demo buttons, Create, Add update). Without `loading` there is no spinner.
   Wrap the children in a `<span>` only while `loading`, so existing markup and tests are unchanged.
 
-- [ ] **Step 1: Write the failing tests** — every row below runs under fake timers ("At +N ms"), and clicks and
+- [x] **Step 1: Write the failing tests** — every row below runs under fake timers ("At +N ms"), and clicks and
   typing use `fireEvent` (C16).
 
 | Test | Expected |
@@ -1507,14 +1507,14 @@ export function WakingUpNotice(props: { active: boolean }): ReactNode;
 | `ShipmentsList` with a `deferred` list | the skeleton at once, NOTICE at +3 000; after `LIST([SHIPMENT])` the table and no NOTICE |
 | `ShipmentDetailView` with a `deferred` detail | NOTICE at +3 000; gone after `DETAIL(SHIPMENT_DETAIL)` |
 
-- [ ] **Step 2: Run them and see them fail** — `npm run test -w apps/web -- tests/lib/use-slow-flag.test.tsx tests/components`;
+- [x] **Step 2: Run them and see them fail** — `npm run test -w apps/web -- tests/lib/use-slow-flag.test.tsx tests/components`;
   expected FAIL.
 
-- [ ] **Step 3: Implement** — `useSlowFlag` is one `useState` plus a `useEffect` that starts a `setTimeout` while
+- [x] **Step 3: Implement** — `useSlowFlag` is one `useState` plus a `useEffect` that starts a `setTimeout` while
   `active` and clears it in the cleanup. It returns `active && slow`, so it is `false` on the render where
   `active` turns `false`.
 
-- [ ] **Step 4: Run the suite and the gate** — `npm run test -w apps/web`, then
+- [x] **Step 4: Run the suite and the gate** — `npm run test -w apps/web`, then
   `npm run lint && npm run typecheck && npm run build`; exit `0`. The existing tests are unaffected: none waits
   3 s.
 

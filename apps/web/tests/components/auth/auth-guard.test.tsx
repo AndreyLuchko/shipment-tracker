@@ -8,6 +8,9 @@ import { useAuthStore } from '@/stores/auth';
 import { deferred, errorResponse, jsonResponse, mockFetch, setCookie, textResponse } from '../../helpers/fetch';
 import { USER } from '../../helpers/fixtures';
 import { navigate, routerMock } from '../../helpers/router';
+import { advance, fakeTimeouts } from '../../helpers/timers';
+
+const NOTICE = 'Waking up the demo server. The first request after a quiet spell can take up to a minute.';
 
 const OK = (user: unknown) => jsonResponse(200, { user });
 const UNAUTH = () => errorResponse(401, 'UNAUTHORIZED', 'Authentication required');
@@ -51,6 +54,41 @@ describe('AuthGuard', () => {
     expect(await screen.findByText('secret')).toBeInTheDocument();
     expect(screen.queryByRole('status')).not.toBeInTheDocument();
     expect(routerMock.replace).not.toHaveBeenCalled();
+  });
+
+  it('explains a slow session probe after 3 s, then shows the children without the notice', async () => {
+    fakeTimeouts();
+    withCsrfCookie();
+    const reply = deferred<Response>();
+    mockFetch(reply.promise);
+
+    renderGuard();
+
+    expect(screen.getByRole('status')).toHaveTextContent('Loading…');
+    expect(screen.queryByText(NOTICE)).not.toBeInTheDocument();
+    await advance(3_000);
+    expect(screen.getByText(NOTICE)).toBeInTheDocument();
+
+    reply.resolve(OK(USER));
+    await advance(0);
+
+    expect(screen.getByText('secret')).toBeInTheDocument();
+    expect(screen.queryByText(NOTICE)).not.toBeInTheDocument();
+  });
+
+  it('never shows the notice when the probe answers within 1 s', async () => {
+    fakeTimeouts();
+    withCsrfCookie();
+    const reply = deferred<Response>();
+    mockFetch(reply.promise);
+
+    renderGuard();
+    await advance(1_000);
+    reply.resolve(OK(USER));
+    await advance(4_000);
+
+    expect(screen.getByText('secret')).toBeInTheDocument();
+    expect(screen.queryByText(NOTICE)).not.toBeInTheDocument();
   });
 
   it('sends a dead session (401 from /auth/me) to /login', async () => {

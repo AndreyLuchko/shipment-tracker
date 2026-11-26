@@ -9,6 +9,9 @@ import { useAuthStore } from '@/stores/auth';
 import { deferred, errorResponse, jsonResponse, mockFetch, setCookie, textResponse } from '../../helpers/fetch';
 import { DELIVERED_DETAIL, DISPATCHER, NOW, SHIPMENT_AFTER_EVENT, SHIPMENT_DETAIL, USER } from '../../helpers/fixtures';
 import { renderWithQuery } from '../../helpers/query';
+import { advance, fakeTimeouts } from '../../helpers/timers';
+
+const NOTICE = 'Waking up the demo server. The first request after a quiet spell can take up to a minute.';
 
 const DETAIL = (shipment: ShipmentDetail) => jsonResponse(200, { shipment });
 const CREATED = (shipment: ShipmentDetail) => jsonResponse(201, { shipment });
@@ -56,6 +59,23 @@ describe('ShipmentDetailView', () => {
     expect(screen.getByText('Route', { selector: 'dt' })).toBeInTheDocument();
     expect(screen.queryByRole('status', { name: 'Loading shipment' })).not.toBeInTheDocument();
     expect(calls[0]?.url).toBe('/api/v1/shipments/shp1');
+  });
+
+  it('explains a slow first load after 3 s and drops the notice once the shipment arrives', async () => {
+    fakeTimeouts();
+    const reply = deferred<Response>();
+    mockFetch(reply.promise);
+    renderDetail();
+
+    expect(screen.queryByText(NOTICE)).not.toBeInTheDocument();
+    await advance(3_000);
+    expect(screen.getByText(NOTICE)).toBeInTheDocument();
+
+    reply.resolve(DETAIL(SHIPMENT_DETAIL));
+    await advance(0);
+
+    expect(screen.getByRole('heading', { level: 1, name: 'ST-2026-000002' })).toBeInTheDocument();
+    expect(screen.queryByText(NOTICE)).not.toBeInTheDocument();
   });
 
   it('shows a delivered shipment', async () => {

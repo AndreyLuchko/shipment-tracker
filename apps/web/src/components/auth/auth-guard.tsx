@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { type ReactNode, useEffect } from 'react';
 
+import { WakingUpNotice } from '@/components/ui/waking-up-notice';
 import { loginHref } from '@/lib/next-path';
 import { useAuthStore } from '@/stores/auth';
 
@@ -20,6 +21,13 @@ export function AuthGuard({ children }: { children: ReactNode }): ReactNode {
     if (status === 'anonymous') router.replace(loginHref(window.location.pathname + window.location.search));
   }, [status, router]);
 
-  if (status !== 'authenticated') return <p role="status">Loading…</p>;
+  if (status !== 'authenticated') {
+    return (
+      <>
+        <p role="status">Loading…</p>
+        <WakingUpNotice active={status === 'loading'} />
+      </>
+    );
+  }
   return children;
 }

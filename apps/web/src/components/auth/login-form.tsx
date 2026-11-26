@@ -8,6 +8,7 @@ import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import { FormAlert } from '@/components/ui/form-alert';
 import { TextField } from '@/components/ui/text-field';
+import { WakingUpNotice } from '@/components/ui/waking-up-notice';
 import { applyApiError } from '@/lib/form-errors';
 import { useAuthStore } from '@/stores/auth';
 
@@ -43,6 +44,7 @@ export function LoginForm(): ReactNode {
       <Button type="submit" loading={isSubmitting} className="w-full">
         Log in
       </Button>
+      <WakingUpNotice active={isSubmitting} />
     </form>
   );
 }

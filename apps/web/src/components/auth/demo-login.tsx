@@ -4,6 +4,7 @@ import { type ReactNode, useRef, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { FormAlert } from '@/components/ui/form-alert';
+import { WakingUpNotice } from '@/components/ui/waking-up-notice';
 import { DEMO_ACCOUNTS, type DemoAccount } from '@/lib/demo-accounts';
 import { formErrorMessage } from '@/lib/form-errors';
 import { useAuthStore } from '@/stores/auth';
@@ -51,6 +52,7 @@ export function DemoLogin(): ReactNode {
         ))}
       </div>
       <FormAlert message={error} />
+      <WakingUpNotice active={pending !== null} />
     </div>
   );
 }

@@ -33,6 +33,7 @@ export function Button({
   type = 'button',
   disabled,
   className,
+  children,
   ...rest
 }: ButtonProps): ReactNode {
   return (
@@ -43,6 +44,25 @@ export function Button({
       aria-busy={loading ? true : undefined}
       data-variant={variant}
       className={buttonClassName(variant, className)}
-    />
+    >
+      {loading ? (
+        <span className="relative inline-flex items-center justify-center">
+          <Spinner />
+          <span className="opacity-0">{children}</span>
+        </span>
+      ) : (
+        children
+      )}
+    </button>
+  );
+}
+
+/** Centred over the label, which stays in the layout (opacity-0, not visibility:hidden, which would drop the accessible name) so the button keeps its width. */
+function Spinner(): ReactNode {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" className="absolute size-4 animate-spin">
+      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" className="opacity-25" />
+      <path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" strokeWidth="4" strokeLinecap="round" />
+    </svg>
   );
 }

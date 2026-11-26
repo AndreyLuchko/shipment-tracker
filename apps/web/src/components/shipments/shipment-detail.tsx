@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
 import { ErrorState, StaleDataNotice } from '@/components/ui/error-state';
 import { Skeleton } from '@/components/ui/skeleton';
+import { WakingUpNotice } from '@/components/ui/waking-up-notice';
 import { ApiError } from '@/lib/api/client';
 import { SHIPMENTS_PATH } from '@/lib/shipments/list-params';
 import { useShipmentQuery } from '@/lib/shipments/queries';
@@ -52,10 +53,15 @@ export function ShipmentDetailView({ id }: { id: string }): ReactNode {
     );
   } else if (detail.isPending) {
     content = (
-      <div role="status" aria-label="Loading shipment" className="mt-4 space-y-4">
-        <Skeleton className="h-8 w-64" />
-        <Skeleton className="h-40 w-full rounded-xl" />
-      </div>
+      <>
+        <div role="status" aria-label="Loading shipment" className="mt-4 space-y-4">
+          <Skeleton className="h-8 w-64" />
+          <Skeleton className="h-40 w-full rounded-xl" />
+        </div>
+        <div className="mt-3">
+          <WakingUpNotice active />
+        </div>
+      </>
     );
   } else if (isNotFound(detail.error)) {
     content = (

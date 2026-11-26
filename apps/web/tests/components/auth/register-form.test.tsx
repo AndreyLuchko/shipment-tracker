@@ -49,9 +49,7 @@ function formLevelAlerts(): HTMLElement[] {
       (el.getAttribute('aria-describedby') ?? '').split(/\s+/),
     ),
   );
-  return screen
-    .queryAllByRole('alert')
-    .filter((alert) => !describedBy.has(alert.id) && !roleGroup().contains(alert));
+  return screen.queryAllByRole('alert').filter((alert) => !describedBy.has(alert.id) && !roleGroup().contains(alert));
 }
 
 describe('RegisterForm', () => {
