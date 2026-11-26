@@ -96,7 +96,7 @@ Detailed per-milestone plans live in `docs/superpowers/plans/`.
   - [x] Task 5 — deploy configuration: `render.yaml`, `docs/deploy.md`, local rehearsal of Render's commands
   - [x] Task 6 — pre-deploy checkpoint: thorough owner sign-off (spec §12.7)
   - [x] Task 7 — (owner) first deploy: Neon, Render, seed, Vercel, live smoke test, measurements
-  - [ ] Task 8 — README I: live demo link and demo credentials (day minimum: live link + demo login end to end)
+  - [x] Task 8 — README I: live demo link and demo credentials (day minimum: live link + demo login end to end)
   - [ ] Task 9 — cold start I: one retry for safe requests while the host wakes up
   - [ ] Task 10 — cold start II: "Waking up the demo server…" notice
   - [ ] Task 11 — Playwright smoke test of the demo path (local and live)

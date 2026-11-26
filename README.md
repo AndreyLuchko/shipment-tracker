@@ -3,8 +3,17 @@
 Lightweight logistics visibility platform — a single dashboard where a small business tracks all of its
 shipments, regardless of carrier.
 
-> **Status: work in progress (M1 of M7 done).** Monorepo, tooling, CI and the database layer are in place;
-> auth, shipments API, carrier webhooks and the dashboard UI are next. Progress: [`docs/plan.md`](./docs/plan.md).
+**Live demo:** https://shipment-tracker-sooty.vercel.app — sign in with one click as **Demo dispatcher** or **Demo client**.
+
+> The API runs on a free instance that sleeps when idle: the first request after a quiet spell can take up to a
+> minute. The demo accounts are shared, and the demo data is reset from time to time.
+
+| Account    | Email                 | Password        |
+| ---------- | --------------------- | --------------- |
+| Dispatcher | `dispatcher@demo.dev` | `dispatcher123` |
+| Client     | `client@demo.dev`     | `client123`     |
+
+Status: deployed; the last polish of M7 is in progress — see [`docs/plan.md`](./docs/plan.md).
 
 ## Why
 
@@ -18,7 +27,7 @@ shipments split across several carriers, each with its own portal. This project 
 - **Shared:** `packages/shared` — types shared by API and web
 - **Tooling:** TypeScript, npm workspaces, ESLint, Prettier, Vitest, GitHub Actions CI, Docker Compose
 
-## Planned architecture
+## Architecture
 
 - Auth: HttpOnly JWT cookies + CSRF protection
 - Shipment status as an explicit state machine

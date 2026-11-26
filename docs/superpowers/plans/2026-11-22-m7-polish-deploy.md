@@ -1266,7 +1266,7 @@ agent has the report.
 - Consumes: Task 7's report.
 - Produces: the README's first screen, which Task 20 extends; the measurements Task 9 reads.
 
-- [ ] **Step 1: Replace the README's status block** (the `> **Status: work in progress (M1 of M7 done).** …` quote)
+- [x] **Step 1: Replace the README's status block** (the `> **Status: work in progress (M1 of M7 done).** …` quote)
   with:
 
 ```markdown
@@ -1285,14 +1285,14 @@ Status: deployed; the last polish of M7 is in progress — see [`docs/plan.md`](
 
 Rename the heading `## Planned architecture` to `## Architecture` (its bullets stay; Task 20 rewrites the rest).
 
-- [ ] **Step 2: Fill `docs/deploy.md` §7** with dated rows:
+- [x] **Step 2: Fill `docs/deploy.md` §7** with dated rows:
   - "Through Vercel after ≥ 16 min idle: `<code> <seconds>s <content type>`";
   - "Browser: demo login after ≥ 16 min idle: `<seconds>s`, `<what was shown>`";
   - "`remoteAddress` behind Vercel: `<matches the visitor's IP | …>`".
 
   Then replace the host placeholders.
 
-- [ ] **Step 3: Verify**
+- [x] **Step 3: Verify**
 
 ```bash
 grep -c '<web-host>\|<api-host>' README.md docs/deploy.md
@@ -1305,7 +1305,7 @@ Expected: `0` for both files; no output from the second command; the gate exits 
 - [ ] **Step 4: (owner) After pushing, open the README on GitHub** → the live link → **Demo dispatcher** → the
   list. That is the day minimum.
 
-- [ ] **Step 5: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
+- [x] **Step 5: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
 
 ```bash
 git add README.md docs/deploy.md docs/plan.md

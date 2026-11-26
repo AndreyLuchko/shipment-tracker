@@ -28,7 +28,7 @@ host-only on the Vercel host, and a direct call to the API origin would be cross
 | Render             | `LOG_LEVEL`      | `info`                                            |                                                                                          |
 | Render             | `PORT`           | set by Render                                     | Do not set it.                                                                           |
 | Render             | `COOKIE_SECURE`  | never set                                         | The production default (`Secure`) is what is wanted.                                     |
-| Vercel             | `API_ORIGIN`     | `https://<api-host>`                              | No path, no trailing slash. Production and Preview, set before the first build.          |
+| Vercel             | `API_ORIGIN`     | `https://shipment-tracker-api-l8o5.onrender.com`  | No path, no trailing slash. Production and Preview, set before the first build.          |
 | Owner's shell only | `WEBHOOK_SECRET` | from Render                                       | For the simulator; never stored.                                                         |
 | Owner's shell only | `DATABASE_URL`   | the Neon URL                                      | For seed and reset; never stored.                                                        |
 
@@ -58,9 +58,9 @@ the repo, a file, or a chat.
       - a successful build;
       - Fastify's `Server listening at …` and `API listening on port <port>`.
 
-      Status **Live**; the URL is `https://<api-host>`.
+      Status **Live**; the URL is `https://shipment-tracker-api-l8o5.onrender.com`.
 
-   4. `curl -s --max-time 120 https://<api-host>/health` → `{"status":"ok"}`.
+   4. `curl -s --max-time 120 https://shipment-tracker-api-l8o5.onrender.com/health` → `{"status":"ok"}`.
    5. Service → **Environment** → reveal `WEBHOOK_SECRET` → store it in the password manager (it is needed only
       for the simulator).
    6. If creating a Blueprint asks for a payment method you do not want to add: use **New → Web Service** with
@@ -90,20 +90,20 @@ the repo, a file, or a chat.
 4. **Vercel**
    1. vercel.com → sign up with GitHub → **Add New… → Project** → import `shipment-tracker`.
    2. **Root Directory** `apps/web`; Framework _Next.js_ (detected); install and build commands left as they are;
-      **Environment Variables**: `API_ORIGIN` = `https://<api-host>` (no path, no trailing slash) for
+      **Environment Variables**: `API_ORIGIN` = `https://shipment-tracker-api-l8o5.onrender.com` (no path, no trailing slash) for
       **Production** and **Preview**.
    3. **Deploy**. Expected:
       - build log `▲ Next.js 16.2.11` and the route table of M6 (`○ /shipments`, `ƒ /shipments/[id]`,
         `○ /shipments/new`, `ƒ Proxy (Middleware)`);
       - status **Ready**;
-      - the production URL is `https://<web-host>`.
+      - the production URL is `https://shipment-tracker-sooty.vercel.app`.
 
       The failure mode by design: without `API_ORIGIN` the build stops with `API_ORIGIN is required: set it to
 the origin of the API, e.g. https://api.example.com`.
 
    4. **Settings → Build and Deployment → Node.js Version** → `22.x`; if it changed, **Redeploy**.
 
-5. **Report the two hosts** — `<web-host>` and `<api-host>` (public URLs only).
+5. **Report the two hosts** — `shipment-tracker-sooty.vercel.app` and `shipment-tracker-api-l8o5.onrender.com` (public URLs only).
 
 ## 4. Demo data
 
@@ -146,7 +146,7 @@ file #`). Putting the `setopt` inside the pasted block does not help: zsh parses
 it.
 
 ```bash
-B=https://<web-host>; API=$B/api/v1; DIRECT=https://<api-host>
+B=https://shipment-tracker-sooty.vercel.app; API=$B/api/v1; DIRECT=https://shipment-tracker-api-l8o5.onrender.com
 DJAR="$TMPDIR/st-m7-dispatcher.txt"; CJAR="$TMPDIR/st-m7-client.txt"; rm -f "$DJAR" "$CJAR"
 JSON='content-type: application/json'
 code() { curl -s -o /dev/null -w '%{http_code} %{redirect_url}\n' "$@"; }
@@ -173,11 +173,11 @@ curl -s -o /dev/null -w '%{http_code}\n' -b "$DJAR" -H "$JSON" -H "x-csrf-token:
 Expected, by number:
 
 1. `{"status":"ok"}` (up to a minute if the API was asleep)
-2. `307 https://<web-host>/login`
+2. `307 https://shipment-tracker-sooty.vercel.app/login`
 3. `{"error":{"code":"UNAUTHORIZED","message":"Authentication required"}}`
 4. `DISPATCHER`
 5. `CLIENT`
-6. `#HttpOnly_<web-host> FALSE / TRUE access_token` and `<web-host> FALSE / TRUE csrf_token`. Both cookies
+6. `#HttpOnly_shipment-tracker-sooty.vercel.app FALSE / TRUE access_token` and `shipment-tracker-sooty.vercel.app FALSE / TRUE csrf_token`. Both cookies
    belong to the Vercel host, are host-only and are `Secure`.
 7. `30,2`
 8. `10`
@@ -202,7 +202,7 @@ Expected:
 - Then `429`: Vercel replaces a client-supplied `X-Forwarded-For`, so the spoofed value does not open a fresh
   bucket.
 
-Within the same minute, from another network (a phone on mobile data): open `https://<web-host>/login` →
+Within the same minute, from another network (a phone on mobile data): open `https://shipment-tracker-sooty.vercel.app/login` →
 **Demo client** → the list loads. That is a separate bucket.
 
 Render → service → **Logs**: the request lines of the six logins show `"remoteAddress":"<your public IP>"`.
@@ -220,7 +220,7 @@ curl -s -o /dev/null -w 'through Vercel: %{http_code} %{time_total}s %{content_t
 
 Then, after another ≥ 16 minutes without traffic, in a private window:
 
-1. open `https://<web-host>/login`;
+1. open `https://shipment-tracker-sooty.vercel.app/login`;
 2. click **Demo dispatcher**;
 3. note the seconds until the list shows, what the page showed meanwhile, and whether an error message
    appeared.
@@ -235,11 +235,11 @@ Report both. No fixed expectation:
 
 Chrome or Firefox:
 
-1. A private window → `https://<web-host>` → `/login` → **Demo dispatcher** → `Page 1 of 2`, a solid red
+1. A private window → `https://shipment-tracker-sooty.vercel.app` → `/login` → **Demo dispatcher** → `Page 1 of 2`, a solid red
    `Exception` badge in the list.
 2. Open `ST-2026-000001` → the long timeline; the entries appear one after another.
-3. DevTools → Application → Cookies: `access_token` (HttpOnly, Secure, Lax) and `csrf_token` on `<web-host>`
-   only. Network: every request goes to `<web-host>/api/v1/…`. Console: no CORS error.
+3. DevTools → Application → Cookies: `access_token` (HttpOnly, Secure, Lax) and `csrf_token` on `shipment-tracker-sooty.vercel.app`
+   only. Network: every request goes to `shipment-tracker-sooty.vercel.app/api/v1/…`. Console: no CORS error.
 4. Create a shipment → its page; add a status update → `Update added.`; **Log out** → **Demo client** → 10
    shipments, no Client column.
 5. Register a new client → `No shipments yet.`
@@ -262,9 +262,12 @@ Never put secrets or cookie values into a report.
 
 ## 7. Measured on the deployed pair
 
-| Date | What | Result |
-| ---- | ---- | ------ |
-|      |      |        |
+| Date       | What                                    | Result                                                                                                                                                                                                                                                        |
+| ---------- | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 2026-11-26 | First `/health` after the first deploy  | Did not answer within 120 s; instant later.                                                                                                                                                                                                                   |
+| 2026-11-26 | Through Vercel after ≥ 16 min idle      | `401 64.69s application/json` (Vercel holds the request until the API is up, so the waking-up notice matters more than the retry).                                                                                                                            |
+| 2026-11-26 | Browser: demo login after ≥ 16 min idle | `~38s`, the login form with the demo buttons disabled and no other feedback; no error.                                                                                                                                                                        |
+| 2026-11-26 | `remoteAddress` behind Vercel           | Not verified: Render's log viewer showed no entries after 18:21 (GMT+2). Accepted on the behavioural evidence (six logins `401 401 401 401 401 429`, a spoofed `x-forwarded-for` still `429`, a phone on mobile data a separate bucket); re-check in Task 21. |
 
 ## 8. Rollback
 
