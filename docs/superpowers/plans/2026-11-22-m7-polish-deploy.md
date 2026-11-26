@@ -1791,7 +1791,7 @@ round-trips `sort` through the URL and the request.
   `updated` `Recently updated`, `stale` `Least recently updated`. The toolbar becomes three columns
   (`sm:grid-cols-[1fr_12rem_12rem]`): Search, Status, Sort.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 | Test | Expected |
 |---|---|
@@ -1804,9 +1804,9 @@ round-trips `sort` through the URL and the request.
 | list on `/shipments?search=zzz&sort=stale` with no items | `Clear filters` has the href `/shipments?sort=stale` |
 | pagination on `/shipments?sort=updated` (2 pages) | `Next` has the href `/shipments?sort=updated&page=2` |
 
-- [ ] **Step 2: Run them and see them fail**; **Step 3: implement**; **Step 4: the gate** (exit `0`).
+- [x] **Step 2: Run them and see them fail**; **Step 3: implement**; **Step 4: the gate** (exit `0`).
 
-- [ ] **Step 5: Browser check (local)** — on the seeded data, `Least recently updated` puts the shipment whose last
+- [x] **Step 5: Browser check (local)** — on the seeded data, `Least recently updated` puts the shipment whose last
   movement is oldest first; its "Updated" column reads the longest time ago. With `Status: In transit` it shows
   the in-transit shipment that has been waiting longest. Back returns to the previous sort.
 

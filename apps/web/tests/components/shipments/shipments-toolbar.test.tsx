@@ -14,6 +14,7 @@ function Harness(): ReactNode {
 
 const search = () => screen.getByLabelText<HTMLInputElement>('Search');
 const status = () => screen.getByLabelText<HTMLSelectElement>('Status');
+const sort = () => screen.getByLabelText<HTMLSelectElement>('Sort');
 const wait = (ms: number) => act(() => new Promise<void>((resolve) => setTimeout(resolve, ms)));
 
 /** Neither `replace` nor `push` was called, after the debounce had every chance to fire. */
@@ -84,6 +85,46 @@ describe('ShipmentsToolbar', () => {
     await userEvent.setup().selectOptions(status(), '');
 
     expect(routerMock.push).toHaveBeenCalledWith('/shipments');
+  });
+
+  it('renders a Sort select with every sort on /shipments', () => {
+    navigate('/shipments');
+    render(<Harness />);
+
+    expect(sort()).toHaveValue('newest');
+    expect(
+      within(sort())
+        .getAllByRole('option')
+        .map((option) => option.textContent),
+    ).toEqual(['Newest first', 'Oldest first', 'Recently updated', 'Least recently updated']);
+  });
+
+  it('pushes the chosen sort, keeps the filter and drops the page', async () => {
+    navigate('/shipments?status=EXCEPTION&page=3');
+    render(<Harness />);
+
+    await userEvent.setup().selectOptions(sort(), 'Least recently updated');
+
+    expect(routerMock.push).toHaveBeenCalledTimes(1);
+    expect(routerMock.push).toHaveBeenCalledWith('/shipments?status=EXCEPTION&sort=stale');
+  });
+
+  it('drops the sort from the URL on "Newest first"', async () => {
+    navigate('/shipments?sort=stale');
+    render(<Harness />);
+
+    await userEvent.setup().selectOptions(sort(), 'Newest first');
+
+    expect(routerMock.push).toHaveBeenCalledWith('/shipments');
+  });
+
+  it('keeps the sort when the search changes', async () => {
+    navigate('/shipments?sort=stale');
+    render(<Harness />);
+
+    await userEvent.setup().type(search(), 'kyiv');
+
+    await vi.waitFor(() => expect(routerMock.replace).toHaveBeenCalledWith('/shipments?search=kyiv&sort=stale'));
   });
 
   it('replaces the URL once the typed text has settled, and never undoes typing', async () => {

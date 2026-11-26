@@ -98,6 +98,16 @@ describe('ShipmentsList', () => {
     expect(calls[0]?.url).toBe('/api/v1/shipments?status=EXCEPTION&search=kyiv&page=2');
   });
 
+  it('requests the sort the URL names', async () => {
+    signIn();
+    navigate('/shipments?sort=stale');
+    const { calls } = mockFetch(LIST([SHIPMENT]));
+    renderList();
+
+    await screen.findByRole('table');
+    expect(calls[0]?.url).toBe('/api/v1/shipments?sort=stale&page=1');
+  });
+
   it('falls back to defaults for invalid URL values', async () => {
     signIn();
     navigate('/shipments?status=LOST&page=abc');
@@ -139,6 +149,16 @@ describe('ShipmentsList', () => {
       expect(screen.getByRole('link', { name: 'Clear filters' })).toHaveAttribute('href', '/shipments');
     },
   );
+
+  it('keeps the sort on "Clear filters"', async () => {
+    signIn();
+    navigate('/shipments?search=zzz&sort=stale');
+    mockFetch(LIST([]));
+    renderList();
+
+    expect(await screen.findByText('No shipments match your filters.')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Clear filters' })).toHaveAttribute('href', '/shipments?sort=stale');
+  });
 
   it.each([
     ['/shipments?page=5', '/shipments'],

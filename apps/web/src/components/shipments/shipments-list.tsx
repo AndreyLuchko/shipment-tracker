@@ -12,7 +12,7 @@ import { EmptyState } from '@/components/ui/empty-state';
 import { ErrorState, StaleDataNotice } from '@/components/ui/error-state';
 import { Skeleton } from '@/components/ui/skeleton';
 import { WakingUpNotice } from '@/components/ui/waking-up-notice';
-import { buildListHref, SHIPMENTS_PATH, useListParams, withListChange } from '@/lib/shipments/list-params';
+import { buildListHref, useListParams, withListChange } from '@/lib/shipments/list-params';
 import { useShipmentsQuery } from '@/lib/shipments/queries';
 import { useAuthStore } from '@/stores/auth';
 
@@ -114,7 +114,10 @@ function ListContent({
   } else if (query.status !== undefined || query.search !== undefined) {
     empty = (
       <EmptyState title="No shipments match your filters.">
-        <Link href={SHIPMENTS_PATH} className={buttonClassName('secondary')}>
+        <Link
+          href={buildListHref(withListChange(query, { status: undefined, search: undefined }))}
+          className={buttonClassName('secondary')}
+        >
           Clear filters
         </Link>
       </EmptyState>

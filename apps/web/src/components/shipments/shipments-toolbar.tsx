@@ -1,18 +1,25 @@
 'use client';
 
-import { type ListShipmentsQuery, SHIPMENT_STATUSES, shipmentStatusSchema } from '@shipment-tracker/shared';
+import {
+  type ListShipmentsQuery,
+  SHIPMENT_SORTS,
+  SHIPMENT_STATUSES,
+  shipmentSortSchema,
+  shipmentStatusSchema,
+} from '@shipment-tracker/shared';
 import { useRouter } from 'next/navigation';
 import { type ChangeEvent, type ReactNode, useEffect, useRef, useState } from 'react';
 
 import { SelectField } from '@/components/ui/select-field';
 import { TextField } from '@/components/ui/text-field';
 import { buildListHref, withListChange } from '@/lib/shipments/list-params';
+import { SORT_LABELS } from '@/lib/shipments/sort';
 import { STATUS_LABELS } from '@/lib/shipments/status';
 import { useDebouncedValue } from '@/lib/use-debounced-value';
 
 export const SEARCH_DEBOUNCE_MS = 300;
 
-/** The search box and the status filter. Both write to the URL; `query` is the current view. */
+/** The search box, the status filter and the sort. All write to the URL; `query` is the current view. */
 export function ShipmentsToolbar({ query }: { query: ListShipmentsQuery }): ReactNode {
   const router = useRouter();
   const urlSearch = query.search ?? '';
@@ -44,8 +51,14 @@ export function ShipmentsToolbar({ query }: { query: ListShipmentsQuery }): Reac
     router.push(buildListHref(withListChange(query, { status })));
   };
 
+  const onSortChange = (event: ChangeEvent<HTMLSelectElement>) => {
+    const parsed = shipmentSortSchema.safeParse(event.target.value);
+    if (!parsed.success) return;
+    router.push(buildListHref(withListChange(query, { sort: parsed.data })));
+  };
+
   return (
-    <div className="mt-6 grid gap-4 sm:grid-cols-[1fr_14rem]">
+    <div className="mt-6 grid gap-4 sm:grid-cols-[1fr_12rem_12rem]">
       <TextField
         label="Search"
         type="search"
@@ -59,6 +72,13 @@ export function ShipmentsToolbar({ query }: { query: ListShipmentsQuery }): Reac
         {SHIPMENT_STATUSES.map((status) => (
           <option key={status} value={status}>
             {STATUS_LABELS[status]}
+          </option>
+        ))}
+      </SelectField>
+      <SelectField label="Sort" value={query.sort} onChange={onSortChange}>
+        {SHIPMENT_SORTS.map((sort) => (
+          <option key={sort} value={sort}>
+            {SORT_LABELS[sort]}
           </option>
         ))}
       </SelectField>

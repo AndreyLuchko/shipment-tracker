@@ -46,6 +46,14 @@ describe('Pagination', () => {
     expect(routerMock.push).toHaveBeenCalledWith('/shipments?status=EXCEPTION&search=kyiv&page=3');
   });
 
+  it('keeps the sort when it changes the page', async () => {
+    render(<Pagination query={{ page: 1, sort: 'updated' }} total={45} totalPages={2} />);
+
+    await userEvent.setup().click(screen.getByRole('button', { name: 'Next' }));
+
+    expect(routerMock.push).toHaveBeenCalledWith('/shipments?sort=updated&page=2');
+  });
+
   it('disables "Previous" on the first page', () => {
     render(<Pagination query={{ page: 1, sort: 'newest' }} total={45} totalPages={3} />);
 
