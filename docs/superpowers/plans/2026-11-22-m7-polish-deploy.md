@@ -1912,7 +1912,7 @@ and only real changes are sent.
 - Consumes: `EmptyState`, `buttonClassName`.
 - Produces: the copy below. Tasks 17–18 only recolour it.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 | Test | Expected |
 |---|---|
@@ -1920,9 +1920,9 @@ and only real changes are sent.
 | client, no shipments | unchanged: `Shipments assigned to you will appear here.`, no link |
 | `DemoLogin` | under the buttons: `Shared demo accounts: what you change is visible to other visitors and is reset from time to time.` |
 
-- [ ] **Step 2: Run them and see them fail**; **Step 3: implement**; **Step 4: the gate** (exit `0`).
+- [x] **Step 2: Run them and see them fail**; **Step 3: implement**; **Step 4: the gate** (exit `0`).
 
-- [ ] **Step 5: Record the review in the report.** These stay as they are, with the reason for each:
+- [x] **Step 5: Record the review in the report.** These stay as they are, with the reason for each:
   - "Shipment not found": it already sits under "Back to shipments".
   - "No movements recorded yet.": unreachable, since every shipment has its `CREATED` event.
   - The client picker's "No clients yet…": a signed-in dispatcher cannot open `/register`.

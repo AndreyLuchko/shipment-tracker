@@ -126,10 +126,14 @@ function ListContent({
     empty = (
       <EmptyState
         title="No shipments yet."
-        description={
-          isDispatcher ? 'Create the first one with "New shipment".' : 'Shipments assigned to you will appear here.'
-        }
-      />
+        description={isDispatcher ? 'Create the first one.' : 'Shipments assigned to you will appear here.'}
+      >
+        {isDispatcher ? (
+          <Link href="/shipments/new" className={buttonClassName('primary')}>
+            New shipment
+          </Link>
+        ) : undefined}
+      </EmptyState>
     );
   }
   return <div className="mt-6">{empty}</div>;

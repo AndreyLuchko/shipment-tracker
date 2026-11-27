@@ -48,6 +48,17 @@ describe('DemoLogin', () => {
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
 
+  it('says the demo accounts are shared', () => {
+    mockFetch();
+    renderDemo();
+
+    expect(
+      screen.getByText(
+        'Shared demo accounts: what you change is visible to other visitors and is reset from time to time.',
+      ),
+    ).toBeInTheDocument();
+  });
+
   it('signs in as the demo client', async () => {
     const { calls } = mockFetch(OK(USER));
     const click = renderDemo();

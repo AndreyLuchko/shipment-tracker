@@ -52,6 +52,9 @@ export function DemoLogin(): ReactNode {
         ))}
       </div>
       <FormAlert message={error} />
+      <p className="text-center text-sm text-slate-500">
+        Shared demo accounts: what you change is visible to other visitors and is reset from time to time.
+      </p>
       <WakingUpNotice active={pending !== null} />
     </div>
   );

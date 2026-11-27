@@ -123,8 +123,10 @@ describe('ShipmentsList', () => {
     mockFetch(LIST([]));
     renderList();
 
-    expect(await screen.findByText('No shipments yet.')).toBeInTheDocument();
-    expect(screen.getByText('Create the first one with "New shipment".')).toBeInTheDocument();
+    const title = await screen.findByText('No shipments yet.');
+    const empty = title.parentElement as HTMLElement;
+    expect(within(empty).getByText('Create the first one.')).toBeInTheDocument();
+    expect(within(empty).getByRole('link', { name: 'New shipment' })).toHaveAttribute('href', '/shipments/new');
     expect(screen.queryByRole('table')).not.toBeInTheDocument();
   });
 
@@ -135,6 +137,7 @@ describe('ShipmentsList', () => {
 
     expect(await screen.findByText('No shipments yet.')).toBeInTheDocument();
     expect(screen.getByText('Shipments assigned to you will appear here.')).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'New shipment' })).not.toBeInTheDocument();
   });
 
   it.each(['/shipments?status=DELIVERED', '/shipments?search=nothing'])(
