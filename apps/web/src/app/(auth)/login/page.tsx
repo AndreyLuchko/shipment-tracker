@@ -10,12 +10,12 @@ export const metadata = { title: 'Log in — Shipment Tracker' } satisfies Metad
 export default function LoginPage(): ReactNode {
   return (
     <div className="mt-4 space-y-6">
-      <h1 className="text-xl font-semibold text-slate-900">Log in</h1>
+      <h1 className="text-xl font-semibold text-ink">Log in</h1>
       <LoginForm />
       <DemoLogin />
-      <p className="text-sm text-slate-600">
+      <p className="text-sm text-ink-muted">
         No account yet?{' '}
-        <Link href="/register" className="font-medium text-indigo-600 hover:underline">
+        <Link href="/register" className="font-medium text-accent hover:underline">
           Register
         </Link>
       </p>

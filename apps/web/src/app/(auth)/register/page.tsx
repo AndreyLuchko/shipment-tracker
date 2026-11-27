@@ -9,11 +9,11 @@ export const metadata = { title: 'Create account — Shipment Tracker' } satisfi
 export default function RegisterPage(): ReactNode {
   return (
     <div className="mt-4 space-y-6">
-      <h1 className="text-xl font-semibold text-slate-900">Create account</h1>
+      <h1 className="text-xl font-semibold text-ink">Create account</h1>
       <RegisterForm />
-      <p className="text-sm text-slate-600">
+      <p className="text-sm text-ink-muted">
         Already have an account?{' '}
-        <Link href="/login" className="font-medium text-indigo-600 hover:underline">
+        <Link href="/login" className="font-medium text-accent hover:underline">
           Log in
         </Link>
       </p>

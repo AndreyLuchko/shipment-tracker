@@ -9,7 +9,7 @@ export function WakingUpNotice({ active }: { active: boolean }): ReactNode {
   const slow = useSlowFlag(active);
   if (!slow) return null;
   return (
-    <p role="status" className="text-sm text-red-600">
+    <p role="status" className="text-sm text-red-600 dark:text-red-400">
       Waking up the demo server. The first request after a quiet spell can take up to a minute.
     </p>
   );

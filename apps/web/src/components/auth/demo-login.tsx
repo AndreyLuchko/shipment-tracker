@@ -37,7 +37,7 @@ export function DemoLogin(): ReactNode {
 
   return (
     <div className="space-y-3">
-      <p className="text-center text-sm text-slate-500">or try the demo</p>
+      <p className="text-center text-sm text-ink-subtle">or try the demo</p>
       <div className="grid grid-cols-2 gap-3">
         {DEMO_ACCOUNTS.map((account) => (
           <Button
@@ -52,7 +52,7 @@ export function DemoLogin(): ReactNode {
         ))}
       </div>
       <FormAlert message={error} />
-      <p className="text-center text-sm text-slate-500">
+      <p className="text-center text-sm text-ink-subtle">
         Shared demo accounts: what you change is visible to other visitors and is reset from time to time.
       </p>
       <WakingUpNotice active={pending !== null} />

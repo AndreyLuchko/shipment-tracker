@@ -1,1 +1,42 @@
 @import 'tailwindcss';
+
+/* Neutral colours as semantic tokens (spec §8, Polish decisions → Dark theme). They follow the OS theme;
+   status and alert colours keep their hue classes with dark: variants. */
+:root {
+  color-scheme: light dark;
+  --page: var(--color-slate-50);
+  --surface: var(--color-white);
+  --surface-muted: var(--color-slate-100);
+  --ink: var(--color-slate-900);
+  --ink-muted: var(--color-slate-600);
+  --ink-subtle: var(--color-slate-500);
+  --line: var(--color-slate-200);
+  --line-strong: var(--color-slate-300);
+  --accent: var(--color-indigo-600);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --page: var(--color-slate-950);
+    --surface: var(--color-slate-900);
+    --surface-muted: var(--color-slate-800);
+    --ink: var(--color-slate-100);
+    --ink-muted: var(--color-slate-400);
+    --ink-subtle: var(--color-slate-400);
+    --line: var(--color-slate-800);
+    --line-strong: var(--color-slate-700);
+    --accent: var(--color-indigo-400);
+  }
+}
+
+@theme inline {
+  --color-page: var(--page);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-ink-subtle: var(--ink-subtle);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-accent: var(--accent);
+}

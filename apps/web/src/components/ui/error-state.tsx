@@ -17,9 +17,12 @@ export function ErrorState({
   retrying?: boolean;
 }): ReactNode {
   return (
-    <div role="alert" className="rounded-xl border border-red-200 bg-red-50 px-6 py-6 text-center">
-      <p className="text-sm font-semibold text-red-800">{title}</p>
-      <p className="mt-1 text-sm text-red-700">{formErrorMessage(error)}</p>
+    <div
+      role="alert"
+      className="rounded-xl border border-red-200 bg-red-50 px-6 py-6 text-center dark:border-red-900 dark:bg-red-950"
+    >
+      <p className="text-sm font-semibold text-red-800 dark:text-red-200">{title}</p>
+      <p className="mt-1 text-sm text-red-700 dark:text-red-300">{formErrorMessage(error)}</p>
       <div className="mt-4">
         <Button variant="secondary" loading={retrying} onClick={onRetry}>
           Try again
@@ -32,7 +35,10 @@ export function ErrorState({
 /** A refetch failed but the last good data is still on screen (C16). */
 export function StaleDataNotice(): ReactNode {
   return (
-    <p role="alert" className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+    <p
+      role="alert"
+      className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-200"
+    >
       Could not refresh. Showing the last loaded data.
     </p>
   );
