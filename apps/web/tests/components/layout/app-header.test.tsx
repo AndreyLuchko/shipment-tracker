@@ -42,6 +42,17 @@ describe('AppHeader', () => {
     expect(logOutButton()).toHaveAttribute('type', 'button');
   });
 
+  it('has the theme switcher before the name', () => {
+    signIn();
+    mockFetch();
+
+    render(<AppHeader />);
+
+    const group = screen.getByRole('group', { name: 'Theme' });
+    const name = screen.getByText('Demo Client');
+    expect(group.compareDocumentPosition(name) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
   it('shows the dispatcher role', () => {
     signIn(DISPATCHER);
     mockFetch();

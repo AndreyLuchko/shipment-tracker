@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { type ReactNode, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
+import { ThemeSwitcher } from '@/components/ui/theme-switcher';
 import { formErrorMessage } from '@/lib/form-errors';
 import { ROLE_LABELS } from '@/lib/roles';
 import { useAuthStore } from '@/stores/auth';
@@ -37,6 +38,7 @@ export function AppHeader(): ReactNode {
           {APP_NAME}
         </Link>
         <div className="flex items-center gap-3">
+          <ThemeSwitcher />
           <span className="text-sm font-medium text-ink">{user.name}</span>
           <span className="rounded-full bg-surface-muted px-2 py-0.5 text-xs font-medium text-ink-muted">
             {ROLE_LABELS[user.role]}

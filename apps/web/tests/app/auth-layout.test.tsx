@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
 import AuthLayout from '@/app/(auth)/layout';
@@ -24,6 +24,22 @@ describe('AuthLayout', () => {
     expect(main).toContainElement(screen.getByRole('heading', { name: 'Log in' }));
     expect(screen.queryByRole('heading', { name: 'Shipment Tracker' })).not.toBeInTheDocument();
     expect(screen.getAllByRole('heading')).toHaveLength(1);
+  });
+
+  it('puts the theme switcher on the page, outside the card', () => {
+    mockFetch();
+
+    render(
+      <AuthLayout>
+        <h1>Log in</h1>
+      </AuthLayout>,
+    );
+
+    const group = screen.getByRole('group', { name: 'Theme' });
+    const card = screen.getByText('Shipment Tracker').parentElement as HTMLElement;
+    expect(screen.getByRole('main')).toContainElement(group);
+    expect(card).not.toContainElement(group);
+    expect(within(group).getAllByRole('button')).toHaveLength(3);
   });
 
   it('sends a signed-in user to /shipments', async () => {

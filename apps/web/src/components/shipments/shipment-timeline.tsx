@@ -37,7 +37,7 @@ export function ShipmentTimeline({ events }: { events: ShipmentEvent[] }): React
                 aria-hidden="true"
                 className={cn(
                   'absolute -left-7.25 top-1.5 h-2.5 w-2.5 rounded-full ring-4 ring-page',
-                  current ? 'bg-indigo-600' : 'bg-line-strong',
+                  current ? 'bg-brand' : 'bg-line-strong',
                 )}
               />
               <div className="flex flex-wrap items-center gap-x-3 gap-y-1">

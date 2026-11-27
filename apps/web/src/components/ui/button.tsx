@@ -12,7 +12,7 @@ type ButtonProps = ComponentProps<'button'> & {
 type ButtonVariant = NonNullable<ButtonProps['variant']>;
 
 const VARIANT_CLASSES: Record<ButtonVariant, string> = {
-  primary: 'bg-indigo-600 text-white hover:bg-indigo-700',
+  primary: 'bg-brand text-white hover:bg-brand-hover',
   secondary: 'border border-line-strong bg-surface text-ink hover:bg-surface-muted',
 };
 

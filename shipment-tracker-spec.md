@@ -439,8 +439,8 @@ UX details worth the effort:
 - **Editing:** the dispatcher edits `description` and `weightKg` on the detail page ("Edit details"). Only
   changed fields are sent; an emptied weight clears it (`null`); the messages come from the shared
   `updateShipmentSchema`.
-- **Dark theme:** follows the operating system (`prefers-color-scheme`); no toggle, nothing stored. Neutral
-  colours are semantic tokens in `globals.css`; status colours keep their hue with dark variants; every text
+- **Dark theme:** follows the operating system by default; a System / Light / Dark switcher in the header and
+  on the auth pages (`next-themes`, choice kept in `localStorage` under `theme`). Neutral colours are semantic tokens in `globals.css`; status colours keep their hue with dark variants; every text
   pair keeps a contrast of at least 4.5:1.
 - **Cold start:** the session probe, login and the dashboard's `GET`s retry once, 5 s later, when the API
   answered nothing, `502`/`503`/`504` or a success body that is not the expected JSON; register, logout and every

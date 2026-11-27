@@ -1,9 +1,10 @@
 @import 'tailwindcss';
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
 
-/* Neutral colours as semantic tokens (spec §8, Polish decisions → Dark theme). They follow the OS theme;
-   status and alert colours keep their hue classes with dark: variants. */
+/* Neutral colours as semantic tokens (spec §8, Polish decisions → Dark theme). They follow `data-theme`, which `next-themes` sets from
+   the visitor's choice or the OS; status and alert colours keep their hue classes with dark: variants. */
 :root {
-  color-scheme: light dark;
+  color-scheme: light;
   --page: var(--color-slate-50);
   --surface: var(--color-white);
   --surface-muted: var(--color-slate-100);
@@ -12,21 +13,27 @@
   --ink-subtle: var(--color-slate-500);
   --line: var(--color-slate-200);
   --line-strong: var(--color-slate-300);
-  --accent: var(--color-indigo-600);
+  --accent: var(--color-brand);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --page: var(--color-slate-950);
-    --surface: var(--color-slate-900);
-    --surface-muted: var(--color-slate-800);
-    --ink: var(--color-slate-100);
-    --ink-muted: var(--color-slate-400);
-    --ink-subtle: var(--color-slate-400);
-    --line: var(--color-slate-800);
-    --line-strong: var(--color-slate-700);
-    --accent: var(--color-indigo-400);
-  }
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --page: var(--color-slate-950);
+  --surface: var(--color-slate-900);
+  --surface-muted: var(--color-slate-800);
+  --ink: var(--color-slate-100);
+  --ink-muted: var(--color-slate-400);
+  --ink-subtle: var(--color-slate-400);
+  --line: var(--color-slate-800);
+  --line-strong: var(--color-slate-700);
+  --accent: var(--color-brand-light);
+}
+
+/* The brand blue: primary buttons, the current timeline dot and (through --accent) links and focus rings. */
+@theme {
+  --color-brand: #0070f3;
+  --color-brand-hover: #0060df;
+  --color-brand-light: #3291ff;
 }
 
 @theme inline {
@@ -39,4 +46,13 @@
   --color-line: var(--line);
   --color-line-strong: var(--line-strong);
   --color-accent: var(--accent);
+}
+
+/* Tailwind v4 leaves buttons with the default cursor; enabled buttons and selects get the pointer, as links already do. */
+@layer base {
+  button:not(:disabled),
+  select:not(:disabled),
+  [role='button']:not([aria-disabled='true']) {
+    cursor: pointer;
+  }
 }
