@@ -34,7 +34,7 @@ export function ClientPicker({ error, ...rest }: ClientPickerProps): ReactNode {
 
   if (clients.data.length === 0) {
     return (
-      <p className="text-sm text-slate-600">
+      <p className="text-sm text-ink-muted">
         No clients yet. A client has to register before a shipment can be created for them.
       </p>
     );

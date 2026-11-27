@@ -48,7 +48,7 @@ export function NewShipmentForm(): ReactNode {
     <form
       noValidate
       onSubmit={(event) => void submit(event)}
-      className="mt-6 max-w-xl space-y-4 rounded-xl border border-slate-200 bg-white p-6"
+      className="mt-6 max-w-xl space-y-4 rounded-xl border border-line bg-surface p-6"
     >
       <ClientPicker error={errors.clientId?.message} {...register('clientId')} />
       <TextField label="Origin" error={errors.origin?.message} {...register('origin')} />
@@ -68,7 +68,7 @@ export function NewShipmentForm(): ReactNode {
         <Button type="submit" loading={isSubmitting} disabled={!hasClients}>
           Create shipment
         </Button>
-        <Link href={SHIPMENTS_PATH} className="text-sm font-medium text-slate-600 hover:underline">
+        <Link href={SHIPMENTS_PATH} className="text-sm font-medium text-ink-muted hover:underline">
           Cancel
         </Link>
       </div>

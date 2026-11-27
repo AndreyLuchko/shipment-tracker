@@ -15,13 +15,13 @@ export function ShipmentTimeline({ events }: { events: ShipmentEvent[] }): React
   const [initialCount] = useState(events.length);
 
   if (events.length === 0) {
-    return <p className="mt-4 text-sm text-slate-600">No movements recorded yet.</p>;
+    return <p className="mt-4 text-sm text-ink-muted">No movements recorded yet.</p>;
   }
 
   const lastIndex = events.length - 1;
   return (
     <MotionConfig reducedMotion="user">
-      <ol aria-label="Movement timeline" className="mt-4 space-y-6 border-l border-slate-200 pl-6">
+      <ol aria-label="Movement timeline" className="mt-4 space-y-6 border-l border-line pl-6">
         {events.map((event, index) => {
           const current = index === lastIndex;
           return (
@@ -36,8 +36,8 @@ export function ShipmentTimeline({ events }: { events: ShipmentEvent[] }): React
               <span
                 aria-hidden="true"
                 className={cn(
-                  'absolute -left-7.25 top-1.5 h-2.5 w-2.5 rounded-full ring-4 ring-slate-50',
-                  current ? 'bg-indigo-600' : 'bg-slate-300',
+                  'absolute -left-7.25 top-1.5 h-2.5 w-2.5 rounded-full ring-4 ring-page',
+                  current ? 'bg-indigo-600' : 'bg-line-strong',
                 )}
               />
               <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
@@ -45,14 +45,14 @@ export function ShipmentTimeline({ events }: { events: ShipmentEvent[] }): React
                 <time
                   dateTime={event.occurredAt}
                   title={formatDateTime(event.occurredAt)}
-                  className="cursor-help text-xs text-slate-500 underline decoration-dotted underline-offset-2"
+                  className="cursor-help text-xs text-ink-subtle underline decoration-dotted underline-offset-2"
                 >
                   {formatRelativeTime(event.occurredAt)}
                 </time>
-                <span className="text-xs text-slate-500">{SOURCE_LABELS[event.source]}</span>
+                <span className="text-xs text-ink-subtle">{SOURCE_LABELS[event.source]}</span>
               </div>
-              {event.location !== null && <p className="mt-1 text-sm text-slate-900">{event.location}</p>}
-              {event.note !== null && <p className="mt-1 text-sm text-slate-600">{event.note}</p>}
+              {event.location !== null && <p className="mt-1 text-sm text-ink">{event.location}</p>}
+              {event.note !== null && <p className="mt-1 text-sm text-ink-muted">{event.note}</p>}
             </motion.li>
           );
         })}

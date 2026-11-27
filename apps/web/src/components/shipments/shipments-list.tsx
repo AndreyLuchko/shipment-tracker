@@ -69,7 +69,7 @@ export function ShipmentsList(): ReactNode {
   return (
     <>
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-slate-900">Shipments</h1>
+        <h1 className="text-2xl font-semibold text-ink">Shipments</h1>
         {isDispatcher && (
           <Link href="/shipments/new" className={buttonClassName('primary')}>
             New shipment

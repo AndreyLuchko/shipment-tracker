@@ -21,7 +21,7 @@ export function Pagination({
   const goTo = (page: number) => router.push(buildListHref(withListChange(query, { page })));
 
   return (
-    <div className="mt-4 flex items-center justify-between text-sm text-slate-600">
+    <div className="mt-4 flex items-center justify-between text-sm text-ink-muted">
       <p>{total === 1 ? '1 shipment' : `${total} shipments`}</p>
       {totalPages > 1 && (
         <div className="flex items-center gap-3">

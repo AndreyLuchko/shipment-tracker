@@ -20,10 +20,10 @@ export function StatusUpdateForm({ shipment }: { shipment: ShipmentDetail }): Re
   const allowed = shipment.allowedNextStatuses;
 
   return (
-    <section className="mt-8 rounded-xl border border-slate-200 bg-white p-6">
-      <h2 className="text-lg font-semibold text-slate-900">Add status update</h2>
+    <section className="mt-8 rounded-xl border border-line bg-surface p-6">
+      <h2 className="text-lg font-semibold text-ink">Add status update</h2>
       {allowed.length === 0 ? (
-        <p className="mt-2 text-sm text-slate-600">
+        <p className="mt-2 text-sm text-ink-muted">
           This shipment has reached its final status. No further updates can be added.
         </p>
       ) : (
@@ -83,7 +83,7 @@ function UpdateForm({ shipment }: { shipment: ShipmentDetail }): ReactNode {
         Add update
       </Button>
       {added && (
-        <p role="status" className="text-sm text-emerald-700">
+        <p role="status" className="text-sm text-emerald-700 dark:text-emerald-400">
           Update added.
         </p>
       )}

@@ -36,7 +36,7 @@ export function ShipmentDetailView({ id }: { id: string }): ReactNode {
           </div>
         )}
         <div className="mt-4 flex flex-wrap items-center gap-3">
-          <h1 className="text-2xl font-semibold text-slate-900">{shipment.trackingNumber}</h1>
+          <h1 className="text-2xl font-semibold text-ink">{shipment.trackingNumber}</h1>
           <StatusBadge status={shipment.status} />
           {isDispatcher && !editing && (
             <Button
@@ -63,13 +63,13 @@ export function ShipmentDetailView({ id }: { id: string }): ReactNode {
           <ShipmentInfoCard shipment={shipment} />
         )}
         {saved && (
-          <p role="status" className="mt-3 text-sm text-emerald-700">
+          <p role="status" className="mt-3 text-sm text-emerald-700 dark:text-emerald-400">
             Details saved.
           </p>
         )}
         <section aria-labelledby="timeline-heading">
           <div className="mt-8 flex items-center justify-between">
-            <h2 id="timeline-heading" className="text-lg font-semibold text-slate-900">
+            <h2 id="timeline-heading" className="text-lg font-semibold text-ink">
               Timeline
             </h2>
             <Button variant="secondary" loading={detail.isFetching} onClick={() => void detail.refetch()}>
@@ -114,7 +114,7 @@ export function ShipmentDetailView({ id }: { id: string }): ReactNode {
 
   return (
     <>
-      <Link href={SHIPMENTS_PATH} className="text-sm font-medium text-indigo-600 hover:underline">
+      <Link href={SHIPMENTS_PATH} className="text-sm font-medium text-accent hover:underline">
         Back to shipments
       </Link>
       {content}

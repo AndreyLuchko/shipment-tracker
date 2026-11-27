@@ -56,7 +56,7 @@ export function EditShipmentForm({
     <form
       noValidate
       onSubmit={(event) => void submit(event)}
-      className="mt-6 space-y-4 rounded-xl border border-slate-200 bg-white p-6"
+      className="mt-6 space-y-4 rounded-xl border border-line bg-surface p-6"
     >
       <TextField label="Description" error={errors.description?.message} {...register('description')} />
       <TextField

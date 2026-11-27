@@ -128,6 +128,8 @@ Implementation calls shown to the owner with the decision summary and approved w
 - **C6** Dark theme: `prefers-color-scheme` only, with no toggle, so still no `localStorage`. Neutral colours
   become semantic tokens in `globals.css`; status and alert colours keep their hue with explicit `dark:`
   variants. `EXCEPTION` stays the only solid badge.
+  **Amended 2026-11-27 (owner, after Task 18):** a theme switcher — System / Light / Dark — through `next-themes`;
+  System stays the default, so the OS still decides until the visitor picks. See Task 18b.
 - **C7** "Edit details" on the detail page (dispatcher): `description` and `weightKg`, where an emptied weight
   means `null`. Only changed keys are sent; "Save" is disabled while nothing has changed.
 - **C8** Link previews through Next's file conventions (`app/icon.svg`, `app/opengraph-image.tsx` with the
@@ -200,7 +202,7 @@ Not in M7 on purpose:
 - deployment and ops: a keep-alive pinger, a Dockerfile, a scheduled reset, a custom domain, a secret header
   between Vercel and the API;
 - CI and tooling: Playwright in CI, a Claude PR-review Action, a GIF;
-- the dashboard: a theme toggle, list animations, a multi-status filter, a page-size selector, polling or live
+- the dashboard: list animations, a multi-status filter, a page-size selector, polling or live
   updates, back-dated events in the UI;
 - auth: refresh tokens.
 
@@ -209,7 +211,8 @@ Those that matter go to the README's roadmap (Task 20).
 ## Global Constraints
 
 - Node 22.13+ (all workspaces, `.nvmrc` = `22`). npm workspaces only. **Dependencies: exactly
-  `@playwright/test@1.65.1`, added as a devDependency of `apps/web` in Task 11; no other package, no upgrade of an
+  `@playwright/test@1.65.1`, added as a devDependency of `apps/web` in Task 11, and `next-themes@0.4.6`, added as a
+  dependency of `apps/web` in Task 18b (owner's decision, 2026-11-27); no other package, no upgrade of an
   installed one.**
 - `apps/api` changes only where C22 says; **no change to `prisma/schema.prisma` or `prisma/migrations/`**.
   `packages/shared` changes only in `src/schemas/shipment.ts` and `tests/schemas/shipment.test.ts` (Tasks 13, 15).
@@ -218,7 +221,8 @@ Those that matter go to the README's roadmap (Task 20).
   - every API call goes through `apiRequest` in `src/lib/api/*`; components use the hooks of
     `src/lib/shipments/queries.ts`;
   - server data lives only in the TanStack Query cache;
-  - no optimistic update, no `refetchInterval`, no `localStorage` / `sessionStorage`;
+  - no optimistic update, no `refetchInterval`, no `localStorage` / `sessionStorage` — the one exception is the
+    theme choice, which `next-themes` keeps under the key `theme` (Task 18b);
   - the list's state lives only in the URL and its hrefs come from `buildListHref`;
   - types come from `z.infer`, Server Components by default, imports through the `@/` alias;
   - class names are written out in full, and a `className` past column 120 is split with `cn(...)`;
@@ -2193,6 +2197,98 @@ git commit -m "feat: dark theme II — shipment screens and status badges"
 
 ---
 
+### Task 18b: Dark theme III — a theme switcher with `next-themes` (owner's decision after Task 18, 2026-11-27)
+
+**Why:** Tasks 17–18 follow the OS only (C6), so a visitor whose OS is light never sees the dark theme unless they
+know about DevTools. The owner chose a switcher — **System / Light / Dark** — through `next-themes` (the common
+choice: no-flash script, system mode and storage out of the box) instead of a hand-written script. System stays
+the default, so nothing changes for a visitor who never touches it, and Task 19's dark screenshots (a fresh
+browser context with `colorScheme: 'dark'`) still come out dark.
+
+**Files:**
+- Modify: `apps/web/package.json` (+ `"next-themes": "0.4.6"` in `dependencies`, exact), `package-lock.json`
+- Modify: `apps/web/src/app/globals.css`, `apps/web/tests/app/globals-css.test.ts`
+- Modify: `apps/web/src/app/layout.tsx` (`ThemeProvider`, `suppressHydrationWarning`)
+- Create: `apps/web/src/components/ui/theme-switcher.tsx`, `apps/web/tests/components/ui/theme-switcher.test.tsx`
+- Modify: `apps/web/src/components/layout/app-header.tsx`, `apps/web/tests/components/layout/app-header.test.tsx`
+- Modify: `apps/web/src/app/(auth)/layout.tsx`, `apps/web/tests/app/auth-layout.test.tsx`
+- Modify: `apps/web/tests/setup.ts` only if jsdom needs a `window.matchMedia` stub (it has none; `next-themes`
+  reads it for System)
+- Modify: `shipment-tracker-spec.md` (the "Dark theme" bullet of the M7 polish decisions, ~line 442), `docs/plan.md`
+
+**Interfaces:**
+- **Install:** `npm install next-themes@0.4.6 --save-exact -w apps/web`. Nothing else is added or upgraded
+  (check `git diff package-lock.json` touches only `next-themes`).
+- **`globals.css`:** the dark tokens move from `@media (prefers-color-scheme: dark) { :root { … } }` to
+  `:root[data-theme='dark'] { … }` (same nine values). `:root` gets `color-scheme: light`, the dark block
+  `color-scheme: dark` (replacing `color-scheme: light dark`). Tailwind's `dark:` variant follows the attribute:
+  `@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));` right after the import. The file
+  no longer mentions `prefers-color-scheme` (`next-themes` resolves System to `light` / `dark` itself). Update the
+  header comment: tokens follow `data-theme`, which `next-themes` sets from the visitor's choice or the OS.
+- **`layout.tsx`:** `<html lang="en" suppressHydrationWarning>` (`next-themes` sets the attribute before React
+  hydrates); inside `<body>`: `<ThemeProvider attribute="data-theme" defaultTheme="system" enableSystem
+  disableTransitionOnChange>{children}</ThemeProvider>`. The storage key stays the default `theme`. Metadata
+  unchanged.
+- **`ThemeSwitcher`** (`'use client'`, `components/ui/theme-switcher.tsx`):
+  - a `role="group"` with `aria-label="Theme"` holding three `<button type="button">`s, in order System, Light,
+    Dark, each with `aria-label` `System theme` / `Light theme` / `Dark theme`, the same text as `title`, and
+    `aria-pressed` for the current choice;
+  - icons: small inline SVGs (monitor, sun, moon; `aria-hidden`, `h-4 w-4`, `stroke="currentColor"`) — no icon
+    package;
+  - `useTheme()` from `next-themes`; clicking calls `setTheme('system' | 'light' | 'dark')`;
+  - before mount, `theme` is unknown on the server: render the three buttons with no `aria-pressed="true"` until a
+    `mounted` flag is set in an effect (the documented `next-themes` pattern), so hydration never mismatches;
+  - styles (tokens only): group `inline-flex rounded-md border border-line bg-surface p-0.5`; button
+    `rounded p-1.5 text-ink-muted hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2
+    focus-visible:outline-accent`; pressed `bg-surface-muted text-ink`. Split with `cn(...)` past column 120.
+- **Placement:**
+  - `AppHeader`: first item of the right-hand group, before the user's name;
+  - `(auth)/layout.tsx`: top right of the page — `<main>` gets `relative`, the switcher sits in
+    `<div className="absolute right-4 top-4">`, outside the card.
+
+- [ ] **Step 1: Write the failing tests**
+
+| Test | Expected |
+|---|---|
+| `globals-css.test.ts` | contains `@custom-variant dark` with `[data-theme='dark']`; contains `:root[data-theme='dark']`; does not contain `prefers-color-scheme`; each `--<token>:` still defined exactly twice; `color-scheme: light` and `color-scheme: dark` both present (replace the old `light dark` assertion) |
+| `ThemeSwitcher` (wrapped in `ThemeProvider attribute="data-theme" defaultTheme="system" enableSystem`) | a group named `Theme` with three buttons `System theme`, `Light theme`, `Dark theme`; after mount `System theme` is pressed |
+| click `Dark theme` | it is pressed, the others are not; `document.documentElement` has `data-theme="dark"`; `localStorage.getItem('theme') === 'dark'` |
+| click `Light theme` | `data-theme="light"`, stored `light` |
+| click `System theme` with `matchMedia('(prefers-color-scheme: dark)')` stubbed to match | `data-theme="dark"`, stored `system` |
+| a stored `dark` before render | `Dark theme` pressed after mount |
+| `AppHeader` (signed in) | the `Theme` group is present |
+| auth layout | the `Theme` group is present, outside the card's content |
+
+  Clean `localStorage` and the `data-theme` attribute between tests (in the test file's `afterEach`, or in
+  `tests/setup.ts` if several files need it).
+
+- [ ] **Step 2: Run them and see them fail.**
+- [ ] **Step 3: Install and implement** the interfaces above. Update the spec's "Dark theme" bullet to: follows the
+  operating system by default; a System / Light / Dark switcher in the header and on the auth pages
+  (`next-themes`, choice kept in `localStorage` under `theme`); the rest of the bullet unchanged.
+- [ ] **Step 4: The gate** — `npm run lint && npm run typecheck && npm run test && npm run build`; exit `0`. Revert
+  `apps/web/next-env.d.ts` if the build touched it. Re-run Task 18 Step 1's grep: still no output.
+- [ ] **Step 5: Look at it** — `npm run dev -w apps/web` (and the API for the dashboard):
+  - `/login`: the switcher top right; Dark / Light / System switch at once, with no transition flash;
+  - reload after picking Dark while the OS is light: the page paints dark from the first frame (no light flash);
+  - System follows an OS change live (macOS Appearance, or DevTools → Rendering → emulate);
+  - the dashboard header: the switcher sits before the name and is reachable with Tab, with a visible focus ring;
+  - the dev server's terminal and the browser console show no React warning about a `<script>` tag. If one
+    appears (a known report with `next-themes` 0.4.x on React 19 / Next 16), stop and report it to the owner with
+    the exact message before working around it.
+
+- [ ] **Step 6: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
+
+```bash
+git add package-lock.json apps/web shipment-tracker-spec.md docs/superpowers/plans/2026-11-22-m7-polish-deploy.md docs/plan.md
+git commit -m "feat: dark theme III - theme switcher with next-themes"
+```
+
+**Done when:** a visitor can pick System, Light or Dark on every page, the choice survives a reload with no flash,
+System still follows the OS, and the light theme is unchanged.
+
+---
+
 ### Task 19: README screenshots generated by Playwright
 
 **Files:**
@@ -2617,7 +2713,9 @@ twenty-one tasks ticked, and the owner has explicitly approved the checklist.
     - `DOWN` is a non-JSON `500` and is not retried.
 - **Dependencies:** one addition, `@playwright/test` 1.65.1 (with `playwright` and `playwright-core`). Considered
   and left out:
-  - `next-themes` (no toggle, C6) and `@vercel/og` (built into `next/og`);
+  - `@vercel/og` (built into `next/og`);
+  - `next-themes` was left out at first (no toggle, C6); the owner added the switcher after Task 18, so Task 18b
+    adds `next-themes` 0.4.6 rather than a hand-written no-flash script;
   - `axe-core` / `@axe-core/playwright` (contrast is computed and checked by eye);
   - `msw` (still a stubbed `fetch`);
   - a Dockerfile toolchain (D2) and an uptime pinger (D3).
