@@ -26,7 +26,7 @@ const OFFLINE = () => new TypeError('Failed to fetch');
 
 const CLIENT_LOGIN = { email: 'client@demo.dev', password: 'client123' };
 const DISPATCHER_LOGIN = { email: 'dispatcher@demo.dev', password: 'dispatcher123' };
-const NEW_DISPATCHER = { email: 'd@example.com', password: 'password123', name: 'Dana', role: 'DISPATCHER' as const };
+const NEW_DISPATCHER = { email: 'd@example.com', password: 'password123', name: 'Dana' };
 
 const store = () => useAuthStore.getState();
 const signIn = () => useAuthStore.setState({ status: 'authenticated', user: USER });

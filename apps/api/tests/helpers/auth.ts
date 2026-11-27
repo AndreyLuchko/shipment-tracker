@@ -7,6 +7,7 @@ import {
   authResponseSchema,
   type PublicUser,
   type RegisterInput,
+  type Role,
 } from '@shipment-tracker/shared';
 
 export interface TestSession {
@@ -16,22 +17,39 @@ export interface TestSession {
   csrfToken: string;
 }
 
-/** Registers a user through `POST /api/v1/auth/register` and returns the user and its session cookies. */
+/**
+ * Registers a user through `POST /api/v1/auth/register` and returns the user and its session cookies. The public route
+ * only creates clients, so for `role: 'DISPATCHER'` the role is set in the database and the session comes from a
+ * login (the register session's JWT would still carry `CLIENT`).
+ */
 export async function registerTestUser(
   app: FastifyInstance,
-  overrides: Partial<RegisterInput> = {},
+  overrides: Partial<RegisterInput> & { role?: Role } = {},
 ): Promise<TestSession> {
+  const { role = 'CLIENT', ...rest } = overrides;
   const payload: RegisterInput = {
     email: `user-${randomUUID()}@example.com`,
     password: 'password123',
     name: 'Test User',
-    role: 'CLIENT',
-    ...overrides,
+    ...rest,
   };
 
-  const response = await app.inject({ method: 'POST', url: '/api/v1/auth/register', payload });
+  let response = await app.inject({ method: 'POST', url: '/api/v1/auth/register', payload });
   if (response.statusCode !== 201) {
     throw new Error(`registerTestUser: expected 201, got ${response.statusCode}: ${response.body}`);
+  }
+
+  if (role !== 'CLIENT') {
+    const registered = authResponseSchema.parse(response.json());
+    await app.prisma.user.update({ where: { id: registered.user.id }, data: { role } });
+    response = await app.inject({
+      method: 'POST',
+      url: '/api/v1/auth/login',
+      payload: { email: payload.email, password: payload.password },
+    });
+    if (response.statusCode !== 200) {
+      throw new Error(`registerTestUser: login expected 200, got ${response.statusCode}: ${response.body}`);
+    }
   }
 
   const { user } = authResponseSchema.parse(response.json());

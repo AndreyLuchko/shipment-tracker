@@ -20,11 +20,11 @@ const loginPasswordSchema = z
   .min(1, 'Enter your password')
   .max(128, 'Password must be at most 128 characters');
 
+/** Public sign-up always creates a CLIENT: there is no `role` field, and a `role` key in the body is stripped. */
 export const registerSchema = z.object({
   email: emailSchema,
   password: registerPasswordSchema,
   name: z.string().trim().min(1, 'Enter your name').max(100, 'Name must be at most 100 characters'),
-  role: roleSchema.default('CLIENT'),
 });
 export type RegisterInput = z.infer<typeof registerSchema>;
 

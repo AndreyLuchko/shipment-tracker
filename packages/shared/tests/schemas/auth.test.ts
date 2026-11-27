@@ -11,22 +11,16 @@ const validPublicUser = {
 };
 
 describe('registerSchema', () => {
-  it('normalizes email and name, keeps password, defaults role to CLIENT', () => {
+  it('normalizes email and name and keeps the password', () => {
     const result = registerSchema.safeParse(validRegister);
     expect(result.success).toBe(true);
-    expect(result.data).toEqual({ email: 'client@demo.dev', password: 'password1', name: 'Olena', role: 'CLIENT' });
+    expect(result.data).toEqual({ email: 'client@demo.dev', password: 'password1', name: 'Olena' });
   });
 
-  it('accepts role DISPATCHER', () => {
-    const result = registerSchema.safeParse({ ...validRegister, role: 'DISPATCHER' });
+  it.each(['DISPATCHER', 'ADMIN'])('drops a role key (%s) like any unknown key', (role) => {
+    const result = registerSchema.safeParse({ ...validRegister, role });
     expect(result.success).toBe(true);
-    expect(result.data?.role).toBe('DISPATCHER');
-  });
-
-  it('rejects an unknown role', () => {
-    const result = registerSchema.safeParse({ ...validRegister, role: 'ADMIN' });
-    expect(result.success).toBe(false);
-    expect(result.error?.issues.some((issue) => issue.path.join('.') === 'role')).toBe(true);
+    expect(result.data).not.toHaveProperty('role');
   });
 
   it('rejects an invalid email', () => {
@@ -173,7 +167,7 @@ describe('validation messages', () => {
     it('still accepts and normalizes a valid input', () => {
       const result = registerSchema.safeParse(validRegister);
       expect(result.success).toBe(true);
-      expect(result.data).toEqual({ email: 'client@demo.dev', password: 'password1', name: 'Olena', role: 'CLIENT' });
+      expect(result.data).toEqual({ email: 'client@demo.dev', password: 'password1', name: 'Olena' });
     });
   });
 

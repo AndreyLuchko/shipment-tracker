@@ -37,7 +37,7 @@ describe('login', () => {
 
 describe('register', () => {
   it('posts the new account and resolves the new user', async () => {
-    const input = { email: 'd@example.com', password: 'password123', name: 'Dana', role: 'DISPATCHER' as const };
+    const input = { email: 'd@example.com', password: 'password123', name: 'Dana' };
     const { calls } = mockFetch(jsonResponse(201, { user: DISPATCHER }));
 
     await expect(register(input)).resolves.toEqual(DISPATCHER);
@@ -100,7 +100,7 @@ describe('hasSessionHint', () => {
 
 describe('the one retry', () => {
   const input = { email: 'client@demo.dev', password: 'client123' };
-  const register_ = { email: 'd@example.com', password: 'password123', name: 'Dana', role: 'DISPATCHER' as const };
+  const register_ = { email: 'd@example.com', password: 'password123', name: 'Dana' };
 
   it.each([
     ['login', () => login(input)],

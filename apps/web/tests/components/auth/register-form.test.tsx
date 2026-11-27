@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 
@@ -6,7 +6,7 @@ import { RegisterForm } from '@/components/auth/register-form';
 import { useAuthStore } from '@/stores/auth';
 
 import { deferred, errorResponse, jsonResponse, mockFetch, textResponse } from '../../helpers/fetch';
-import { DISPATCHER, USER } from '../../helpers/fixtures';
+import { USER } from '../../helpers/fixtures';
 import { routerMock } from '../../helpers/router';
 
 const TAKEN = (): Response => errorResponse(409, 'EMAIL_TAKEN', 'Email is already registered');
@@ -29,7 +29,6 @@ function renderForm(): User {
 const nameInput = (): HTMLElement => screen.getByLabelText('Name');
 const emailInput = (): HTMLElement => screen.getByLabelText('Email');
 const passwordInput = (): HTMLElement => screen.getByLabelText('Password');
-const roleGroup = (): HTMLElement => screen.getByRole('group', { name: 'Account type' });
 const submitButton = (): HTMLElement => screen.getByRole('button', { name: 'Create account' });
 
 async function fill(user: User, { name, email, password }: Fields): Promise<void> {
@@ -42,18 +41,18 @@ async function submit(user: User): Promise<void> {
   await user.click(submitButton());
 }
 
-/** A `role="alert"` that is not the accessible description of an input and not inside the role group. */
+/** A `role="alert"` that is not the accessible description of an input. */
 function formLevelAlerts(): HTMLElement[] {
   const describedBy = new Set(
     Array.from(document.querySelectorAll('[aria-describedby]')).flatMap((el) =>
       (el.getAttribute('aria-describedby') ?? '').split(/\s+/),
     ),
   );
-  return screen.queryAllByRole('alert').filter((alert) => !describedBy.has(alert.id) && !roleGroup().contains(alert));
+  return screen.queryAllByRole('alert').filter((alert) => !describedBy.has(alert.id));
 }
 
 describe('RegisterForm', () => {
-  it('renders the three fields, the role choice, the hint and the submit button', () => {
+  it('renders the three fields and the submit button, with no role choice', () => {
     renderForm();
 
     expect(nameInput()).toHaveAttribute('autocomplete', 'name');
@@ -61,10 +60,9 @@ describe('RegisterForm', () => {
     expect(emailInput()).toHaveAttribute('autocomplete', 'email');
     expect(passwordInput()).toHaveAttribute('type', 'password');
     expect(passwordInput()).toHaveAttribute('autocomplete', 'new-password');
-    const group = within(roleGroup());
-    expect(group.getByRole('radio', { name: 'Client' })).toBeChecked();
-    expect(group.getByRole('radio', { name: 'Dispatcher' })).not.toBeChecked();
-    expect(screen.getByText('Demo project: pick the role you want to try.')).toBeInTheDocument();
+    expect(screen.queryByRole('group', { name: 'Account type' })).not.toBeInTheDocument();
+    expect(screen.queryAllByRole('radio')).toHaveLength(0);
+    expect(screen.queryByText('Demo project: pick the role you want to try.')).not.toBeInTheDocument();
     expect(submitButton()).toHaveAttribute('type', 'submit');
     expect(submitButton().closest('form')).toHaveAttribute('novalidate');
   });
@@ -97,7 +95,7 @@ describe('RegisterForm', () => {
     expect(calls).toHaveLength(0);
   });
 
-  it('posts the parsed values with the default role and signs the user in', async () => {
+  it('posts only name, email and password and signs the user in', async () => {
     const { calls } = mockFetch(jsonResponse(201, { user: USER }));
     const user = renderForm();
 
@@ -113,22 +111,7 @@ describe('RegisterForm', () => {
       name: 'Olena',
       email: 'new.client@example.com',
       password: 'password123',
-      role: 'CLIENT',
     });
-    expect(routerMock.replace).not.toHaveBeenCalled();
-  });
-
-  it('sends the chosen Dispatcher role', async () => {
-    const { calls } = mockFetch(jsonResponse(201, { user: DISPATCHER }));
-    const user = renderForm();
-
-    await fill(user, VALID);
-    await user.click(screen.getByRole('radio', { name: 'Dispatcher' }));
-    await submit(user);
-
-    await vi.waitFor(() => expect(useAuthStore.getState().status).toBe('authenticated'));
-    expect((JSON.parse(calls[0]?.body ?? 'null') as { role: string }).role).toBe('DISPATCHER');
-    expect(useAuthStore.getState().user).toEqual(DISPATCHER);
     expect(routerMock.replace).not.toHaveBeenCalled();
   });
 
@@ -149,13 +132,10 @@ describe('RegisterForm', () => {
     expect(passwordInput()).toHaveValue(VALID.password);
   });
 
-  it('puts server validation errors under Name and inside the role group', async () => {
+  it('puts server validation errors under Name', async () => {
     mockFetch(
       errorResponse(400, 'VALIDATION_ERROR', 'Request validation failed', {
-        details: [
-          { path: 'name', message: 'Enter your name' },
-          { path: 'role', message: 'Invalid option' },
-        ],
+        details: [{ path: 'name', message: 'Enter your name' }],
       }),
     );
     const user = renderForm();
@@ -165,7 +145,6 @@ describe('RegisterForm', () => {
 
     await vi.waitFor(() => expect(nameInput()).toHaveAttribute('aria-invalid', 'true'));
     expect(nameInput()).toHaveAccessibleDescription('Enter your name');
-    expect(within(roleGroup()).getByRole('alert')).toHaveTextContent('Invalid option');
     expect(formLevelAlerts()).toHaveLength(0);
   });
 

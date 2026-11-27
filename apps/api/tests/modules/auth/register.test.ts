@@ -4,7 +4,7 @@ import { ACCESS_TOKEN_COOKIE_NAME, CSRF_COOKIE_NAME, authResponseSchema } from '
 import { verifyPassword } from '../../../src/lib/password.js';
 import type { SessionClaims } from '../../../src/plugins/auth.js';
 import { buildTestApp } from '../../helpers/app.js';
-import { registerTestUser } from '../../helpers/auth.js';
+import { registerTestUser, sessionRequest } from '../../helpers/auth.js';
 import { resetDb } from '../../helpers/db.js';
 
 const URL = '/api/v1/auth/register';
@@ -85,22 +85,26 @@ describe('POST /api/v1/auth/register', () => {
     expect(claims.csrf).toBe(cookies[CSRF_COOKIE_NAME]!.value);
   });
 
-  it('accepts role DISPATCHER', async () => {
-    const response = await register({ ...BASE, role: 'DISPATCHER' });
+  it.each(['DISPATCHER', 'ADMIN'])('ignores a role of %s in the body and creates a CLIENT', async (role) => {
+    const response = await register({ ...BASE, role });
 
     expect(response.statusCode).toBe(201);
-    expect(authResponseSchema.parse(response.json()).user.role).toBe('DISPATCHER');
-  });
+    const { user } = authResponseSchema.parse(response.json());
+    expect(user.role).toBe('CLIENT');
+    const row = await app.prisma.user.findUnique({ where: { id: user.id } });
+    expect(row!.role).toBe('CLIENT');
 
-  it('rejects role ADMIN with a validation error and creates nothing', async () => {
-    const response = await register({ ...BASE, role: 'ADMIN' });
-
-    expect(response.statusCode).toBe(400);
-    const body = response.json<{ error: { code: string; details: Array<{ path: string }> } }>();
-    expect(body.error.code).toBe('VALIDATION_ERROR');
-    expect(body.error.details.map((detail) => detail.path)).toContain('role');
-    expect(response.headers['set-cookie']).toBeUndefined();
-    expect(await app.prisma.user.count()).toBe(0);
+    const cookies = cookiesByName(response);
+    const list = await app.inject({
+      method: 'GET',
+      url: '/api/v1/shipments',
+      cookies: {
+        access_token: cookies[ACCESS_TOKEN_COOKIE_NAME]!.value,
+        csrf_token: cookies[CSRF_COOKIE_NAME]!.value,
+      },
+    });
+    expect(list.statusCode).toBe(200);
+    expect(list.json<{ items: unknown[] }>().items).toEqual([]);
   });
 
   it('rejects an invalid body with a validation error and no cookies', async () => {
@@ -160,11 +164,26 @@ describe('POST /api/v1/auth/register', () => {
   });
 
   it('registerTestUser helper registers a user and returns its session', async () => {
-    const session = await registerTestUser(app, { role: 'DISPATCHER' });
+    const session = await registerTestUser(app);
 
-    expect(session.user.role).toBe('DISPATCHER');
+    expect(session.user.role).toBe('CLIENT');
     expect(session.user.email).toMatch(/^user-.+@example\.com$/);
     expect(session.cookies.access_token).not.toBe('');
     expect(session.csrfToken).toBe(session.cookies.csrf_token);
+  });
+
+  it('registerTestUser helper with role DISPATCHER returns a session that carries the role', async () => {
+    const session = await registerTestUser(app, { role: 'DISPATCHER' });
+
+    expect(session.user.role).toBe('DISPATCHER');
+    const claims = app.jwt.verify<SessionClaims>(session.cookies.access_token);
+    expect(claims.role).toBe('DISPATCHER');
+    const response = await app.inject({
+      method: 'POST',
+      url: '/api/v1/shipments',
+      ...sessionRequest(session),
+      payload: {},
+    });
+    expect(response.statusCode).not.toBe(403);
   });
 });

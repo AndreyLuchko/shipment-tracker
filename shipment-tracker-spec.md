@@ -211,7 +211,7 @@ Base URL: `/api/v1`. All responses JSON. Errors: `{ error: { code, message, deta
 ### Auth
 | Method | Path | Access | Notes |
 |---|---|---|---|
-| POST | `/auth/register` | public | MVP: role selectable for demo purposes; starts a session (same cookies as login), `201` |
+| POST | `/auth/register` | public | public; always creates a `CLIENT` (a `role` key in the body is ignored); dispatchers come from the seed (admin-created dispatchers: M8); starts a session (same cookies as login), `201` |
 | POST | `/auth/login` | public | sets `access_token` HttpOnly cookie + sets `csrf_token` cookie (non-HttpOnly, `Secure`, `SameSite=Lax`) |
 | POST | `/auth/logout` | authed + CSRF | clears both cookies, `204` |
 | GET | `/auth/me` | authed | current user |
@@ -361,7 +361,7 @@ The full contract is under "Webhook decisions" below.
 ## 8. Frontend (Next.js App Router)
 
 Routes:
-- `/login` (email + password, plus one-click demo accounts), `/register` (name, email, password, role)
+- `/login` (email + password, plus one-click demo accounts), `/register` (name, email, password; always creates a client)
 - `/shipments` — dashboard: table with status badges, filters (status, search across tracking number/origin/destination/description), pagination; dispatcher additionally sees client column + "New shipment" button
 - `/shipments/[id]` — detail: shipment info card + vertical movement timeline (event log rendered chronologically); dispatcher can add a manual status update (form with only legal next statuses enabled — the list is `allowedNextStatuses` from the detail response)
 - `/shipments/new` — dispatcher-only creation form (React Hook Form + shared Zod schema); the client is picked from `GET /users?role=CLIENT`
@@ -394,7 +394,7 @@ UX details worth the effort:
   `INVALID_CREDENTIALS` → a form-level message; `RATE_LIMITED` → a form-level message with the seconds from
   `Retry-After`; a `5xx`, a non-JSON answer or a network failure → "Service is unavailable. Please try again."
 - **Demo access:** `/login` offers "Demo dispatcher" and "Demo client" buttons that sign in with the seeded
-  accounts in one click. `/register` lets the visitor pick the role (demo only).
+  accounts in one click. `/register` has no role choice: it always creates a client.
 - **After signing in** the user lands on `/shipments`; `/` redirects there. The return to the page the
   visitor came from arrives with M6 (dashboard decisions below).
 - **Styling:** Tailwind CSS 4 (CSS-first, no config file), light theme, English UI.

@@ -26,7 +26,7 @@ export async function registerUser(prisma: PrismaClient, input: RegisterInput): 
   const passwordHash = await hashPassword(input.password);
   try {
     const user = await prisma.user.create({
-      data: { email: input.email, passwordHash, name: input.name, role: input.role },
+      data: { email: input.email, passwordHash, name: input.name, role: 'CLIENT' },
     });
     return toPublicUser(user);
   } catch (error) {

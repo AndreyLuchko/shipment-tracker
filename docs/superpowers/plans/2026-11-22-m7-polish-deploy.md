@@ -1971,7 +1971,7 @@ role choice.
 - `RegisterForm`: no "Account type" fieldset, no "Demo project: pick the role you want to try." hint, no
   `ROLE_OPTIONS`; default values `{ name, email, password }`.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 | Test | Expected |
 |---|---|
@@ -1983,10 +1983,10 @@ role choice.
 
   Remove the old rows that expected a `DISPATCHER` from the public route (shared schema, API register test, form).
 
-- [ ] **Step 2: Run them and see them fail.**
-- [ ] **Step 3: Implement** the interfaces above; update the spec rows to "public; always creates a `CLIENT`;
+- [x] **Step 2: Run them and see them fail.**
+- [x] **Step 3: Implement** the interfaces above; update the spec rows to "public; always creates a `CLIENT`;
   dispatchers come from the seed (admin-created dispatchers: M8)".
-- [ ] **Step 4: The gate** — `npm run test` (all workspaces, the API's against the test database), then
+- [x] **Step 4: The gate** — `npm run test` (all workspaces, the API's against the test database), then
   `npm run lint && npm run typecheck && npm run build`; exit `0`.
 - [ ] **Step 5: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
 
