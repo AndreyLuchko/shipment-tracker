@@ -1,8 +1,9 @@
 'use client';
 
 import Link from 'next/link';
-import type { ReactNode } from 'react';
+import { type ReactNode, useState } from 'react';
 
+import { EditShipmentForm } from '@/components/shipments/edit-shipment-form';
 import { ShipmentInfoCard } from '@/components/shipments/shipment-info-card';
 import { ShipmentTimeline } from '@/components/shipments/shipment-timeline';
 import { StatusBadge } from '@/components/shipments/status-badge';
@@ -21,6 +22,8 @@ import { useAuthStore } from '@/stores/auth';
 export function ShipmentDetailView({ id }: { id: string }): ReactNode {
   const detail = useShipmentQuery(id);
   const isDispatcher = useAuthStore((state) => state.user?.role === 'DISPATCHER');
+  const [editing, setEditing] = useState(false);
+  const [saved, setSaved] = useState(false);
 
   let content: ReactNode;
   if (detail.data !== undefined) {
@@ -35,8 +38,35 @@ export function ShipmentDetailView({ id }: { id: string }): ReactNode {
         <div className="mt-4 flex flex-wrap items-center gap-3">
           <h1 className="text-2xl font-semibold text-slate-900">{shipment.trackingNumber}</h1>
           <StatusBadge status={shipment.status} />
+          {isDispatcher && !editing && (
+            <Button
+              variant="secondary"
+              className="ml-auto"
+              onClick={() => {
+                setSaved(false);
+                setEditing(true);
+              }}
+            >
+              Edit details
+            </Button>
+          )}
         </div>
-        <ShipmentInfoCard shipment={shipment} />
+        {isDispatcher && editing ? (
+          <EditShipmentForm
+            shipment={shipment}
+            onClose={(didSave) => {
+              setEditing(false);
+              setSaved(didSave);
+            }}
+          />
+        ) : (
+          <ShipmentInfoCard shipment={shipment} />
+        )}
+        {saved && (
+          <p role="status" className="mt-3 text-sm text-emerald-700">
+            Details saved.
+          </p>
+        )}
         <section aria-labelledby="timeline-heading">
           <div className="mt-8 flex items-center justify-between">
             <h2 id="timeline-heading" className="text-lg font-semibold text-slate-900">

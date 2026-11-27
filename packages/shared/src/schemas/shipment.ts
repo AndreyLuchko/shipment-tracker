@@ -94,7 +94,10 @@ export type CreateShipmentInput = z.infer<typeof createShipmentSchema>;
 /** Body of `PATCH /shipments/:id`. Strict: any other key is a `400`; `weightKg: null` clears the weight. */
 export const updateShipmentSchema = z
   .strictObject({
-    description: cleanText(1, 500).optional(),
+    description: cleanText(1, 500, {
+      min: 'Enter a description',
+      max: 'Description must be at most 500 characters',
+    }).optional(),
     weightKg: weightKgSchema.nullable().optional(),
   })
   .refine((body) => body.description !== undefined || body.weightKg !== undefined, {

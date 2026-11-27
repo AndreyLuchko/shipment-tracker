@@ -1860,7 +1860,7 @@ export function EditShipmentForm(props: { shipment: ShipmentDetail; onClose: (sa
     editing, the form replaces the info card. After a save the card shows the new values and `Details saved.`
     (`role="status"`) until the next edit.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 | Where | Case | Expected |
 |---|---|---|
@@ -1886,7 +1886,7 @@ export function EditShipmentForm(props: { shipment: ShipmentDetail; onClose: (sa
 | detail | client | no `Edit details` |
 | detail | after a successful save | the card shows `Two boxes` and `Details saved.` |
 
-- [ ] **Step 2: Run them and see them fail**; **Step 3: implement**; **Step 4: the gate** (exit `0`).
+- [x] **Step 2: Run them and see them fail**; **Step 3: implement**; **Step 4: the gate** (exit `0`).
 
 - [ ] **Step 5: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
 

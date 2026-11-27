@@ -4,6 +4,7 @@ import type {
   ListShipmentsQuery,
   ShipmentDetail,
   ShipmentListResponse,
+  UpdateShipmentInput,
   UserSummary,
 } from '@shipment-tracker/shared';
 import {
@@ -16,7 +17,7 @@ import {
 } from '@tanstack/react-query';
 
 import { ApiError } from '@/lib/api/client';
-import { addShipmentEvent, createShipment, fetchShipment, fetchShipments } from '@/lib/api/shipments';
+import { addShipmentEvent, createShipment, fetchShipment, fetchShipments, updateShipment } from '@/lib/api/shipments';
 import { fetchClients } from '@/lib/api/users';
 
 export const shipmentKeys = {
@@ -73,6 +74,18 @@ export function useAddShipmentEvent(id: string): UseMutationResult<ShipmentDetai
         return queryClient.invalidateQueries({ queryKey: shipmentKeys.detail(id) });
       }
       return undefined;
+    },
+  });
+}
+
+/** On success: the returned shipment replaces the detail cache entry and every list is invalidated. */
+export function useUpdateShipment(id: string): UseMutationResult<ShipmentDetail, Error, UpdateShipmentInput> {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (input: UpdateShipmentInput) => updateShipment(id, input),
+    onSuccess: (shipment) => {
+      queryClient.setQueryData(shipmentKeys.detail(id), shipment);
+      return queryClient.invalidateQueries({ queryKey: shipmentKeys.lists() });
     },
   });
 }

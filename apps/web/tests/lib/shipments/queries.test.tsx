@@ -12,6 +12,7 @@ import {
   useCreateShipment,
   useShipmentQuery,
   useShipmentsQuery,
+  useUpdateShipment,
 } from '@/lib/shipments/queries';
 
 import { deferred, errorResponse, jsonResponse, mockFetch, textResponse } from '../../helpers/fetch';
@@ -211,5 +212,27 @@ describe('useAddShipmentEvent', () => {
     expect(error).toBeInstanceOf(Error);
     expect(queryClient.getQueryData(shipmentKeys.detail('shp1'))).toEqual(SHIPMENT_DETAIL);
     expect(state(shipmentKeys.detail('shp1'))?.isInvalidated).toBe(false);
+  });
+});
+
+describe('useUpdateShipment', () => {
+  it('replaces the detail with the returned shipment and invalidates the lists', async () => {
+    const { queryClient, wrapper, state } = setup();
+    queryClient.setQueryData<ShipmentDetail>(shipmentKeys.detail('shp1'), SHIPMENT_DETAIL);
+    queryClient.setQueryData<ShipmentListResponse>(
+      shipmentKeys.list({ page: 1, sort: 'newest' }),
+      listPage([SHIPMENT]),
+    );
+    const updated: ShipmentDetail = { ...SHIPMENT_DETAIL, description: 'Two boxes' };
+    const { calls } = mockFetch(DETAIL(updated));
+    const { result } = renderHook(() => useUpdateShipment('shp1'), { wrapper });
+
+    await act(async () => {
+      await result.current.mutateAsync({ description: 'Two boxes' });
+    });
+
+    expect(calls[0]?.method).toBe('PATCH');
+    expect(queryClient.getQueryData(shipmentKeys.detail('shp1'))).toEqual(updated);
+    expect(state(shipmentKeys.list({ page: 1, sort: 'newest' }))?.isInvalidated).toBe(true);
   });
 });

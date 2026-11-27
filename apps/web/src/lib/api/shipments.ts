@@ -5,6 +5,7 @@ import {
   type ListShipmentsQuery,
   type ShipmentDetail,
   type ShipmentListResponse,
+  type UpdateShipmentInput,
   shipmentListResponseSchema,
   shipmentResponseSchema,
 } from '@shipment-tracker/shared';
@@ -43,6 +44,16 @@ export async function createShipment(input: CreateShipmentInput): Promise<Shipme
 export async function addShipmentEvent(id: string, input: CreateShipmentEventInput): Promise<ShipmentDetail> {
   const { shipment } = await apiRequest(`${shipmentPath(id)}/events`, {
     method: 'POST',
+    body: input,
+    schema: shipmentResponseSchema,
+  });
+  return shipment;
+}
+
+/** PATCH /shipments/:id → the shipment with the changed keys. Not retried: only safe requests are. */
+export async function updateShipment(id: string, input: UpdateShipmentInput): Promise<ShipmentDetail> {
+  const { shipment } = await apiRequest(shipmentPath(id), {
+    method: 'PATCH',
     body: input,
     schema: shipmentResponseSchema,
   });

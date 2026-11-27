@@ -1,7 +1,7 @@
 import type { CreateShipmentInput, ShipmentDetail, ShipmentSummary } from '@shipment-tracker/shared';
 import { describe, expect, it } from 'vitest';
 
-import { addShipmentEvent, createShipment, fetchShipment, fetchShipments } from '@/lib/api/shipments';
+import { addShipmentEvent, createShipment, fetchShipment, fetchShipments, updateShipment } from '@/lib/api/shipments';
 import { ApiError, NetworkError } from '@/lib/api/client';
 import { waitBeforeRetry } from '@/lib/api/retry-delay';
 
@@ -115,6 +115,19 @@ describe('createShipment', () => {
   });
 });
 
+describe('updateShipment', () => {
+  it('patches only the given keys and resolves the shipment', async () => {
+    setCookie('csrf_token', 'tok_-1');
+    const { calls } = mockFetch(DETAIL(SHIPMENT_DETAIL));
+
+    await expect(updateShipment('shp1', { weightKg: null })).resolves.toEqual(SHIPMENT_DETAIL);
+    expect(calls[0]?.method).toBe('PATCH');
+    expect(calls[0]?.url).toBe('/api/v1/shipments/shp1');
+    expect(calls[0]?.body).toBe('{"weightKg":null}');
+    expect(calls[0]?.headers.get('x-csrf-token')).toBe('tok_-1');
+  });
+});
+
 describe('addShipmentEvent', () => {
   const call = () => addShipmentEvent('shp1', { status: 'AT_WAREHOUSE', location: 'Kharkiv hub' });
 
@@ -163,6 +176,7 @@ describe('the one retry', () => {
   it.each([
     ['createShipment', () => createShipment({} as CreateShipmentInput)],
     ['addShipmentEvent', () => addShipmentEvent('shp1', { status: 'AT_WAREHOUSE', location: 'Kharkiv hub' })],
+    ['updateShipment', () => updateShipment('shp1', { weightKg: null })],
   ])('%s is not sent again after OFFLINE', async (_name, run) => {
     const { calls } = mockFetch(OFFLINE());
 

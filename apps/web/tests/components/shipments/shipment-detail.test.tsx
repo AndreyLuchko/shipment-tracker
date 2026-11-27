@@ -318,3 +318,53 @@ describe('ShipmentDetailView — the status update form', () => {
     expect(screen.queryByRole('button', { name: 'Add update' })).not.toBeInTheDocument();
   });
 });
+
+describe('ShipmentDetailView: edit details', () => {
+  const editButton = () => screen.getByRole('button', { name: 'Edit details' });
+
+  beforeEach(() => {
+    vi.setSystemTime(NOW);
+    setCookie('csrf_token', 'tok_-1');
+    useAuthStore.setState({ status: 'authenticated', user: DISPATCHER });
+  });
+
+  it('shows the form instead of the card when a dispatcher clicks "Edit details"', async () => {
+    mockFetch(DETAIL(SHIPMENT_DETAIL));
+    renderDetail();
+    await screen.findByRole('heading', { level: 1, name: 'ST-2026-000002' });
+    expect(screen.getByLabelText('Shipment details')).toBeInTheDocument();
+
+    await userEvent.setup().click(editButton());
+
+    expect(screen.getByLabelText('Description')).toHaveValue('Box of spare machine parts');
+    expect(screen.queryByLabelText('Shipment details')).not.toBeInTheDocument();
+  });
+
+  it('offers no "Edit details" to a client', async () => {
+    useAuthStore.setState({ status: 'authenticated', user: USER });
+    mockFetch(DETAIL(SHIPMENT_DETAIL));
+    renderDetail();
+
+    await screen.findByRole('heading', { level: 1, name: 'ST-2026-000002' });
+    expect(screen.queryByRole('button', { name: 'Edit details' })).not.toBeInTheDocument();
+  });
+
+  it('shows the new values and "Details saved." after a save, and hides the note on the next edit', async () => {
+    mockFetch(DETAIL(SHIPMENT_DETAIL), DETAIL({ ...SHIPMENT_DETAIL, description: 'Two boxes' }));
+    renderDetail();
+    await screen.findByRole('heading', { level: 1, name: 'ST-2026-000002' });
+    const user = userEvent.setup();
+
+    await user.click(editButton());
+    await user.clear(screen.getByLabelText('Description'));
+    await user.type(screen.getByLabelText('Description'), 'Two boxes');
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+
+    expect(await screen.findByText('Two boxes')).toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveTextContent('Details saved.');
+    expect(screen.queryByLabelText('Description')).not.toBeInTheDocument();
+
+    await user.click(editButton());
+    expect(screen.queryByText('Details saved.')).not.toBeInTheDocument();
+  });
+});

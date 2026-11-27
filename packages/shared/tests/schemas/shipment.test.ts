@@ -480,6 +480,15 @@ describe('validation messages', () => {
     expect(result.data).not.toHaveProperty('extra');
   });
 
+  it('explains an empty and a too long description', () => {
+    expect(messagesAt(updateShipmentSchema.safeParse({ description: '' }), 'description')).toEqual([
+      'Enter a description',
+    ]);
+    expect(messagesAt(updateShipmentSchema.safeParse({ description: 'x'.repeat(501) }), 'description')).toEqual([
+      'Description must be at most 500 characters',
+    ]);
+  });
+
   it('uses the weight messages in updateShipmentSchema', () => {
     expect(messagesAt(updateShipmentSchema.safeParse({ weightKg: 0 }), 'weightKg')).toEqual([
       'Weight must be greater than 0',
