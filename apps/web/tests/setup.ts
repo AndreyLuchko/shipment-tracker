@@ -32,6 +32,26 @@ vi.mock('@/lib/api/retry-delay', () => ({
   waitBeforeRetry: vi.fn(() => Promise.resolve()),
 }));
 
+// jsdom lacks these browser APIs; Radix Popover, Select and DropdownMenu call them.
+if (typeof window !== 'undefined') {
+  // Typed loosely so the `in` checks do not narrow the DOM types to `never`.
+  const win = window as unknown as Record<string, unknown>;
+  const proto = Element.prototype as unknown as Record<string, unknown>;
+  if (!('ResizeObserver' in win)) {
+    class ResizeObserverStub {
+      observe(): void {}
+      unobserve(): void {}
+      disconnect(): void {}
+    }
+    // Not `vi.stubGlobal`: the `afterEach` below would unstub it.
+    win.ResizeObserver = ResizeObserverStub;
+  }
+  if (!('hasPointerCapture' in proto)) proto.hasPointerCapture = () => false;
+  if (!('setPointerCapture' in proto)) proto.setPointerCapture = () => {};
+  if (!('releasePointerCapture' in proto)) proto.releasePointerCapture = () => {};
+  if (!('scrollIntoView' in proto)) proto.scrollIntoView = () => {};
+}
+
 // Vitest `globals` is off, so React Testing Library's automatic cleanup does not run.
 afterEach(() => {
   cleanup();

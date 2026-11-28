@@ -135,14 +135,14 @@ All commands run from `/Users/andrii/Desktop/HOME/shipment-tracker`. API tests a
     `account-menu.tsx` and used by both `AppHeader` and `AccountMenu` (moves today's `onLogOut` logic; one source).
   - jsdom polyfills in `tests/setup.ts` for Radix (used by 19e too).
 
-- [ ] **Step 1: Install** —
+- [x] **Step 1: Install** —
       `npm install --save-exact radix-ui@1.8.1 @radix-ui/react-icons@1.3.2 -w apps/web`; check `apps/web/package.json`
       lists exactly those two new entries without `^`.
-- [ ] **Step 2: jsdom polyfills** in `tests/setup.ts`, only what Radix Popover/Select/DropdownMenu need under jsdom:
+- [x] **Step 2: jsdom polyfills** in `tests/setup.ts`, only what Radix Popover/Select/DropdownMenu need under jsdom:
       `ResizeObserver` (no-op class), `Element.prototype.hasPointerCapture`/`setPointerCapture`/`releasePointerCapture`,
       `Element.prototype.scrollIntoView`; each guarded by `if (!(... in ...))`. `npm run test -w apps/web` still passes
       (685 tests).
-- [ ] **Step 3: Failing tests** in `app-header.test.tsx` (update the existing ones that look for the app-name text):
+- [x] **Step 3: Failing tests** in `app-header.test.tsx` (update the existing ones that look for the app-name text):
   - `it('shows the logo as a link to the list named Shipment Tracker')` — `getByRole('link', { name: 'Shipment
 Tracker' })` has `href="/shipments"` and contains an `svg`; no visible text "Shipment Tracker".
   - `it('wraps the desktop controls in a group hidden below sm')` — the theme switcher, name, role and "Log out"
@@ -157,20 +157,20 @@ Tracker' })` has `href="/shipments"` and contains an `svg`; no visible text "Shi
 
   Run → FAIL.
 
-- [ ] **Step 4: Implement** `useLogout`, `AccountMenu`, and the new `AppHeader` layout:
+- [x] **Step 4: Implement** `useLogout`, `AccountMenu`, and the new `AppHeader` layout:
       `[Link(LogoMark h-10 w-auto, aria-label "Shipment Tracker")] … [div.hidden.sm:flex: ThemeSwitcher, name
 (truncate, max-w-[12rem]), role badge, error, Log out] [div.sm:hidden: AccountMenu]` (the logo is 40 px tall, owner
       2026-11-28). Popover content: `align="end"`,
       `sideOffset={8}`, `bg-surface border-line text-ink`, rounded-xl, shadow, `z-50`.
-- [ ] **Step 5: Theme switcher icons** → `DesktopIcon`, `SunIcon`, `MoonIcon` from `@radix-ui/react-icons`
+- [x] **Step 5: Theme switcher icons** → `DesktopIcon`, `SunIcon`, `MoonIcon` from `@radix-ui/react-icons`
       (labels, `aria-pressed` and behaviour unchanged; its tests still pass unchanged).
-- [ ] **Step 6: Run** `npm run test -w apps/web -- app-header account-menu theme-switcher` → PASS.
-- [ ] **Step 7: Browser check** — production build + API (`COOKIE_SECURE=false npm run dev -w apps/api`), headless
+- [x] **Step 6: Run** `npm run test -w apps/web -- app-header account-menu theme-switcher` → PASS.
+- [x] **Step 7: Browser check** — production build + API (`COOKIE_SECURE=false npm run dev -w apps/api`), headless
       Playwright as Demo dispatcher at 320×700, 375×812, 640×800, 1280×800, light and dark: header one line,
       `document.documentElement.scrollWidth <= innerWidth`, account menu opens/closes by keyboard. Also Review Focus 4:
       temporarily long name via a register of a test client named with 40 characters on the **local** DB only. Screenshots
       to the scratchpad; look at them. Stop servers; revert `next-env.d.ts`.
-- [ ] **Step 8: Gate** — `npm run lint && npm run typecheck && npm run test && npm run build` exit 0;
+- [x] **Step 8: Gate** — `npm run lint && npm run typecheck && npm run test && npm run build` exit 0;
       `npm run e2e -w apps/web` still 1 passed (its `Log out` click runs at the default 1280 width).
 - [ ] **Step 9: Commit (informational)** — `feat: add the logo to the header and an account menu on phones`.
 

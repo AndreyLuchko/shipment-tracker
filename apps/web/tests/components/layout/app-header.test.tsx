@@ -30,13 +30,38 @@ describe('AppHeader', () => {
     expect(routerMock.replace).not.toHaveBeenCalled();
   });
 
-  it("shows the app name as a link to the list, the user's name, the role and a Log out button", () => {
+  it('shows the logo as a link to the list named Shipment Tracker', () => {
+    signIn();
+    mockFetch();
+
+    const { container } = render(<AppHeader />);
+
+    const link = screen.getByRole('link', { name: 'Shipment Tracker' });
+    expect(link).toHaveAttribute('href', '/shipments');
+    expect(link.querySelector('svg')).not.toBeNull();
+    expect(container).not.toHaveTextContent('Shipment Tracker');
+  });
+
+  it('wraps the desktop controls in a group hidden below sm', () => {
+    signIn(DISPATCHER);
+    mockFetch();
+
+    render(<AppHeader />);
+
+    const desktop = logOutButton().parentElement;
+    expect(desktop).toHaveClass('hidden', 'sm:flex');
+    expect(desktop).toContainElement(screen.getByRole('group', { name: 'Theme' }));
+    expect(desktop).toContainElement(screen.getByText('Demo Dispatcher'));
+    expect(desktop).toContainElement(screen.getByText('Dispatcher'));
+    expect(screen.getByRole('button', { name: 'Account menu' }).parentElement).toHaveClass('sm:hidden');
+  });
+
+  it("shows the user's name, the role and a Log out button", () => {
     signIn();
     mockFetch();
 
     render(<AppHeader />);
 
-    expect(screen.getByRole('link', { name: 'Shipment Tracker' })).toHaveAttribute('href', '/shipments');
     expect(screen.getByText('Demo Client')).toBeInTheDocument();
     expect(screen.getByText('Client')).toBeInTheDocument();
     expect(logOutButton()).toHaveAttribute('type', 'button');

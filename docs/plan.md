@@ -113,7 +113,7 @@ Detailed per-milestone plans live in `docs/superpowers/plans/`.
   - Tasks 19b–19f (owner's decision 2026-11-28) → design: `docs/superpowers/specs/2026-11-28-mobile-header-and-list-toolbar-design.md`,
     plan: `docs/superpowers/plans/2026-11-28-logo-header-toolbar.md`
     - [x] Task 19b — logo mark, favicon and OG image (owner approves the look)
-    - [ ] Task 19c — Radix (`radix-ui`, `@radix-ui/react-icons`), header with the logo, account menu on phones
+    - [x] Task 19c — Radix (`radix-ui`, `@radix-ui/react-icons`), header with the logo, account menu on phones
     - [ ] Task 19d — search by client name (API)
     - [ ] Task 19e — Radix toolbar: Status select, Sort menu, "Filters and sort" popover on phones
     - [ ] Task 19f — search clear button, the search-after-reload bug, fresh README screenshots
