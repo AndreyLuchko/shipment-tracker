@@ -46,14 +46,20 @@ function escapeLike(text: string): string {
   return text.replace(/[\\%_]/g, (char) => `\\${char}`);
 }
 
-/** Case-insensitive substring match over the four searchable fields (spec §7). */
+/** Case-insensitive substring match over the five searchable fields, the owning client's name included (spec §7). */
 function searchFilter(search: string | undefined): Prisma.ShipmentWhereInput {
   if (search === undefined) {
     return {};
   }
   const contains = { contains: escapeLike(search), mode: 'insensitive' as const };
   return {
-    OR: [{ trackingNumber: contains }, { origin: contains }, { destination: contains }, { description: contains }],
+    OR: [
+      { trackingNumber: contains },
+      { origin: contains },
+      { destination: contains },
+      { description: contains },
+      { client: { name: contains } },
+    ],
   };
 }
 

@@ -194,7 +194,7 @@ looks as before except the logo.
 Fixture facts (existing test file): clients `Client A` (owns `ST-TEST-A1..A3`) and `Client B` (owns
 `ST-TEST-B1..B2`), default order newest first.
 
-- [ ] **Step 1: Failing tests** in the existing `search` describe:
+- [x] **Step 1: Failing tests** in the existing `search` describe:
   - `it('finds shipments by client name, case-insensitively')` →
     `ids(await list(dispatcher, 'search=client%20b'))` equals `['ST-TEST-B2', 'ST-TEST-B1']`.
   - `it("never matches another client's name")` → `ids(await list(clientA, 'search=client%20b'))` equals `[]`.
@@ -203,12 +203,12 @@ Fixture facts (existing test file): clients `Client A` (owns `ST-TEST-A1..A3`) a
 
   Run `npm run test -w apps/api -- list-shipments` → the first and third FAIL.
 
-- [ ] **Step 2: Implement** — add `{ client: { name: contains } }` to the `OR` in `searchFilter`; update its doc
+- [x] **Step 2: Implement** — add `{ client: { name: contains } }` to the `OR` in `searchFilter`; update its doc
       comment ("five searchable fields"). Run → PASS, and the whole file passes (wildcard tests unchanged).
-- [ ] **Step 3: Spec** — in `shipment-tracker-spec.md` add "the client's name" to the `search` description of
+- [x] **Step 3: Spec** — in `shipment-tracker-spec.md` add "the client's name" to the `search` description of
       `GET /shipments` (~223), the list rules (~308) and the dashboard bullet (~365).
-- [ ] **Step 4: Gate** — `npm run lint && npm run typecheck && npm run test -w apps/api` exit 0.
-- [ ] **Step 5: Commit (informational)** — `feat: search shipments by client name`.
+- [x] **Step 4: Gate** — `npm run lint && npm run typecheck && npm run test -w apps/api` exit 0.
+- [x] **Step 5: Commit (informational)** — `feat: search shipments by client name`.
 
 **Done when:** a dispatcher finds every shipment of a client by typing part of the client's name, and a client never
 matches another client.

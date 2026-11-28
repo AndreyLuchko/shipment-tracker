@@ -220,7 +220,7 @@ Base URL: `/api/v1`. All responses JSON. Errors: `{ error: { code, message, deta
 | Method | Path | Access | Notes |
 |---|---|---|---|
 | POST | `/shipments` | DISPATCHER | body `{ clientId, origin, destination, description, weightKg? }`; creates shipment + initial `CREATED` event (`source: SYSTEM`); `201` `{ shipment }` |
-| GET | `/shipments` | authed | dispatcher: all; client: own only. Query: `status` (one status), `search` (matches `trackingNumber`, `origin`, `destination`, `description`), `page`, `sort` (`newest` — the default, `oldest`, `updated`, `stale`). `200` `{ items, page, pageSize, total, totalPages }` |
+| GET | `/shipments` | authed | dispatcher: all; client: own only. Query: `status` (one status), `search` (matches `trackingNumber`, `origin`, `destination`, `description`, the client's name), `page`, `sort` (`newest` — the default, `oldest`, `updated`, `stale`). `200` `{ items, page, pageSize, total, totalPages }` |
 | GET | `/shipments/:id` | authed (owner or dispatcher) | `200` `{ shipment }` with ordered `events[]` and `allowedNextStatuses[]`; someone else's shipment ⇒ `404` |
 | PATCH | `/shipments/:id` | DISPATCHER | editable fields only (`description`, `weightKg`); any other key ⇒ `400`; `200` `{ shipment }` |
 | POST | `/shipments/:id/events` | DISPATCHER | body `{ status, location?, note?, occurredAt? }`; manual status update (source=MANUAL), state machine enforced; `201` `{ shipment }`, exact duplicate ⇒ `200` |
@@ -305,8 +305,8 @@ The full contract is under "Webhook decisions" below.
   other key, or an empty body, ⇒ `400 VALIDATION_ERROR`. There is no delete endpoint.
 - **List:** `page` is 1-based; the page size is fixed at 20. Response
   `{ items, page, pageSize, total, totalPages }`, newest first unless `sort` says otherwise; a page past the end is `200` with empty
-  `items`. `status` takes exactly one status. `search` is a case-insensitive substring match; `%`, `_` and
-  `\` are matched literally.
+  `items`. `status` takes exactly one status. `search` is a case-insensitive substring match over the tracking number,
+  origin, destination, description and the client's name; `%`, `_` and `\` are matched literally.
 - **Sort (M7):** `sort=newest` (the default: `createdAt` descending), `oldest` (`createdAt` ascending),
   `updated` (`updatedAt` descending — the latest movement first) or `stale` (`updatedAt` ascending — the longest
   without movement first); ties are broken by `id` in the same direction. Any other value ⇒ `400
@@ -362,7 +362,7 @@ The full contract is under "Webhook decisions" below.
 
 Routes:
 - `/login` (email + password, plus one-click demo accounts), `/register` (name, email, password; always creates a client)
-- `/shipments` — dashboard: table with status badges, filters (status, search across tracking number/origin/destination/description), pagination; dispatcher additionally sees client column + "New shipment" button
+- `/shipments` — dashboard: table with status badges, filters (status, search across tracking number/origin/destination/description/the client's name), pagination; dispatcher additionally sees client column + "New shipment" button
 - `/shipments/[id]` — detail: shipment info card + vertical movement timeline (event log rendered chronologically); dispatcher can add a manual status update (form with only legal next statuses enabled — the list is `allowedNextStatuses` from the detail response)
 - `/shipments/new` — dispatcher-only creation form (React Hook Form + shared Zod schema); the client is picked from `GET /users?role=CLIENT`
 

@@ -219,6 +219,18 @@ describe('GET /api/v1/shipments', () => {
         expect(ids(await list(clientA, 'search=kyiv'))).toEqual(['ST-TEST-A3', 'ST-TEST-A1']);
       });
 
+      it('finds shipments by client name, case-insensitively', async () => {
+        expect(ids(await list(dispatcher, 'search=client%20b'))).toEqual(['ST-TEST-B2', 'ST-TEST-B1']);
+      });
+
+      it("never matches another client's name", async () => {
+        expect(ids(await list(clientA, 'search=client%20b'))).toEqual([]);
+      });
+
+      it('matches its own name for a client', async () => {
+        expect(ids(await list(clientA, 'search=client%20a'))).toEqual(['ST-TEST-A3', 'ST-TEST-A2', 'ST-TEST-A1']);
+      });
+
       it('treats a whitespace-only search as no filter', async () => {
         expect((await list(dispatcher, 'search=%20%20')).json().total).toBe(5);
       });
