@@ -33,7 +33,7 @@ export function AppHeader(): ReactNode {
 
   return (
     <header className="border-b border-line bg-surface">
-      <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
+      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
         <Link href="/shipments" className="font-semibold text-ink hover:text-accent">
           {APP_NAME}
         </Link>

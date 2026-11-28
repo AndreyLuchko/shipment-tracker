@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "e2e": "playwright test --project=smoke",
+    "screenshots": "playwright test --project=screenshots",
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },

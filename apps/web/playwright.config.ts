@@ -12,5 +12,12 @@ export default defineConfig({
     reducedMotion: 'reduce',
     trace: 'retain-on-failure',
   },
-  projects: [{ name: 'smoke', testMatch: 'smoke.spec.ts', use: { ...devices['Desktop Chrome'] } }],
+  projects: [
+    { name: 'smoke', testMatch: 'smoke.spec.ts', use: { ...devices['Desktop Chrome'] } },
+    {
+      name: 'screenshots',
+      testMatch: 'screenshots.spec.ts',
+      use: { ...devices['Desktop Chrome'], viewport: { width: 1280, height: 800 }, deviceScaleFactor: 1 },
+    },
+  ],
 });

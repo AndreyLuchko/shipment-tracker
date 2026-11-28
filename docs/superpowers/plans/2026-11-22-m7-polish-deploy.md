@@ -2322,9 +2322,9 @@ The shots:
 The dark shots run in a `test.describe` with `test.use({ colorScheme: 'dark' })`. Every shot waits for its
 content: the table rows, or the timeline items of the detail.
 
-- [ ] **Step 1: Write the spec and the project.**
+- [x] **Step 1: Write the spec and the project.**
 
-- [ ] **Step 2: Generate against a fresh local data set and a production build** (no dev overlay in the images)
+- [x] **Step 2: Generate against a fresh local data set and a production build** (no dev overlay in the images)
 
 ```bash
 npm run db:demo-reset -w apps/api -- --confirm localhost
@@ -2338,7 +2338,7 @@ Expected:
 - `8 passed`;
 - eight PNGs, each under 500 KB, about 2 MB together.
 
-- [ ] **Step 3: Look at every image** (the Read tool shows them):
+- [x] **Step 3: Look at every image** (the Read tool shows them):
   - no error or empty state, no Next.js dev indicator;
   - relative times read "… ago";
   - the dark images are dark;
@@ -2346,7 +2346,7 @@ Expected:
 
   Regenerate after any UI change with the same three commands.
 
-- [ ] **Step 4: The gate** — `npm run lint && npm run typecheck && npm run test && npm run build`; exit `0`;
+- [x] **Step 4: The gate** — `npm run lint && npm run typecheck && npm run test && npm run build`; exit `0`;
   `npm run e2e -w apps/web` still runs one test.
 
 - [ ] **Step 5: Commit (informational — do not execute `git commit`/`git push`; prepare and report only)**
