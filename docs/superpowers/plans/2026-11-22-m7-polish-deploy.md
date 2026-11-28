@@ -2428,9 +2428,9 @@ UI in both themes.
     - signed webhook timestamps.
 15. Footer: a link to the spec and to `docs/plan.md`.
 
-- [ ] **Step 1: Write the README.**
+- [x] **Step 1: Write the README.**
 
-- [ ] **Step 2: Verify**
+- [x] **Step 2: Verify**
 
 ```bash
 grep -o '](\./[^)#]*' README.md | sed 's/](\.\///' | sort -u | while read -r f; do [ -e "$f" ] || echo "missing: $f"; done
