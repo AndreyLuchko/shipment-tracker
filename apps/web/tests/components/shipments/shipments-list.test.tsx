@@ -242,7 +242,9 @@ describe('ShipmentsList', () => {
       renderList();
       await vi.waitFor(() => expect(bodyRows()).toHaveLength(2));
 
-      await userEvent.setup().selectOptions(screen.getByLabelText('Status'), 'EXCEPTION');
+      const user = userEvent.setup();
+      await user.click(screen.getByRole('combobox', { name: 'Status' }));
+      await user.click(screen.getByRole('option', { name: 'Exception' }));
 
       await vi.waitFor(() => expect(calls[1]?.url).toBe('/api/v1/shipments?status=EXCEPTION&page=1'));
       await vi.waitFor(() => expect(bodyRows()).toHaveLength(1));
@@ -287,7 +289,7 @@ describe('ShipmentsList', () => {
 
       expect(await screen.findByText('1 shipment')).toBeInTheDocument();
       expect(screen.getByLabelText('Search')).toBeInTheDocument();
-      expect(screen.getByLabelText('Status')).toBeInTheDocument();
+      expect(screen.getByRole('combobox', { name: 'Status' })).toBeInTheDocument();
     });
 
     it('shows the toolbar but no count or pagination when the list is empty', async () => {
@@ -296,7 +298,7 @@ describe('ShipmentsList', () => {
 
       await screen.findByText('No shipments yet.');
       expect(screen.getByLabelText('Search')).toBeInTheDocument();
-      expect(screen.getByLabelText('Status')).toBeInTheDocument();
+      expect(screen.getByRole('combobox', { name: 'Status' })).toBeInTheDocument();
       expect(screen.queryByText(/\bshipments?$/)).not.toBeInTheDocument();
       expect(screen.queryByRole('button', { name: 'Previous' })).not.toBeInTheDocument();
       expect(screen.queryByRole('button', { name: 'Next' })).not.toBeInTheDocument();
@@ -310,7 +312,7 @@ describe('ShipmentsList', () => {
 
       act(() => navigate('/shipments'));
 
-      expect(screen.getByLabelText('Status')).toHaveValue('');
+      expect(screen.getByRole('combobox', { name: 'Status' })).toHaveTextContent('All statuses');
       await vi.waitFor(() => expect(bodyRows()).toHaveLength(1));
       expect(calls[1]?.url).toBe('/api/v1/shipments?page=1');
     });
@@ -320,7 +322,7 @@ describe('ShipmentsList', () => {
       renderList();
 
       const alert = await screen.findByRole('alert');
-      const toolbarSelect = screen.getByLabelText('Status');
+      const toolbarSelect = screen.getByRole('combobox', { name: 'Status' });
       expect(toolbarSelect.compareDocumentPosition(alert) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     });
   });

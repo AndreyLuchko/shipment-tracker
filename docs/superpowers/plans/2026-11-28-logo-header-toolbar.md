@@ -253,7 +253,7 @@ DEFAULT_SHIPMENT_SORT })))`, then close).
     `div.sm:hidden` (FiltersPopover). Placeholder: dispatcher `Tracking number, client, city or description`,
     client `Tracking number, city or description`. The search box and its debounce logic are not changed here.
 
-- [ ] **Step 1: Rewrite the toolbar tests for Radix** — status/sort tests now drive the `combobox` named `Status`
+- [x] **Step 1: Rewrite the toolbar tests for Radix** — status/sort tests now drive the `combobox` named `Status`
       and the button `Sort: …` (open with `user.click`, pick `getByRole('option'|'menuitemradio', { name })`).
       Keep every existing behaviour assertion (pushed hrefs, page dropped, search kept, `All statuses` / `Newest first`
       drop the key, no navigation on mount). Add:
@@ -271,13 +271,13 @@ DEFAULT_SHIPMENT_SORT })))`, then close).
 
   Run `npm run test -w apps/web -- shipments-toolbar filters-popover sort-menu status-select select` → FAIL.
 
-- [ ] **Step 2: Implement** `Select`, `StatusSelect`, `SortMenu`, `FiltersPopover`, the toolbar layout and
+- [x] **Step 2: Implement** `Select`, `StatusSelect`, `SortMenu`, `FiltersPopover`, the toolbar layout and
       placeholders. Hide nothing with JS — breakpoints are CSS only. Popover/menu content: `bg-surface border-line
 text-ink shadow`, `z-50`, `sideOffset={8}`. Run the tests → PASS.
-- [ ] **Step 3: Browser check** — production build + API, headless Playwright at 375×812 and 1280×800, both
+- [x] **Step 3: Browser check** — production build + API, headless Playwright at 375×812 and 1280×800, both
       themes, dispatcher and client: toolbar one row, no horizontal overflow, Status/Sort/popover usable by mouse and
       keyboard, badge count right. Screenshots to the scratchpad; look at them. Stop servers; revert `next-env.d.ts`.
-- [ ] **Step 4: Gate** — `npm run lint && npm run typecheck && npm run test && npm run build` exit 0;
+- [x] **Step 4: Gate** — `npm run lint && npm run typecheck && npm run test && npm run build` exit 0;
       `npm run e2e -w apps/web` 1 passed.
 - [ ] **Step 5: Commit (informational)** — `feat: Radix status select, sort menu and a filters popover on phones`.
 

@@ -1,11 +1,13 @@
-import { act, render, screen, within } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { StrictMode, type ReactNode } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 
 import { ShipmentsToolbar } from '@/components/shipments/shipments-toolbar';
 import { useListParams } from '@/lib/shipments/list-params';
+import { useAuthStore } from '@/stores/auth';
 
+import { DISPATCHER, USER } from '../../helpers/fixtures';
 import { navigate, routerMock } from '../../helpers/router';
 
 function Harness(): ReactNode {
@@ -13,8 +15,8 @@ function Harness(): ReactNode {
 }
 
 const search = () => screen.getByLabelText<HTMLInputElement>('Search');
-const status = () => screen.getByLabelText<HTMLSelectElement>('Status');
-const sort = () => screen.getByLabelText<HTMLSelectElement>('Sort');
+const status = () => screen.getByRole('combobox', { name: 'Status' });
+const sortButton = (name: string) => screen.getByRole('button', { name });
 const wait = (ms: number) => act(() => new Promise<void>((resolve) => setTimeout(resolve, ms)));
 
 /** Neither `replace` nor `push` was called, after the debounce had every chance to fire. */
@@ -25,19 +27,16 @@ async function expectNoNavigation(): Promise<void> {
 }
 
 describe('ShipmentsToolbar', () => {
-  it('renders an empty search box and every status on /shipments', () => {
+  it('renders an empty search box and every status on /shipments', async () => {
     navigate('/shipments');
     render(<Harness />);
 
     expect(search()).toHaveValue('');
     expect(search()).toHaveAttribute('type', 'search');
     expect(search()).toHaveAttribute('maxlength', '100');
-    expect(status()).toHaveValue('');
-    expect(
-      within(status())
-        .getAllByRole('option')
-        .map((option) => option.textContent),
-    ).toEqual([
+    expect(status()).toHaveTextContent(/^All statuses$/);
+    await userEvent.setup().click(status());
+    expect(screen.getAllByRole('option').map((option) => option.textContent)).toEqual([
       'All statuses',
       'Created',
       'Picked up',
@@ -53,16 +52,44 @@ describe('ShipmentsToolbar', () => {
     navigate('/shipments?status=EXCEPTION&search=lviv');
     render(<Harness />);
 
-    expect(within(status()).getByRole<HTMLOptionElement>('option', { name: 'Exception' }).selected).toBe(true);
+    expect(status()).toHaveTextContent(/^Exception$/);
     expect(search()).toHaveValue('lviv');
     await expectNoNavigation();
+  });
+
+  it('shows All statuses and Newest first for bad URL values and does not navigate', async () => {
+    navigate('/shipments?status=nope&sort=price');
+    render(<Harness />);
+
+    expect(status()).toHaveTextContent(/^All statuses$/);
+    expect(sortButton('Sort: Newest first')).toBeInTheDocument();
+    expect(sortButton('Filters and sort')).toBeInTheDocument();
+    await expectNoNavigation();
+  });
+
+  it('uses the dispatcher placeholder', () => {
+    useAuthStore.setState({ status: 'authenticated', user: DISPATCHER });
+    navigate('/shipments');
+    render(<Harness />);
+
+    expect(search()).toHaveAttribute('placeholder', 'Tracking number, client, city or description');
+  });
+
+  it('uses the client placeholder', () => {
+    useAuthStore.setState({ status: 'authenticated', user: USER });
+    navigate('/shipments');
+    render(<Harness />);
+
+    expect(search()).toHaveAttribute('placeholder', 'Tracking number, city or description');
   });
 
   it('pushes the chosen status', async () => {
     navigate('/shipments');
     render(<Harness />);
+    const user = userEvent.setup();
 
-    await userEvent.setup().selectOptions(status(), 'EXCEPTION');
+    await user.click(status());
+    await user.click(screen.getByRole('option', { name: 'Exception' }));
 
     expect(routerMock.push).toHaveBeenCalledTimes(1);
     expect(routerMock.push).toHaveBeenCalledWith('/shipments?status=EXCEPTION');
@@ -72,8 +99,10 @@ describe('ShipmentsToolbar', () => {
   it('keeps the search and drops the page when the status changes', async () => {
     navigate('/shipments?status=EXCEPTION&search=kyiv&page=3');
     render(<Harness />);
+    const user = userEvent.setup();
 
-    await userEvent.setup().selectOptions(status(), 'DELIVERED');
+    await user.click(status());
+    await user.click(screen.getByRole('option', { name: 'Delivered' }));
 
     expect(routerMock.push).toHaveBeenCalledWith('/shipments?status=DELIVERED&search=kyiv');
   });
@@ -81,29 +110,35 @@ describe('ShipmentsToolbar', () => {
   it('clears the status on "All statuses"', async () => {
     navigate('/shipments?status=EXCEPTION&page=2');
     render(<Harness />);
+    const user = userEvent.setup();
 
-    await userEvent.setup().selectOptions(status(), '');
+    await user.click(status());
+    await user.click(screen.getByRole('option', { name: 'All statuses' }));
 
     expect(routerMock.push).toHaveBeenCalledWith('/shipments');
   });
 
-  it('renders a Sort select with every sort on /shipments', () => {
+  it('offers every sort in the Sort menu', async () => {
     navigate('/shipments');
     render(<Harness />);
 
-    expect(sort()).toHaveValue('newest');
-    expect(
-      within(sort())
-        .getAllByRole('option')
-        .map((option) => option.textContent),
-    ).toEqual(['Newest first', 'Oldest first', 'Recently updated', 'Least recently updated']);
+    await userEvent.setup().click(sortButton('Sort: Newest first'));
+
+    expect(screen.getAllByRole('menuitemradio').map((item) => item.textContent)).toEqual([
+      'Newest first',
+      'Oldest first',
+      'Recently updated',
+      'Least recently updated',
+    ]);
   });
 
   it('pushes the chosen sort, keeps the filter and drops the page', async () => {
     navigate('/shipments?status=EXCEPTION&page=3');
     render(<Harness />);
+    const user = userEvent.setup();
 
-    await userEvent.setup().selectOptions(sort(), 'Least recently updated');
+    await user.click(sortButton('Sort: Newest first'));
+    await user.click(screen.getByRole('menuitemradio', { name: 'Least recently updated' }));
 
     expect(routerMock.push).toHaveBeenCalledTimes(1);
     expect(routerMock.push).toHaveBeenCalledWith('/shipments?status=EXCEPTION&sort=stale');
@@ -112,8 +147,10 @@ describe('ShipmentsToolbar', () => {
   it('drops the sort from the URL on "Newest first"', async () => {
     navigate('/shipments?sort=stale');
     render(<Harness />);
+    const user = userEvent.setup();
 
-    await userEvent.setup().selectOptions(sort(), 'Newest first');
+    await user.click(sortButton('Sort: Least recently updated'));
+    await user.click(screen.getByRole('menuitemradio', { name: 'Newest first' }));
 
     expect(routerMock.push).toHaveBeenCalledWith('/shipments');
   });
@@ -204,7 +241,7 @@ describe('ShipmentsToolbar', () => {
     act(() => navigate('/shipments?search=lviv&status=EXCEPTION'));
 
     expect(search()).toHaveValue('lviv');
-    expect(within(status()).getByRole<HTMLOptionElement>('option', { name: 'Exception' }).selected).toBe(true);
+    expect(status()).toHaveTextContent(/^Exception$/);
     await expectNoNavigation();
   });
 
