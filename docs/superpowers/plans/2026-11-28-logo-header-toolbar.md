@@ -72,29 +72,42 @@ All commands run from `/Users/andrii/Desktop/HOME/shipment-tracker`. API tests a
 **Interfaces:**
 
 - Produces: `export function LogoMark({ className }: { className?: string }): ReactNode` — an inline `<svg>` with
-  `aria-hidden="true"` and `focusable="false"`, `viewBox="0 0 32 32"`, no text inside. Used by Task 19c.
+  `aria-hidden="true"` and `focusable="false"`, `viewBox="250 100 940 720"` (`LOGO_MARK_VIEW_BOX`, the reference
+  PNG's pixels cropped to the drawing, ≈ 4:3), no text inside; gradient/clip-path ids made unique per instance with
+  `useId()`. Also exported: `LOGO_MARK_VIEW_BOX` and `LogoMarkArt({ id })` (the drawing without hooks, for
+  `next/og`). Used by Task 19c.
 
-The mark, drawn from the reference (flat, no glow, no black background): an isometric orange box (light face
-`#fbbf24`→`#f59e0b` range, dark side `#ea580c` range, navy tape `#1e3a8a` range) with a brand-blue `#0070f3`
-location pin above it. The 32×32 favicon drops the motion lines and the route arc; the header/OG version may keep a
-thin route arc only if it stays legible at 32 px. Same drawing in `icon.svg` and `LogoMark` (fixed colours — it must
-read on both the light `bg-surface` and the dark one).
+**Owner decision 2026-11-28** (after the first previews): two drawings, not one.
 
-- [ ] **Step 1: Test** `logo-mark.test.tsx` → `it('is a decorative svg')`: renders `<LogoMark className="h-8 w-8" />`;
-      expects one `svg` with `aria-hidden="true"`, `focusable="false"`, `viewBox="0 0 32 32"`, class `h-8 w-8`, and
-      `textContent === ''`. Run `npm run test -w apps/web -- logo-mark` → FAIL (module not found).
-- [ ] **Step 2: Draw** `LogoMark` and the same paths in `apps/web/src/app/icon.svg`. Run the test → PASS.
-- [ ] **Step 3: OG image** — in `opengraph-image.tsx` put the mark (inline `<svg>`, ~160 px) to the left of the
-      "Shipment Tracker" title (keep `alt`, `size`, the tagline and the pills; change the tagline colour `#c7d2fe` to a
-      neutral light like `#cbd5e1`).
-- [ ] **Step 4: Previews for the owner** — render PNG previews into the scratchpad (not the repo): the favicon at
-      16, 32 and 64 px, and the mark at 32 px on the light and the dark header background, plus the OG image
+- **Favicon** (`src/app/icon.svg`) — a simplified flat 32×32 drawing, **approved as is**: isometric orange box
+  (light top `#fbbf24`, left `#f59e0b`, right `#ea580c`), navy tape `#1e3a8a`, two label dashes, a `#0070f3` pin
+  with a white hole above it; no motion lines, no route arc, transparent background.
+- **Header and OG mark** (`LogoMark`, `opengraph-image.tsx`) — a detailed redraw of `docs/brand/logo-reference.png`
+  with all its elements, colours sampled from the PNG: the isometric gradient box with soft rounded corners (light
+  top, orange left face with two darker label dashes, darker orange right face, navy tape over the top and down the
+  right face), the blue gradient pin with a see-through (transparent) hole like the reference, three rounded motion
+  lines on the left (blue fading to light at the left end), and the blue-grey route arc around the box with three
+  white-centred blue-ring stops. Transparent background, fixed colours that read on both the light `bg-surface` and
+  the dark one; no glow. In the header it is 40 px tall (`h-10 w-auto`, Task 19c).
+
+- [x] **Step 1: Test** `logo-mark.test.tsx` → `it('is a decorative svg')`: renders
+      `<LogoMark className="h-8 w-auto" />`; expects one `svg` with `aria-hidden="true"`, `focusable="false"`,
+      `viewBox="250 100 940 720"`, class `h-8 w-auto`, and `textContent === ''`; and
+      `it('gives every instance its own gradient ids, …')` — two instances have no duplicate `id`s and every
+      `url(#…)` resolves inside its own svg. Run `npm run test -w apps/web -- logo-mark` → FAIL (module not found).
+- [x] **Step 2: Draw** `LogoMark` (detailed) and the simplified favicon in `apps/web/src/app/icon.svg`. Run the test
+      → PASS.
+- [x] **Step 3: OG image** — in `opengraph-image.tsx` put the detailed mark (inline `<svg>` with explicit
+      width/height, ~300 px wide, drawn by `LogoMarkArt`) to the left of the "Shipment Tracker" title (keep `alt`,
+      `size`, the tagline and the pills; change the tagline colour `#c7d2fe` to a neutral light like `#cbd5e1`).
+- [x] **Step 4: Previews for the owner** — render PNG previews into the scratchpad (not the repo): the favicon at
+      16, 32 and 64 px, and the mark at 40 px tall on the light and the dark header background, plus the OG image
       (`npm run build -w apps/web && npm run start -w apps/web`, open `/opengraph-image` and `/icon.svg` in headless
       Playwright, screenshot them). Stop both servers; revert `apps/web/next-env.d.ts` if the build touched it.
-- [ ] **Step 5: Owner checkpoint (STOP).** Show the owner the previews next to `docs/brand/logo-reference.png` and
+- [x] **Step 5: Owner checkpoint (STOP).** Show the owner the previews next to `docs/brand/logo-reference.png` and
       wait for approval. Iterate on the drawing until approved. Do not start Task 19c before the owner says the logo is
-      approved.
-- [ ] **Step 6: Gate** — `npm run lint && npm run typecheck && npm run test -w apps/web` exit 0.
+      approved. (Approved 2026-11-28: favicon as is; detailed mark with a see-through pin hole; 40 px in the header.)
+- [x] **Step 6: Gate** — `npm run lint && npm run typecheck && npm run test -w apps/web` exit 0.
 - [ ] **Step 7: Commit (informational)** — files above + `docs/brand/logo-reference.png` + `docs/plan.md`;
       message `feat: add the Shipment Tracker logo mark, favicon and OG image`.
 
@@ -145,8 +158,9 @@ Tracker' })` has `href="/shipments"` and contains an `svg`; no visible text "Shi
   Run → FAIL.
 
 - [ ] **Step 4: Implement** `useLogout`, `AccountMenu`, and the new `AppHeader` layout:
-      `[Link(LogoMark h-8 w-8, aria-label "Shipment Tracker")] … [div.hidden.sm:flex: ThemeSwitcher, name (truncate,
-max-w-[12rem]), role badge, error, Log out] [div.sm:hidden: AccountMenu]`. Popover content: `align="end"`,
+      `[Link(LogoMark h-10 w-auto, aria-label "Shipment Tracker")] … [div.hidden.sm:flex: ThemeSwitcher, name
+(truncate, max-w-[12rem]), role badge, error, Log out] [div.sm:hidden: AccountMenu]` (the logo is 40 px tall, owner
+      2026-11-28). Popover content: `align="end"`,
       `sideOffset={8}`, `bg-surface border-line text-ink`, rounded-xl, shadow, `z-50`.
 - [ ] **Step 5: Theme switcher icons** → `DesktopIcon`, `SunIcon`, `MoonIcon` from `@radix-ui/react-icons`
       (labels, `aria-pressed` and behaviour unchanged; its tests still pass unchanged).

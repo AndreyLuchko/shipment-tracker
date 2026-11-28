@@ -1,5 +1,7 @@
 import { ImageResponse } from 'next/og';
 
+import { LOGO_MARK_VIEW_BOX, LogoMarkArt } from '@/components/ui/logo-mark';
+
 export const alt = 'Shipment Tracker — track every shipment, regardless of carrier';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
@@ -20,13 +22,21 @@ export default function OpengraphImage() {
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'center',
-        padding: '0 96px',
+        padding: '0 72px',
         background: '#0f172b',
       }}
     >
-      <div style={{ display: 'flex', fontSize: 80, fontWeight: 700, color: '#ffffff' }}>Shipment Tracker</div>
-      <div style={{ display: 'flex', marginTop: 16, fontSize: 36, color: '#c7d2fe' }}>
-        Track every shipment, regardless of carrier.
+      <div style={{ display: 'flex', alignItems: 'center' }}>
+        {/* next/og needs a sized svg and cannot run hooks, so the drawing comes from LogoMarkArt directly. */}
+        <svg width="300" height="230" viewBox={LOGO_MARK_VIEW_BOX}>
+          {LogoMarkArt({ id: 'og-logo' })}
+        </svg>
+        <div style={{ display: 'flex', flexDirection: 'column', marginLeft: 36 }}>
+          <div style={{ display: 'flex', fontSize: 80, fontWeight: 700, color: '#ffffff' }}>Shipment Tracker</div>
+          <div style={{ display: 'flex', marginTop: 16, fontSize: 36, color: '#cbd5e1' }}>
+            Track every shipment, regardless of carrier.
+          </div>
+        </div>
       </div>
       <div style={{ display: 'flex', marginTop: 56 }}>
         {PILLS.map((pill) => (
