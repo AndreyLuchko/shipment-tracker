@@ -303,34 +303,34 @@ still holds.
 The bug (owner's repro): type a search and wait for `?search=` → reload → clear the box with the browser's ✕ → the
 box empties but the URL and the results keep the old search. Without the reload, clearing works.
 
-- [ ] **Step 1: Reproduce in a real browser first** (`superpowers:systematic-debugging`) — production build + API,
+- [x] **Step 1: Reproduce in a real browser first** (`superpowers:systematic-debugging`) — production build + API,
       headless Playwright: go to `/shipments?search=kyiv` as Demo dispatcher (a fresh load = the reload), clear the box
       (`fill('')` and, separately, `press('Control+A')` + `press('Backspace')`), wait 1 s, record `page.url()`. Write
       down which variants keep `search=kyiv` and find the root cause in the box ↔ URL sync (`lastSynced`, the two
       effects, `useDebouncedValue`'s initial value, how the box is first rendered after a full load). Record the cause in
       the report before changing code.
-- [ ] **Step 2: Failing unit test(s) pinning that cause** — at minimum
+- [x] **Step 2: Failing unit test(s) pinning that cause** — at minimum
       `it('drops the search from the URL when the box is cleared after a reload')`: `navigate('/shipments?search=kyiv')`,
       render, clear the box, after the debounce `routerMock.replace` was called with `'/shipments'`. If the root cause
       only shows under a specific mount sequence (e.g. an empty first render, then the URL), the test reproduces that
       sequence. Run → FAIL.
-- [ ] **Step 3: Fix the root cause** in `shipments-toolbar.tsx`; keep every existing toolbar test green (StrictMode,
+- [x] **Step 3: Fix the root cause** in `shipments-toolbar.tsx`; keep every existing toolbar test green (StrictMode,
       outside URL changes, typing never undone). Run the toolbar tests → PASS.
-- [ ] **Step 4: Clear button tests**, then implement:
+- [x] **Step 4: Clear button tests**, then implement:
   - `it('shows Clear search only while the box has text')`;
   - `it('Clear search empties the box and replaces the URL at once')` — from `?search=kyiv&status=EXCEPTION&page=2`,
     click → box `''`, `replace('/shipments?status=EXCEPTION')` called before any debounce wait, focus on the box;
   - `it('Clear search works after a reload')` — the Step 2 scenario through the button.
     Run → PASS.
-- [ ] **Step 5: Re-check in the browser** — repeat Step 1 plus the ✕ button: every variant ends with no `search` in
+- [x] **Step 5: Re-check in the browser** — repeat Step 1 plus the ✕ button: every variant ends with no `search` in
       the URL and the full list.
-- [ ] **Step 6: Regenerate the README screenshots** — `npm run db:demo-reset -w apps/api -- --confirm localhost`,
+- [x] **Step 6: Regenerate the README screenshots** — `npm run db:demo-reset -w apps/api -- --confirm localhost`,
       API + production web, `npm run screenshots -w apps/web` → `8 passed`; fix the spec's waits if Radix changed what it
       waits for. Look at every image: logo in the header, one-row toolbar, no error/empty state, dark ones dark.
       Stop servers; revert `next-env.d.ts`.
-- [ ] **Step 7: Gate** — `npm run lint && npm run typecheck && npm run test && npm run build` exit 0;
+- [x] **Step 7: Gate** — `npm run lint && npm run typecheck && npm run test && npm run build` exit 0;
       `npm run e2e -w apps/web` 1 passed.
-- [ ] **Step 8: Commit (informational)** — `fix: clear the shipment search after a reload; add a clear button`
+- [x] **Step 8: Commit (informational)** — `fix: clear the shipment search after a reload; add a clear button`
       (screenshots included).
 
 **Done when:** every way of clearing the search, before or after a reload, clears the URL and the results, and the

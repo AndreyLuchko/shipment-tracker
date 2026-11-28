@@ -13,6 +13,15 @@ test('the demo dispatcher signs in, opens a shipment and signs out', async ({ pa
   const trackingNumber = (await link.textContent())?.trim() ?? '';
   expect(trackingNumber).toMatch(/^ST-\d{4}-\d{6}$/);
 
+  // A direct load with a query, then clearing the search, must drop it from the URL (task 19f).
+  await page.goto('/shipments?search=kyiv');
+  const search = page.getByLabel('Search', { exact: true });
+  await expect(search).toHaveValue('kyiv');
+  await expect(table).toBeVisible();
+  await search.fill('');
+  await expect(page).toHaveURL(/\/shipments$/);
+  await expect(link).toHaveText(trackingNumber);
+
   await link.click();
   await expect(page.getByRole('heading', { level: 1 })).toHaveText(trackingNumber);
   await expect(page.getByRole('region', { name: 'Shipment details' })).toBeVisible();

@@ -17,6 +17,7 @@ function Harness(): ReactNode {
 const search = () => screen.getByLabelText<HTMLInputElement>('Search');
 const status = () => screen.getByRole('combobox', { name: 'Status' });
 const sortButton = (name: string) => screen.getByRole('button', { name });
+const clearButton = () => screen.queryByRole('button', { name: 'Clear search' });
 const wait = (ms: number) => act(() => new Promise<void>((resolve) => setTimeout(resolve, ms)));
 
 /** Neither `replace` nor `push` was called, after the debounce had every chance to fire. */
@@ -201,6 +202,57 @@ describe('ShipmentsToolbar', () => {
     await userEvent.setup().clear(search());
 
     await vi.waitFor(() => expect(routerMock.replace).toHaveBeenCalledWith('/shipments?status=DELIVERED'));
+  });
+
+  it('drops the search from the URL when the box is cleared after a reload', async () => {
+    navigate('/shipments?search=kyiv');
+    render(<Harness />);
+
+    await userEvent.setup().clear(search());
+
+    expect(search()).toHaveValue('');
+    await vi.waitFor(() => expect(routerMock.replace).toHaveBeenCalledWith('/shipments'));
+    expect(routerMock.replace).toHaveBeenCalledTimes(1);
+  });
+
+  it('shows Clear search only while the box has text', async () => {
+    navigate('/shipments');
+    render(<Harness />);
+    const user = userEvent.setup();
+
+    expect(clearButton()).not.toBeInTheDocument();
+    await user.type(search(), 'k');
+    expect(clearButton()).toBeInTheDocument();
+    await user.clear(search());
+    expect(clearButton()).not.toBeInTheDocument();
+  });
+
+  it('Clear search empties the box and replaces the URL at once', async () => {
+    navigate('/shipments?search=kyiv&status=EXCEPTION&page=2');
+    render(<Harness />);
+
+    await userEvent.setup().click(screen.getByRole('button', { name: 'Clear search' }));
+
+    expect(search()).toHaveValue('');
+    expect(routerMock.replace).toHaveBeenCalledTimes(1);
+    expect(routerMock.replace).toHaveBeenCalledWith('/shipments?status=EXCEPTION');
+    expect(search()).toHaveFocus();
+    expect(clearButton()).not.toBeInTheDocument();
+    await wait(400);
+    expect(routerMock.replace).toHaveBeenCalledTimes(1);
+    expect(routerMock.push).not.toHaveBeenCalled();
+  });
+
+  it('Clear search works after a reload', async () => {
+    navigate('/shipments?search=kyiv');
+    render(<Harness />);
+
+    await userEvent.setup().click(screen.getByRole('button', { name: 'Clear search' }));
+
+    expect(search()).toHaveValue('');
+    expect(routerMock.replace).toHaveBeenCalledWith('/shipments');
+    await wait(400);
+    expect(routerMock.replace).toHaveBeenCalledTimes(1);
   });
 
   it('does not navigate for whitespace', async () => {

@@ -116,7 +116,7 @@ Detailed per-milestone plans live in `docs/superpowers/plans/`.
     - [x] Task 19c — Radix (`radix-ui`, `@radix-ui/react-icons`), header with the logo, account menu on phones
     - [x] Task 19d — search by client name (API)
     - [x] Task 19e — Radix toolbar: Status select, Sort menu, "Filters and sort" popover on phones
-    - [ ] Task 19f — search clear button, the search-after-reload bug, fresh README screenshots
+    - [x] Task 19f — search clear button, the search-after-reload bug, fresh README screenshots
   - [ ] Task 20 — README II: the full README
   - [ ] Task 21 — M7 wrap-up, live smoke test, sign-off
 - [ ] M8 — admin role: an admin creates (invites) and deactivates dispatchers; decide whether a dispatcher is
